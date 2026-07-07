@@ -9,24 +9,25 @@ import type {
 } from "./types";
 import { apiFetch } from "./api";
 
+// Admin-editable data is fetched fresh so changes in the admin panel appear immediately.
 export function getSettings() {
-  return apiData<SiteSettings>("/settings", { tags: ["settings"], revalidate: 300 });
+  return apiData<SiteSettings>("/settings", { cache: "no-store" });
 }
 
 export function getPages() {
-  return apiData<Record<string, PageContent>>("/pages", { tags: ["content"], revalidate: 300 });
+  return apiData<Record<string, PageContent>>("/pages", { cache: "no-store" });
 }
 
 export function getPage(key: string) {
-  return apiData<PageContent>(`/pages/${key}`, { tags: ["content"], revalidate: 300 });
+  return apiData<PageContent>(`/pages/${key}`, { cache: "no-store" });
 }
 
 export function getGallery() {
-  return apiData<GalleryImage[]>("/gallery", { tags: ["gallery"], revalidate: 120 });
+  return apiData<GalleryImage[]>("/gallery", { cache: "no-store" });
 }
 
 export function getFacets() {
-  return apiData<Facets>("/businessmen/facets", { tags: ["members"], revalidate: 120 });
+  return apiData<Facets>("/businessmen/facets", { cache: "no-store" });
 }
 
 export function getProfile(sixDigits: string) {

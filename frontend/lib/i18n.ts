@@ -13,14 +13,11 @@ export function getDictionary(lang: Lang): Dict {
 }
 
 /** Pick the localized value of a bilingual field pair, falling back to Bangla. */
-export function localize(
-  obj: Record<string, unknown> | null | undefined,
-  base: string,
-  lang: Lang,
-): string {
-  if (!obj) return "";
-  const value = lang === "en" ? obj[`${base}_en`] : obj[`${base}_bn`];
-  return (value as string) || (obj[`${base}_bn`] as string) || "";
+export function localize(obj: unknown, base: string, lang: Lang): string {
+  if (!obj || typeof obj !== "object") return "";
+  const rec = obj as Record<string, unknown>;
+  const value = lang === "en" ? rec[`${base}_en`] : rec[`${base}_bn`];
+  return (value as string) || (rec[`${base}_bn`] as string) || "";
 }
 
 /** Dot-path lookup in a dictionary with {var} interpolation. */

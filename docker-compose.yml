@@ -1,0 +1,24 @@
+name: nangalkot-bazar
+
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: nba_postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: nba
+      POSTGRES_PASSWORD: nba_password
+      POSTGRES_DB: nangalkot_bazar
+    ports:
+      # Host 5435 -> container 5432 (5432/5433/5434 are used by other local stacks)
+      - "5435:5432"
+    volumes:
+      - nba_pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U nba -d nangalkot_bazar"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  nba_pgdata:

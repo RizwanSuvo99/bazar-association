@@ -1,0 +1,27 @@
+{
+  "name": "nangalkot-bazar-association",
+  "version": "1.0.0",
+  "private": true,
+  "description": "নাঙ্গলকোট বাজার ব্যবসায়ী সংস্থা — public businessmen directory + admin CMS (Next.js + Express + PostgreSQL)",
+  "scripts": {
+    "setup": "npm install && npm --prefix backend install && npm --prefix frontend install",
+    "db:up": "docker compose up -d --wait db",
+    "db:down": "docker compose down",
+    "db:reset": "docker compose down -v && docker compose up -d --wait db",
+    "db:migrate": "npm --prefix backend run migrate",
+    "db:seed": "npm --prefix backend run seed",
+    "db:psql": "docker compose exec db psql -U nba -d nangalkot_bazar",
+    "bootstrap": "npm run db:up && npm run db:migrate && npm run db:seed",
+    "dev:backend": "npm --prefix backend run dev",
+    "dev:frontend": "npm --prefix frontend run dev",
+    "dev": "concurrently -n api,web -c blue,magenta \"npm:dev:backend\" \"npm:dev:frontend\"",
+    "build:frontend": "npm --prefix frontend run build",
+    "start:backend": "npm --prefix backend start"
+  },
+  "devDependencies": {
+    "concurrently": "^9.1.2"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}

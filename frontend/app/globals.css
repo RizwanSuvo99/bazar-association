@@ -1,0 +1,154 @@
+@import "tailwindcss";
+
+/* Class-based dark mode (we toggle a `.dark` class on <html>). */
+@custom-variant dark (&:where(.dark, .dark *));
+
+:root {
+  /* Neutrals — warm paper tone shared across all named themes (light). */
+  --background: #faf8f4;
+  --foreground: #1c1917;
+  --card: #ffffff;
+  --card-foreground: #1c1917;
+  --muted: #f2efe9;
+  --muted-foreground: #6b6560;
+  --border: #e7e2d9;
+  --input: #e7e2d9;
+  --radius: 0.85rem;
+
+  /* Brand tokens — default theme: Emerald. */
+  --primary: #059669;
+  --primary-foreground: #ffffff;
+  --accent: #f59e0b;
+  --accent-foreground: #1c1917;
+  --ring: #059669;
+  --destructive: #dc2626;
+  --success: #16a34a;
+}
+
+.dark {
+  /* Warm-tinted dark neutrals (stone/khaki, not pure gray). */
+  --background: #17140f;
+  --foreground: #f5f1ea;
+  --card: #211c15;
+  --card-foreground: #f5f1ea;
+  --muted: #2a241b;
+  --muted-foreground: #a9a196;
+  --border: #332c22;
+  --input: #362f24;
+  --primary: #10b981;
+  --primary-foreground: #062a1c;
+  --ring: #10b981;
+}
+
+/* ---- Named color themes: override brand tokens only ---- */
+[data-theme="royal-blue"] {
+  --primary: #2563eb;
+  --primary-foreground: #ffffff;
+  --accent: #38bdf8;
+  --ring: #2563eb;
+}
+.dark[data-theme="royal-blue"] {
+  --primary: #3b82f6;
+  --primary-foreground: #06122b;
+  --ring: #3b82f6;
+}
+
+[data-theme="warm-amber"] {
+  --primary: #d97706;
+  --primary-foreground: #ffffff;
+  --accent: #f59e0b;
+  --ring: #d97706;
+}
+.dark[data-theme="warm-amber"] {
+  --primary: #f59e0b;
+  --primary-foreground: #241803;
+  --ring: #f59e0b;
+}
+
+[data-theme="crimson"] {
+  --primary: #e11d48;
+  --primary-foreground: #ffffff;
+  --accent: #fb7185;
+  --ring: #e11d48;
+}
+.dark[data-theme="crimson"] {
+  --primary: #fb7185;
+  --primary-foreground: #2a0710;
+  --ring: #fb7185;
+}
+
+/* ---- Expose runtime variables as Tailwind color/utility tokens ---- */
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-success: var(--success);
+
+  --radius-lg: var(--radius);
+  --radius-md: calc(var(--radius) - 0.25rem);
+
+  --font-sans: var(--font-hind), ui-sans-serif, system-ui, sans-serif;
+  --font-display: var(--font-anek), var(--font-hind), sans-serif;
+}
+
+@layer base {
+  * {
+    border-color: var(--border);
+  }
+  body {
+    background-color: var(--background);
+    color: var(--foreground);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+  }
+  h1, h2, h3, h4, .font-display {
+    font-family: var(--font-display);
+  }
+}
+
+/* Subtle bazar "awning" stripe used behind heroes and headers. */
+.bazar-awning {
+  background-image: repeating-linear-gradient(
+    45deg,
+    color-mix(in srgb, var(--accent) 12%, transparent) 0,
+    color-mix(in srgb, var(--accent) 12%, transparent) 14px,
+    transparent 14px,
+    transparent 28px
+  );
+}
+
+.bg-primary-soft {
+  background-color: color-mix(in srgb, var(--primary) 12%, transparent);
+}
+
+/* Nicer scrollbars in the admin tables. */
+.thin-scroll::-webkit-scrollbar { height: 8px; width: 8px; }
+.thin-scroll::-webkit-scrollbar-thumb { background: var(--border); border-radius: 999px; }
+
+/* Markdown content styling (About / Rules / Contact bodies). */
+.nba-prose { color: var(--foreground); line-height: 1.75; }
+.nba-prose h2 {
+  font-family: var(--font-display);
+  font-size: 1.35rem;
+  font-weight: 700;
+  margin: 1.75rem 0 0.75rem;
+}
+.nba-prose h3 { font-weight: 600; font-size: 1.1rem; margin: 1.25rem 0 0.5rem; }
+.nba-prose p { margin: 0.75rem 0; color: var(--muted-foreground); }
+.nba-prose ul { list-style: disc; padding-left: 1.4rem; margin: 0.75rem 0; }
+.nba-prose ol { list-style: decimal; padding-left: 1.4rem; margin: 0.75rem 0; }
+.nba-prose li { margin: 0.35rem 0; color: var(--muted-foreground); }
+.nba-prose strong { color: var(--foreground); font-weight: 600; }
+.nba-prose a { color: var(--primary); text-decoration: underline; }
+.nba-prose > :first-child { margin-top: 0; }

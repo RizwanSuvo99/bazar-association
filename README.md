@@ -21,7 +21,8 @@ admin-managed CMS.
 **Admin panel** (`/admin`)
 - Secure login (JWT in an httpOnly cookie, bcrypt-hashed passwords)
 - Businessmen CRUD (auto-generates the `NBA-######` id from the NID)
-- **Download a member's info as a filled registration-form PDF** (matches the association's printed form)
+- **Download a member's info as a filled registration-form PDF** — overlays the data (in Noto Serif
+  Bengali) onto the association's official form image, preserving its font, watermark, and signatures
 - Registration request queue with **approve** (creates a member) / **reject** (kept for audit)
 - Bilingual page-content editor (About / Rules / Contact / Home hero)
 - Gallery manager (upload, caption, reorder, delete)
@@ -51,6 +52,9 @@ admin-managed CMS.
 - **Docker** + Docker Compose v2 — PostgreSQL runs in a container, so a native `psql`/Postgres install
   is **not** required
 - git
+- **Python 3 with Pillow** (built with `raqm`) — only for the admin "registration-form PDF" export,
+  which renders the filled Bangla form server-side. Preinstalled on most Linux/macOS. (Check with
+  `python3 -c "from PIL import features; print(features.check('raqm'))"` → should print `True`.)
 
 ## Getting started
 

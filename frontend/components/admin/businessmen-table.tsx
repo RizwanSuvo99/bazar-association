@@ -36,9 +36,9 @@ function RowActions({ b, onDeleted }: { b: Businessman; onDeleted: () => void })
         </>
       ) : (
         <>
-          <Link href={`/admin/print/businessman/${b.id}`} target="_blank" className="rounded-md border border-border p-1.5 hover:bg-muted" aria-label="download form" title="রেজিস্ট্রেশন ফরম (PDF)">
+          <a href={`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/admin/businessmen/${b.id}/form.pdf`} className="rounded-md border border-border p-1.5 hover:bg-muted" aria-label="download form" title="রেজিস্ট্রেশন ফরম (PDF)">
             <FileDown className="h-4 w-4" />
-          </Link>
+          </a>
           <Link href={`/admin/businessmen/${b.id}/edit`} className="rounded-md border border-border p-1.5 hover:bg-muted" aria-label="edit">
             <Pencil className="h-4 w-4" />
           </Link>

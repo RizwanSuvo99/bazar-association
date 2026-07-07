@@ -27,11 +27,11 @@ export default async function EditBusinessmanPage({ params }: { params: Promise<
         <h1 className="font-display text-2xl font-bold text-foreground">
           {dict.admin.edit}: {b.full_name} <span className="text-base font-normal text-muted-foreground">{b.unique_id}</span>
         </h1>
-        <Link href={`/admin/print/businessman/${b.id}`} target="_blank">
-          <Button variant="outline" size="sm">
+        <a href={`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/admin/businessmen/${b.id}/form.pdf`}>
+          <Button variant="outline" size="sm" type="button">
             <FileDown className="h-4 w-4" /> রেজিস্ট্রেশন ফরম (PDF)
           </Button>
-        </Link>
+        </a>
       </div>
       <BusinessmanForm initial={b} />
     </div>

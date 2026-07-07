@@ -6,6 +6,7 @@ import type {
   DashboardStats,
   GalleryImage,
   ListMeta,
+  Notice,
   RegistrationRequest,
 } from "./types";
 
@@ -40,5 +41,7 @@ export const getAdminRequest = (id: string) =>
   apiData<RegistrationRequest>(`/admin/registration-requests/${id}`, noStore);
 
 export const getAdminGallery = () => apiData<GalleryImage[]>("/admin/gallery", noStore);
+
+export const getAdminNotices = () => apiData<Notice[]>("/admin/notices", noStore);
 
 export const getAdminMessages = () => apiData<ContactMessage[]>("/admin/contact-messages", noStore);

@@ -4,6 +4,7 @@ import type {
   Facets,
   GalleryImage,
   ListMeta,
+  Notice,
   PageContent,
   SiteSettings,
 } from "./types";
@@ -24,6 +25,10 @@ export function getPage(key: string) {
 
 export function getGallery() {
   return apiData<GalleryImage[]>("/gallery", { cache: "no-store" });
+}
+
+export function getNotices() {
+  return apiData<Notice[]>("/notices", { cache: "no-store" });
 }
 
 export function getFacets() {

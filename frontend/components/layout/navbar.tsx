@@ -14,6 +14,7 @@ const LINKS = [
   { href: "/about", key: "nav.about" },
   { href: "/gallery", key: "nav.gallery" },
   { href: "/rules", key: "nav.rules" },
+  { href: "/notices", key: "nav.notices" },
   { href: "/contact", key: "nav.contact" },
 ];
 

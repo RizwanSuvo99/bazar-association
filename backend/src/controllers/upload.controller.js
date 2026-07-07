@@ -37,3 +37,20 @@ export const uploadAdminImage = asyncHandler((req, res) => {
   const folder = ALLOWED_FOLDERS.has(req.query.folder) ? req.query.folder : 'misc';
   return handleUpload(req, res, folder);
 });
+
+// PDF upload for notices -> stored on local disk and served via /uploads/notices/*.
+// Cloudinary is intentionally NOT used for PDFs: most Cloudinary accounts block PDF *delivery*
+// by default (a security setting), which would make public view/download fail. Local storage
+// always works. (To use Cloudinary instead, enable "Allow delivery of PDF and ZIP files" in the
+// Cloudinary console and switch this handler to uploadBufferToCloudinary(..., 'auto').)
+export const uploadNoticePdf = asyncHandler(async (req, res) => {
+  if (!req.file) throw ApiError.badRequest('কোনো ফাইল পাওয়া যায়নি।', 'NO_FILE');
+  const originalName = req.file.originalname || 'notice.pdf';
+
+  const dir = path.join(UPLOADS_DIR, 'notices');
+  fs.mkdirSync(dir, { recursive: true });
+  const filename = `${crypto.randomUUID()}.pdf`;
+  fs.writeFileSync(path.join(dir, filename), req.file.buffer);
+  const url = `${req.protocol}://${req.get('host')}/uploads/notices/${filename}`;
+  return ok(res, { url, public_id: null, resource_type: 'raw', file_name: originalName, storage: 'local' });
+});

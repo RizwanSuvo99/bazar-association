@@ -13,6 +13,7 @@ import * as pages from '../controllers/pageContent.controller.js';
 import * as settings from '../controllers/settings.controller.js';
 import * as contact from '../controllers/contact.controller.js';
 import * as upload from '../controllers/upload.controller.js';
+import * as notice from '../controllers/notice.controller.js';
 
 const router = Router();
 
@@ -21,6 +22,7 @@ router.get('/settings', settings.getPublic);
 router.get('/pages', pages.listAll);
 router.get('/pages/:pageKey', validate(pageParamSchema, 'params'), pages.getOne);
 router.get('/gallery', gallery.publicList);
+router.get('/notices', notice.publicList);
 
 // Businessmen directory
 router.get('/businessmen/facets', businessmen.facets);

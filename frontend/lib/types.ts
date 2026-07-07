@@ -86,6 +86,18 @@ export interface HeroImage {
   public_id?: string | null;
 }
 
+export interface Notice {
+  id: number;
+  title_bn: string;
+  title_en?: string | null;
+  file_url: string;
+  file_public_id?: string | null;
+  file_resource_type: string;
+  file_name?: string | null;
+  is_published: boolean;
+  created_at: string;
+}
+
 export interface ContactMessage {
   id: number;
   name: string;

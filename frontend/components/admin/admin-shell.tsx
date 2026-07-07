@@ -9,6 +9,7 @@ import {
   Inbox,
   FileText,
   Image as ImageIcon,
+  Megaphone,
   MessageSquare,
   Settings,
   LogOut,
@@ -28,6 +29,7 @@ const NAV = [
   { href: "/admin/requests", key: "admin.requests", icon: Inbox, badge: true },
   { href: "/admin/content", key: "admin.content", icon: FileText },
   { href: "/admin/gallery", key: "admin.gallery", icon: ImageIcon },
+  { href: "/admin/notices", key: "admin.notices", icon: Megaphone },
   { href: "/admin/messages", key: "admin.messages", icon: MessageSquare },
   { href: "/admin/settings", key: "admin.settings", icon: Settings },
 ];

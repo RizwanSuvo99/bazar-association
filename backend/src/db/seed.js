@@ -9,6 +9,7 @@ import {
   pageContent,
   siteSettings,
   contactMessages,
+  notices,
 } from './seeds/data.js';
 
 /** Build a parameterized INSERT for a row object with the given columns. */
@@ -50,7 +51,7 @@ async function run() {
 
   await withTransaction(async (client) => {
     await client.query(
-      `TRUNCATE contact_messages, gallery_images, page_content, registration_requests,
+      `TRUNCATE notices, contact_messages, gallery_images, page_content, registration_requests,
                businessmen, site_settings, admins
        RESTART IDENTITY CASCADE;`,
     );
@@ -117,6 +118,11 @@ async function run() {
     // Contact messages
     for (const m of contactMessages) {
       await insertRow(client, 'contact_messages', ['name', 'email', 'phone', 'subject', 'message', 'is_read'], m);
+    }
+
+    // Notices
+    for (const nt of notices) {
+      await insertRow(client, 'notices', ['title_bn', 'title_en', 'file_url', 'file_name', 'file_resource_type'], nt);
     }
   });
 

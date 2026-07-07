@@ -5,9 +5,18 @@
     "about": "About",
     "gallery": "Gallery",
     "rules": "Rules",
+    "notices": "Notices",
     "contact": "Contact",
     "register": "Join Us",
     "admin": "Admin"
+  },
+  "notices": {
+    "title": "Notice Board",
+    "subtitle": "All announcements and notices of the association are available here.",
+    "empty": "There are no notices at the moment",
+    "view": "View",
+    "download": "Download",
+    "publishedOn": "Published"
   },
   "common": {
     "search": "Search",
@@ -147,6 +156,7 @@
     "requests": "Registration Requests",
     "content": "Page Content",
     "gallery": "Gallery",
+    "notices": "Notices",
     "settings": "Settings",
     "messages": "Messages",
     "addMember": "Add Member",

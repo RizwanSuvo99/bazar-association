@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import { requireAdmin } from '../middleware/auth.js';
 import { validate } from '../middleware/validate.js';
-import { uploadImage } from '../middleware/upload.js';
+import { uploadImage, uploadPdf } from '../middleware/upload.js';
 import {
   businessmanCreateSchema,
   businessmanUpdateSchema,
@@ -19,6 +19,8 @@ import * as settings from '../controllers/settings.controller.js';
 import * as contact from '../controllers/contact.controller.js';
 import * as stats from '../controllers/stats.controller.js';
 import * as upload from '../controllers/upload.controller.js';
+import * as notice from '../controllers/notice.controller.js';
+import { noticeCreateSchema, noticeUpdateSchema } from '../validators/notice.schema.js';
 
 const router = Router();
 
@@ -58,7 +60,14 @@ router.put('/settings', validate(settingsUpdateSchema), settings.update);
 router.get('/contact-messages', contact.list);
 router.patch('/contact-messages/:id', contact.markRead);
 
-// Image upload (gallery / profile photos / logo) -> Cloudinary or local fallback
+// Notices (PDF files)
+router.get('/notices', notice.adminList);
+router.post('/notices', validate(noticeCreateSchema), notice.create);
+router.patch('/notices/:id', validate(noticeUpdateSchema), notice.update);
+router.delete('/notices/:id', notice.remove);
+
+// Uploads -> Cloudinary or local fallback
 router.post('/uploads/image', uploadImage, upload.uploadAdminImage);
+router.post('/uploads/pdf', uploadPdf, upload.uploadNoticePdf);
 
 export default router;

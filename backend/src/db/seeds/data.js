@@ -254,6 +254,31 @@ export const siteSettings = {
   facebook_url: 'https://facebook.com/nangalkotbazar',
 };
 
+// Demo notices point to sample PDFs committed under frontend/public/sample-notices/
+// (served by Next at http://localhost:3000/...). Admin-uploaded notices are stored on the
+// backend and served from http://localhost:4000/uploads/notices/.
+const SITE_URL = 'http://localhost:3000';
+export const notices = [
+  {
+    title_bn: 'বার্ষিক সাধারণ সভা (AGM) বিজ্ঞপ্তি',
+    title_en: 'Annual General Meeting (AGM) Notice',
+    file_url: `${SITE_URL}/sample-notices/notice-1.pdf`,
+    file_name: 'agm-notice.pdf', file_resource_type: 'raw',
+  },
+  {
+    title_bn: 'ঈদের ছুটি ও বাজার সময়সূচি',
+    title_en: 'Eid Holiday & Market Schedule',
+    file_url: `${SITE_URL}/sample-notices/notice-2.pdf`,
+    file_name: 'eid-holiday.pdf', file_resource_type: 'raw',
+  },
+  {
+    title_bn: 'সদস্য চাঁদা ও রেজিস্ট্রেশন হালনাগাদ',
+    title_en: 'Membership Fee & Registration Update',
+    file_url: `${SITE_URL}/sample-notices/notice-3.pdf`,
+    file_name: 'membership-fee.pdf', file_resource_type: 'raw',
+  },
+];
+
 export const contactMessages = [
   {
     name: 'সাইফুল ইসলাম', email: 'saiful@example.com', phone: '01700000001',

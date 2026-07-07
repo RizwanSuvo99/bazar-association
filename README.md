@@ -13,6 +13,7 @@ admin-managed CMS.
 - Businessman profile pages at `/profiles/{last-6-digits-of-NID}` (e.g. `/profiles/235192`)
   — sensitive IDs (NID/TIN) are **masked** for privacy
 - About, নিয়মকানুন (Rules), Gallery (with lightbox) and Contact pages (all admin-editable)
+- **Notice board** — anyone can view or download the notice PDFs uploaded by the admin
 - Public registration request form — **500 Taka fee** with a configurable bKash number, a **required
   photo upload**, and a required bKash **Transaction ID**; submissions wait in a pending queue
 - **বাংলা / English** toggle (Bangla default) and **light / dark** mode toggle on every page
@@ -23,6 +24,8 @@ admin-managed CMS.
 - Registration request queue with **approve** (creates a member) / **reject** (kept for audit)
 - Bilingual page-content editor (About / Rules / Contact / Home hero)
 - Gallery manager (upload, caption, reorder, delete)
+- Notice manager — **upload notice PDFs**, publish/hide, delete (files stored on the server so public
+  view/download always works; Cloudinary blocks PDF delivery by default)
 - Site settings: **hero carousel images** (multi-upload/reorder), **color theme** switcher
   (Emerald / Royal Blue / Warm Amber / Crimson), bKash number, registration fee, and org/contact info
 - Contact-message inbox

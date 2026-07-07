@@ -51,30 +51,33 @@ def main():
 
     g = lambda k: data.get(k) or ""
     six = g("six_digit_id")
+    # Baselines follow the form's dotted lines: row r sits at 645 + 35*(r-1).
+    def row(r):
+        return 645 + 35 * (r - 1)
     fields = [
-        (230, 588, bn("NBA-" + str(six))),
-        (235, 660, bn(g("full_name"))),
-        (880, 660, bn(g("mobile_number"))),
-        (230, 694, bn(g("father_name"))),
-        (770, 694, bn(g("mother_name"))),
-        (335, 726, bn(g("village"))),
-        (635, 726, bn(g("post_office"))),
-        (975, 726, bn(g("municipality_or_union"))),
-        (215, 760, bn(g("upazila"))),
-        (665, 760, bn(g("district"))),
-        (490, 794, bn(g("current_business_name_address"))),
-        (245, 828, bn(g("business_type"))),
-        (650, 828, bn(g("trade_license_no"))),
-        (925, 828, bn(g("tin_no"))),
-        (245, 862, bn(g("market_name"))),
-        (780, 862, bn(g("owner_name"))),
-        (310, 896, bn(g("ward_no"))),
-        (690, 896, bn(g("holding_no"))),
-        (340, 930, bn(g("nid_no"))),
-        (905, 930, bn(g("blood_group"))),
-        (255, 964, bn(g("nominee_name"))),
-        (770, 964, bn(g("nominee_relation"))),
-        (310, 998, bn(g("nominee_mobile"))),
+        (230, 573, bn("NBA-" + str(six))),
+        (235, row(1), bn(g("full_name"))),
+        (880, row(1), bn(g("mobile_number"))),
+        (230, row(2), bn(g("father_name"))),
+        (770, row(2), bn(g("mother_name"))),
+        (335, row(3), bn(g("village"))),
+        (635, row(3), bn(g("post_office"))),
+        (975, row(3), bn(g("municipality_or_union"))),
+        (215, row(4), bn(g("upazila"))),
+        (665, row(4), bn(g("district"))),
+        (490, row(5), bn(g("current_business_name_address"))),
+        (245, row(6), bn(g("business_type"))),
+        (650, row(6), bn(g("trade_license_no"))),
+        (925, row(6), bn(g("tin_no"))),
+        (245, row(7), bn(g("market_name"))),
+        (780, row(7), bn(g("owner_name"))),
+        (310, row(8), bn(g("ward_no"))),
+        (690, row(8), bn(g("holding_no"))),
+        (340, row(9), bn(g("nid_no"))),
+        (905, row(9), bn(g("blood_group"))),
+        (255, row(10), bn(g("nominee_name"))),
+        (770, row(10), bn(g("nominee_relation"))),
+        (310, row(11), bn(g("nominee_mobile"))),
     ]
     for x, y, text in fields:
         if text:

@@ -66,13 +66,14 @@ async function run() {
     await client.query(
       `INSERT INTO site_settings
         (id, org_name_bn, org_name_en, bkash_number, registration_fee, active_theme, logo_url,
-         contact_email, contact_phone, contact_address_bn, contact_address_en, facebook_url)
-       VALUES (1, $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)`,
+         contact_email, contact_phone, contact_address_bn, contact_address_en, facebook_url, hero_images)
+       VALUES (1, $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)`,
       [
         siteSettings.org_name_bn, siteSettings.org_name_en, siteSettings.bkash_number,
         siteSettings.registration_fee, siteSettings.active_theme, siteSettings.logo_url,
         siteSettings.contact_email, siteSettings.contact_phone, siteSettings.contact_address_bn,
         siteSettings.contact_address_en, siteSettings.facebook_url,
+        JSON.stringify(siteSettings.hero_images ?? []),
       ],
     );
 

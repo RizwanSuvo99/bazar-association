@@ -29,4 +29,13 @@ export const settingsUpdateSchema = z.object({
   contact_address_bn: optionalStr,
   contact_address_en: optionalStr,
   facebook_url: optionalUrl,
+  hero_images: z
+    .array(
+      z.object({
+        url: z.string().url('সঠিক ছবির লিংক দিন।').max(1000),
+        public_id: z.string().max(300).nullable().optional(),
+      }),
+    )
+    .max(12, 'সর্বোচ্চ ১২টি ছবি যোগ করা যাবে।')
+    .optional(),
 });

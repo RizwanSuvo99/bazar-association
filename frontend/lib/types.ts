@@ -78,6 +78,12 @@ export interface SiteSettings {
   contact_address_bn?: string | null;
   contact_address_en?: string | null;
   facebook_url?: string | null;
+  hero_images?: HeroImage[];
+}
+
+export interface HeroImage {
+  url: string;
+  public_id?: string | null;
 }
 
 export interface ContactMessage {

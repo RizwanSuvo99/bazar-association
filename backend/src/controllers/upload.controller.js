@@ -11,7 +11,7 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const UPLOADS_DIR = path.join(__dirname, '../../uploads');
 
 const EXT = { 'image/jpeg': '.jpg', 'image/jpg': '.jpg', 'image/png': '.png', 'image/webp': '.webp' };
-const ALLOWED_FOLDERS = new Set(['profiles', 'gallery', 'misc']);
+const ALLOWED_FOLDERS = new Set(['profiles', 'gallery', 'hero', 'misc']);
 
 async function handleUpload(req, res, folder) {
   if (!req.file) throw ApiError.badRequest('কোনো ছবি পাওয়া যায়নি।', 'NO_FILE');

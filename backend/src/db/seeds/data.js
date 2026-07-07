@@ -241,6 +241,13 @@ export const siteSettings = {
   registration_fee: 500,
   active_theme: 'emerald',
   logo_url: null,
+  hero_images: [
+    // The association's own photo (uploaded to Cloudinary).
+    { url: 'https://res.cloudinary.com/ldbnzjyk/image/upload/v1783423773/nangalkot-bazar/misc/pfaeb76vh65v5nph3xzj.jpg', public_id: 'nangalkot-bazar/misc/pfaeb76vh65v5nph3xzj' },
+    // Placeholder market photos — the admin can remove/replace these to build the carousel.
+    { url: 'https://picsum.photos/seed/nba-bazar-street/1600/720', public_id: null },
+    { url: 'https://picsum.photos/seed/nba-bazar-shops/1600/720', public_id: null },
+  ],
   contact_email: 'info@nangalkotbazar.org',
   contact_phone: '01812345678',
   contact_address_bn: 'সংস্থা কার্যালয়, নাঙ্গলকোট বাজার, নাঙ্গলকোট, কুমিল্লা',

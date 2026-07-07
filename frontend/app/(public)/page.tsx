@@ -1,10 +1,10 @@
 import Link from "next/link";
 import { Container } from "@/components/layout/container";
-import { Hero } from "@/components/public/hero";
+import { HeroCarousel } from "@/components/public/hero-carousel";
 import { SearchFilterBar } from "@/components/public/search-filter-bar";
 import { ProfileCard } from "@/components/public/profile-card";
 import { EmptyState } from "@/components/public/empty-state";
-import { getBusinessmen, getFacets, getPage } from "@/lib/queries";
+import { getBusinessmen, getFacets, getPage, getSettings } from "@/lib/queries";
 import { getI18n } from "@/lib/i18n-server";
 import { translate, localize } from "@/lib/i18n";
 import { localizeNumber } from "@/lib/format";
@@ -27,11 +27,13 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
   };
 
   const emptyFacets: Facets = { business_types: [], markets: [], wards: [], unions: [] };
-  const [list, facets, page] = await Promise.all([
+  const [list, facets, page, settings] = await Promise.all([
     getBusinessmen(query),
     getFacets().catch(() => emptyFacets),
     getPage("home").catch(() => null as PageContent | null),
+    getSettings().catch(() => null),
   ]);
+  const heroImages = (settings?.hero_images ?? []).map((h) => h.url).filter(Boolean);
 
   const title = (page && localize(page, "title", lang)) || translate(dict, "nav.home");
   const subtitle = page ? localize(page, "subtitle", lang) : "";
@@ -55,7 +57,7 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
 
   return (
     <>
-      <Hero title={title} subtitle={subtitle} ctaLabel={cta} memberLine={memberLine} />
+      <HeroCarousel images={heroImages} title={title} subtitle={subtitle} ctaLabel={cta} memberLine={memberLine} />
 
       <Container className="py-10">
         <SearchFilterBar facets={facets} />

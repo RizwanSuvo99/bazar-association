@@ -3,19 +3,21 @@
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { useRouter } from "next/navigation";
-import { Save, Check, Palette, Wallet, Building2 } from "lucide-react";
+import { Save, Check, Palette, Wallet, Building2, Images } from "lucide-react";
 import { apiFetch, ApiError } from "@/lib/api";
 import { bustCache } from "@/lib/revalidate";
 import { useTranslation } from "@/lib/i18n-context";
 import { Input, Button, Label, Card } from "@/components/ui";
 import { ThemeSwitcher } from "./theme-switcher";
-import type { SiteSettings, ThemeName } from "@/lib/types";
+import { HeroImagesManager } from "./hero-images-manager";
+import type { HeroImage, SiteSettings, ThemeName } from "@/lib/types";
 
 export function SettingsForm({ settings }: { settings: SiteSettings }) {
   const { t } = useTranslation();
   const router = useRouter();
   const { register, handleSubmit, formState: { isSubmitting } } = useForm({ defaultValues: settings });
   const [theme, setTheme] = useState<ThemeName>(settings.active_theme);
+  const [heroImages, setHeroImages] = useState<HeroImage[]>(settings.hero_images ?? []);
   const [saved, setSaved] = useState(false);
   const [error, setError] = useState("");
 
@@ -23,7 +25,7 @@ export function SettingsForm({ settings }: { settings: SiteSettings }) {
     setError("");
     setSaved(false);
     try {
-      await apiFetch("/admin/settings", { method: "PUT", json: { ...v, active_theme: theme } });
+      await apiFetch("/admin/settings", { method: "PUT", json: { ...v, active_theme: theme, hero_images: heroImages } });
       await bustCache("settings");
       setSaved(true);
       router.refresh();
@@ -41,6 +43,14 @@ export function SettingsForm({ settings }: { settings: SiteSettings }) {
           <Palette className="h-5 w-5 text-primary" /> {t("admin.theme")}
         </h2>
         <ThemeSwitcher value={theme} onChange={setTheme} />
+      </Card>
+
+      <Card className="p-6">
+        <h2 className="mb-1 flex items-center gap-2 font-display text-lg font-semibold">
+          <Images className="h-5 w-5 text-primary" /> হিরো ছবি (কারুসেল)
+        </h2>
+        <p className="mb-4 text-sm text-muted-foreground">হোম পেজের কভার ছবি — একাধিক ছবি যোগ করলে কারুসেল হবে।</p>
+        <HeroImagesManager value={heroImages} onChange={setHeroImages} />
       </Card>
 
       <Card className="p-6">

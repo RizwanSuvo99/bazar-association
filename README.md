@@ -8,6 +8,7 @@ admin-managed CMS.
 ## Features
 
 **Public site**
+- Home hero with a **customizable image carousel** (cover images managed from the admin panel)
 - Home directory with search + filters (name, business type, market, ward, mobile) and pagination
 - Businessman profile pages at `/profiles/{last-6-digits-of-NID}` (e.g. `/profiles/235192`)
   — sensitive IDs (NID/TIN) are **masked** for privacy
@@ -22,8 +23,8 @@ admin-managed CMS.
 - Registration request queue with **approve** (creates a member) / **reject** (kept for audit)
 - Bilingual page-content editor (About / Rules / Contact / Home hero)
 - Gallery manager (upload, caption, reorder, delete)
-- Site settings: **color theme** switcher (Emerald / Royal Blue / Warm Amber / Crimson),
-  bKash number, registration fee, and organization/contact info
+- Site settings: **hero carousel images** (multi-upload/reorder), **color theme** switcher
+  (Emerald / Royal Blue / Warm Amber / Crimson), bKash number, registration fee, and org/contact info
 - Contact-message inbox
 
 ## Tech stack

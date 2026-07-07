@@ -3,6 +3,7 @@ import { query } from '../config/db.js';
 const WRITABLE = [
   'org_name_bn', 'org_name_en', 'bkash_number', 'registration_fee', 'active_theme',
   'logo_url', 'contact_email', 'contact_phone', 'contact_address_bn', 'contact_address_en', 'facebook_url',
+  'hero_images',
 ];
 
 export async function getSettings() {
@@ -14,7 +15,8 @@ export async function updateSettings(data) {
   const cols = WRITABLE.filter((c) => data[c] !== undefined);
   if (cols.length === 0) return getSettings();
   const setSql = cols.map((c, i) => `${c} = $${i + 1}`).join(', ');
-  const values = cols.map((c) => data[c]);
+  // hero_images is JSONB — serialize it (node-postgres would otherwise treat the array as a PG array).
+  const values = cols.map((c) => (c === 'hero_images' ? JSON.stringify(data[c]) : data[c]));
   const { rows } = await query(
     `UPDATE site_settings SET ${setSql} WHERE id = 1 RETURNING *`,
     values,

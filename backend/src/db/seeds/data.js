@@ -242,11 +242,10 @@ export const siteSettings = {
   active_theme: 'emerald',
   logo_url: null,
   hero_images: [
-    // The association's own photo (uploaded to Cloudinary).
+    // The association's own bazar photos (uploaded to Cloudinary). Managed from the admin panel.
     { url: 'https://res.cloudinary.com/ldbnzjyk/image/upload/v1783423773/nangalkot-bazar/misc/pfaeb76vh65v5nph3xzj.jpg', public_id: 'nangalkot-bazar/misc/pfaeb76vh65v5nph3xzj' },
-    // Placeholder market photos — the admin can remove/replace these to build the carousel.
-    { url: 'https://picsum.photos/seed/nba-bazar-street/1600/720', public_id: null },
-    { url: 'https://picsum.photos/seed/nba-bazar-shops/1600/720', public_id: null },
+    { url: 'https://res.cloudinary.com/ldbnzjyk/image/upload/v1783424409/nangalkot-bazar/hero/x82aezvakqgoxca9u83y.jpg', public_id: 'nangalkot-bazar/hero/x82aezvakqgoxca9u83y' },
+    { url: 'https://res.cloudinary.com/ldbnzjyk/image/upload/v1783424410/nangalkot-bazar/hero/qs6e3gyv51cpxhjrw2dz.jpg', public_id: 'nangalkot-bazar/hero/qs6e3gyv51cpxhjrw2dz' },
   ],
   contact_email: 'info@nangalkotbazar.org',
   contact_phone: '01812345678',

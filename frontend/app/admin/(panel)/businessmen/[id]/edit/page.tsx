@@ -1,9 +1,10 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, FileDown } from "lucide-react";
 import { getI18n } from "@/lib/i18n-server";
 import { getAdminBusinessman } from "@/lib/admin-queries";
 import { BusinessmanForm } from "@/components/admin/businessman-form";
+import { Button } from "@/components/ui";
 import type { Businessman } from "@/lib/types";
 
 export default async function EditBusinessmanPage({ params }: { params: Promise<{ id: string }> }) {
@@ -22,9 +23,16 @@ export default async function EditBusinessmanPage({ params }: { params: Promise<
       <Link href="/admin/businessmen" className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-primary">
         <ArrowLeft className="h-4 w-4" /> {dict.admin.members}
       </Link>
-      <h1 className="font-display text-2xl font-bold text-foreground">
-        {dict.admin.edit}: {b.full_name} <span className="text-base font-normal text-muted-foreground">{b.unique_id}</span>
-      </h1>
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <h1 className="font-display text-2xl font-bold text-foreground">
+          {dict.admin.edit}: {b.full_name} <span className="text-base font-normal text-muted-foreground">{b.unique_id}</span>
+        </h1>
+        <Link href={`/admin/print/businessman/${b.id}`} target="_blank">
+          <Button variant="outline" size="sm">
+            <FileDown className="h-4 w-4" /> রেজিস্ট্রেশন ফরম (PDF)
+          </Button>
+        </Link>
+      </div>
       <BusinessmanForm initial={b} />
     </div>
   );

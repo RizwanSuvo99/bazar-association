@@ -21,6 +21,7 @@ admin-managed CMS.
 **Admin panel** (`/admin`)
 - Secure login (JWT in an httpOnly cookie, bcrypt-hashed passwords)
 - Businessmen CRUD (auto-generates the `NBA-######` id from the NID)
+- **Download a member's info as a filled registration-form PDF** (matches the association's printed form)
 - Registration request queue with **approve** (creates a member) / **reject** (kept for audit)
 - Bilingual page-content editor (About / Rules / Contact / Home hero)
 - Gallery manager (upload, caption, reorder, delete)

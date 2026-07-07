@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import { requireAdmin } from '../middleware/auth.js';
 import { validate } from '../middleware/validate.js';
+import { uploadImage } from '../middleware/upload.js';
 import {
   businessmanCreateSchema,
   businessmanUpdateSchema,
@@ -17,6 +18,7 @@ import * as pages from '../controllers/pageContent.controller.js';
 import * as settings from '../controllers/settings.controller.js';
 import * as contact from '../controllers/contact.controller.js';
 import * as stats from '../controllers/stats.controller.js';
+import * as upload from '../controllers/upload.controller.js';
 
 const router = Router();
 
@@ -55,5 +57,8 @@ router.put('/settings', validate(settingsUpdateSchema), settings.update);
 // Contact inbox
 router.get('/contact-messages', contact.list);
 router.patch('/contact-messages/:id', contact.markRead);
+
+// Image upload (gallery / profile photos / logo) -> Cloudinary or local fallback
+router.post('/uploads/image', uploadImage, upload.uploadAdminImage);
 
 export default router;

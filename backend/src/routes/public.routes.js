@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import { validate } from '../middleware/validate.js';
-import { publicSubmitLimiter } from '../middleware/rateLimit.js';
+import { uploadImage } from '../middleware/upload.js';
+import { publicSubmitLimiter, uploadLimiter } from '../middleware/rateLimit.js';
 import { businessmanQuerySchema } from '../validators/businessman.schema.js';
 import { registrationSchema } from '../validators/registration.schema.js';
 import { pageParamSchema } from '../validators/pageContent.schema.js';
@@ -11,6 +12,7 @@ import * as gallery from '../controllers/gallery.controller.js';
 import * as pages from '../controllers/pageContent.controller.js';
 import * as settings from '../controllers/settings.controller.js';
 import * as contact from '../controllers/contact.controller.js';
+import * as upload from '../controllers/upload.controller.js';
 
 const router = Router();
 
@@ -28,5 +30,8 @@ router.get('/profiles/:sixDigits', businessmen.publicProfile);
 // Public submissions
 router.post('/registration-requests', publicSubmitLimiter, validate(registrationSchema), registration.submit);
 router.post('/contact-messages', publicSubmitLimiter, validate(contactSchema), contact.submit);
+
+// Public image upload (for the required registration photo)
+router.post('/uploads/registration-photo', uploadLimiter, uploadImage, upload.uploadRegistrationPhoto);
 
 export default router;

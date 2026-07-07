@@ -23,6 +23,12 @@ export function errorHandler(err, req, res, next) {
     code = 'VALIDATION_ERROR';
     message = 'প্রদত্ত তথ্য সঠিক নয়।';
     details = err.issues.map((i) => ({ path: i.path.join('.'), message: i.message }));
+  } else if (err && err.name === 'MulterError') {
+    statusCode = 400;
+    code = err.code;
+    message = err.code === 'LIMIT_FILE_SIZE'
+      ? 'ছবির আকার ৫ মেগাবাইটের বেশি হতে পারবে না।'
+      : 'ছবি আপলোডে সমস্যা হয়েছে।';
   } else if (err && err.code === '23505') {
     // unique_violation
     statusCode = 409;

@@ -1,9 +1,10 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
-import { Menu, X, Store } from "lucide-react";
+import { Menu, X } from "lucide-react";
 import { useTranslation } from "@/lib/i18n-context";
 import { Container } from "./container";
 import { LangToggle, ThemeModeToggle } from "./toggles";
@@ -29,10 +30,15 @@ export function Navbar({ orgName }: { orgName: string }) {
     <header className="sticky top-0 z-40 border-b border-border bg-background/85 backdrop-blur">
       <Container className="flex h-16 items-center justify-between gap-3">
         <Link href="/" className="flex items-center gap-2.5" onClick={() => setOpen(false)}>
-          <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary text-primary-foreground">
-            <Store className="h-5 w-5" />
-          </span>
-          <span className="font-display text-base font-bold leading-tight text-foreground sm:max-w-[16rem]">
+          <Image
+            src="/bazar-logo.png"
+            alt={orgName}
+            width={48}
+            height={44}
+            priority
+            className="h-11 w-auto object-contain"
+          />
+          <span className="hidden font-display text-base font-bold leading-tight text-foreground sm:block sm:max-w-[15rem]">
             {orgName}
           </span>
         </Link>

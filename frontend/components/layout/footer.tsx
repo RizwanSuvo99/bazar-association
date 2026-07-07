@@ -1,7 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { Store, Phone, Mail, MapPin } from "lucide-react";
+import Image from "next/image";
+import { Phone, Mail, MapPin } from "lucide-react";
 import { FacebookIcon } from "@/components/icons";
 import { useTranslation } from "@/lib/i18n-context";
 import { Container } from "./container";
@@ -27,10 +28,8 @@ export function Footer({ settings }: { settings: SiteSettings | null }) {
     <footer className="mt-16 border-t border-border bg-card">
       <Container className="grid gap-10 py-12 sm:grid-cols-2 lg:grid-cols-3">
         <div>
-          <div className="flex items-center gap-2.5">
-            <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary text-primary-foreground">
-              <Store className="h-5 w-5" />
-            </span>
+          <div className="flex items-center gap-3">
+            <Image src="/bazar-logo.png" alt={orgName} width={56} height={51} className="h-14 w-auto object-contain" />
             <span className="font-display text-base font-bold text-foreground">{orgName}</span>
           </div>
           <p className="mt-3 max-w-xs text-sm text-muted-foreground">{t("footer.tagline")}</p>

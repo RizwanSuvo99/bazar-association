@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
 import {
   LayoutDashboard,
@@ -13,7 +14,6 @@ import {
   MessageSquare,
   Settings,
   LogOut,
-  Store,
   Menu,
   X,
   ExternalLink,
@@ -88,9 +88,7 @@ export function AdminShell({
       {/* Desktop sidebar */}
       <aside className="hidden border-r border-border bg-card lg:flex lg:flex-col">
         <div className="flex h-16 items-center gap-2.5 border-b border-border px-5">
-          <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary text-primary-foreground">
-            <Store className="h-5 w-5" />
-          </span>
+          <Image src="/bazar-logo.png" alt="Logo" width={40} height={36} className="h-9 w-auto object-contain" />
           <span className="font-display text-sm font-bold text-foreground">অ্যাডমিন প্যানেল</span>
         </div>
         <div className="flex-1 overflow-y-auto p-3">{navList}</div>

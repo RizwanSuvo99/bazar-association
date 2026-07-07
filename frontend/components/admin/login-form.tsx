@@ -1,9 +1,10 @@
 "use client";
 
 import { useState } from "react";
+import Image from "next/image";
 import { useForm } from "react-hook-form";
 import { useRouter, useSearchParams } from "next/navigation";
-import { Store, LogIn } from "lucide-react";
+import { LogIn } from "lucide-react";
 import { useTranslation } from "@/lib/i18n-context";
 import { apiFetch, ApiError } from "@/lib/api";
 import { Input, Button, Label, Card } from "@/components/ui";
@@ -33,9 +34,7 @@ export function LoginForm() {
   return (
     <Card className="w-full max-w-sm p-8">
       <div className="mb-6 flex flex-col items-center text-center">
-        <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-primary text-primary-foreground">
-          <Store className="h-6 w-6" />
-        </span>
+        <Image src="/bazar-logo.png" alt="Logo" width={80} height={72} className="h-20 w-auto object-contain" />
         <h1 className="mt-4 font-display text-xl font-bold text-foreground">{t("admin.loginTitle")}</h1>
       </div>
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">

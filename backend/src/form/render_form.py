@@ -68,7 +68,7 @@ def main():
         (665, row(4), bn(g("district"))),
         (490, row(5), bn(g("current_business_name_address"))),
         (245, row(6), bn(g("business_type"))),
-        (620, row(6), bn(g("trade_license_no"))),
+        (585, row(6), bn(g("trade_license_no"))),
         (925, row(6), bn(g("tin_no"))),
         (245, row(7), bn(g("market_name"))),
         (780, row(7), bn(g("owner_name"))),

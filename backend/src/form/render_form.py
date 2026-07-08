@@ -51,11 +51,12 @@ def main():
 
     g = lambda k: data.get(k) or ""
     six = g("six_digit_id")
-    # Baselines follow the form's dotted lines: row r sits at 645 + 35*(r-1).
+    # Baselines follow the form's dotted lines: row r sits at 641 + 35*(r-1)
+    # (the dotted lines are at 645 + 35*(r-1); we lift 4px so text rests just on the line).
     def row(r):
-        return 645 + 35 * (r - 1)
+        return 641 + 35 * (r - 1)
     fields = [
-        (230, 573, bn("NBA-" + str(six))),
+        (230, 569, bn("NBA-" + str(six))),
         (235, row(1), bn(g("full_name"))),
         (880, row(1), bn(g("mobile_number"))),
         (230, row(2), bn(g("father_name"))),

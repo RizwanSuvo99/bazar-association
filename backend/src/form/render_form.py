@@ -77,7 +77,7 @@ def main():
         (340, row(9), bn(g("nid_no"))),
         (905, row(9), bn(g("blood_group"))),
         (255, row(10), bn(g("nominee_name"))),
-        (770, row(10), bn(g("nominee_relation"))),
+        (858, row(10), bn(g("nominee_relation"))),
         (310, row(11), bn(g("nominee_mobile"))),
     ]
     for x, y, text in fields:

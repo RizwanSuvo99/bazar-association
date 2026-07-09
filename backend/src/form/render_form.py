@@ -89,8 +89,9 @@ def main():
     if photo_b64:
         try:
             pim = Image.open(io.BytesIO(base64.b64decode(photo_b64))).convert("RGB")
-            pim = ImageOps.fit(pim, (192, 232), method=Image.LANCZOS)
-            im.paste(pim, (988, 366))
+            # Fill the whole "ছবি" box (borders at left=980,top=371,right=1212,bottom=593).
+            pim = ImageOps.fit(pim, (230, 220), method=Image.LANCZOS)
+            im.paste(pim, (981, 372))
         except Exception:
             pass
 

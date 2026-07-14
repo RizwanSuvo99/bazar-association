@@ -28,7 +28,7 @@ export const businessmanIdCardPdf = asyncHandler(async (req, res) => {
 
   const [photo_b64, qr_b64] = await Promise.all([
     fetchPhotoBase64(b.profile_photo_url),
-    makeQrBase64(memberFormUrl(b.six_digit_id)),
+    makeQrBase64(memberFormUrl(b.public_token)),
   ]);
   const pdf = await runPython(IDCARD_SCRIPT, cardPayload(b, photo_b64, qr_b64));
 
@@ -48,7 +48,7 @@ export const bulkIdCardsPdf = asyncHandler(async (req, res) => {
   const cards = await mapConcurrent(members, 6, async (b) => {
     const [photo_b64, qr_b64] = await Promise.all([
       fetchPhotoBase64(b.profile_photo_url),
-      makeQrBase64(memberFormUrl(b.six_digit_id)),
+      makeQrBase64(memberFormUrl(b.public_token)),
     ]);
     return cardPayload(b, photo_b64, qr_b64);
   });

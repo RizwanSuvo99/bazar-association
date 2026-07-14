@@ -76,6 +76,12 @@ export async function getBusinessmanBySixDigits(sixDigits) {
   return rows[0] || null;
 }
 
+/** Look up a member by their random public token (ID-card QR target). */
+export async function getBusinessmanByToken(token) {
+  const { rows } = await query('SELECT * FROM businessmen WHERE public_token = $1 LIMIT 1', [token]);
+  return rows[0] || null;
+}
+
 /** All active members, ordered for stable ID-card sheets (bulk card generation). */
 export async function listActiveForCards() {
   const { rows } = await query(

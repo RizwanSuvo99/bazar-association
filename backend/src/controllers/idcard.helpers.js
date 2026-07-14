@@ -25,9 +25,9 @@ export async function makeQrBase64(text) {
   return buf.toString('base64');
 }
 
-/** Public URL a member's ID-card QR points to (their form page). */
-export function memberFormUrl(six) {
-  return `${env.PUBLIC_SITE_URL}/members/${six}`;
+/** Public URL a member's ID-card QR points to (their form page, keyed by the random token). */
+export function memberFormUrl(token) {
+  return `${env.PUBLIC_SITE_URL}/members/${token}`;
 }
 
 /** Spawn a python3 renderer, write JSON to stdin, resolve the stdout buffer (PDF/PNG bytes). */

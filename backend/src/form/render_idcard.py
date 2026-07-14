@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
-"""Render a single member ID card (portrait CR80 badge) and write it to stdout.
+"""Render a single member ID card (portrait CR80 badge, modern framed look) to stdout.
 
 Reads a JSON member object from stdin: { format?, six_digit_id, full_name, business_type,
 mobile_number, blood_group, photo_b64, qr_b64 }. Renders with Pillow + RAQM (Bangla shaping)
-and writes a PDF (default) or PNG (format:"png", used for quick visual verification).
-`render_card(data) -> PIL.Image` is imported by render_idcards.py for the bulk grid.
+and writes a PDF (default) or PNG (format:"png"). `render_card(data) -> PIL.Image` is imported
+by render_idcards.py for the bulk grid.
 """
 import sys, os, io, json, base64
 from PIL import Image, ImageDraw, ImageFont, ImageOps
@@ -16,14 +16,14 @@ LOGO = os.path.join(HERE, "bazar-logo.png")
 
 # Portrait CR80 card @ 300 dpi (54 x 85.6 mm).
 W, H = 638, 1012
-GREEN = (0, 106, 78)
-GREEN_DK = (0, 84, 62)
-RED = (213, 43, 50)
-INK = (28, 28, 28)
-MUTED = (90, 90, 90)
+GREEN = (0, 112, 74)
+GREEN_SOFT = (233, 244, 238)
+RED = (211, 47, 47)
+INK = (30, 34, 38)
+MUTED = (108, 117, 122)
 WHITE = (255, 255, 255)
-LINE = (208, 208, 208)
-LIGHT = (238, 242, 240)
+BORDER = (218, 223, 220)
+LIGHT = (236, 240, 238)
 
 _BN = {"0": "০", "1": "১", "2": "২", "3": "৩", "4": "৪", "5": "৫", "6": "৬", "7": "৭", "8": "৮", "9": "৯"}
 _FONTS = {}
@@ -48,7 +48,6 @@ def font_lat(size):
 
 
 def _runs(text):
-    """Yield (segment, is_latin) so Latin (A-Z/a-z) uses DejaVu and the rest uses the Bangla font."""
     is_l = lambda c: ("A" <= c <= "Z") or ("a" <= c <= "z")
     i = 0
     while i < len(text):
@@ -73,10 +72,17 @@ def fit_size(text, max_w, base, minimum):
 
 def _load_logo():
     try:
-        lg = Image.open(LOGO).convert("RGBA")
-        return lg
+        return Image.open(LOGO).convert("RGBA")
     except Exception:
         return None
+
+
+def _rounded(img, radius):
+    m = Image.new("L", img.size, 0)
+    ImageDraw.Draw(m).rounded_rectangle((0, 0, img.size[0] - 1, img.size[1] - 1), radius=radius, fill=255)
+    r = img.convert("RGBA")
+    r.putalpha(m)
+    return r
 
 
 def render_card(data):
@@ -96,9 +102,9 @@ def render_card(data):
     def wrap(text, max_w, size):
         words, lines, cur = text.split(), [], ""
         for w in words:
-            trial = (cur + " " + w).strip()
-            if measure(trial, size) <= max_w or not cur:
-                cur = trial
+            t = (cur + " " + w).strip()
+            if measure(t, size) <= max_w or not cur:
+                cur = t
             else:
                 lines.append(cur)
                 cur = w
@@ -106,97 +112,108 @@ def render_card(data):
             lines.append(cur)
         return lines
 
-    # ---- Header band ----
-    d.rectangle((0, 0, W, 150), fill=GREEN)
+    # ---- Card frame ----
+    d.rounded_rectangle((9, 9, W - 10, H - 10), radius=34, outline=GREEN, width=3)
+
+    # ---- Header (rounded top) ----
+    d.rounded_rectangle((12, 12, W - 12, 198), radius=31, corners=(True, True, False, False), fill=GREEN)
+    dia = 108
+    cx0, cy0 = 34, 40
+    d.ellipse((cx0, cy0, cx0 + dia, cy0 + dia), fill=WHITE)
     lg = _load_logo()
     if lg is not None:
-        lg.thumbnail((104, 104), Image.LANCZOS)
-        im.paste(lg, (20, 22), lg)
+        lg2 = lg.copy()
+        lg2.thumbnail((dia - 14, dia - 14), Image.LANCZOS)
+        im.paste(lg2, (cx0 + (dia - lg2.width) // 2, cy0 + (dia - lg2.height) // 2), lg2)
     org = data.get("org_name") or "নাঙ্গলকোট বাজার ব্যবসায়ী সংস্থা"
-    org_size = 25
-    lines = wrap(org, W - 150, org_size)
-    if len(lines) > 2:  # keep to 2 lines
-        org_size = fit_size(org, (W - 150) * 2, 25, 18)
-        lines = wrap(org, W - 150, org_size)[:2]
-    ty = 62 if len(lines) == 1 else 52
+    osz = 25
+    lines = wrap(org, W - 185, osz)
+    if len(lines) > 2:
+        osz = 22
+        lines = wrap(org, W - 185, osz)[:2]
+    tcx = (162 + (W - 24)) / 2
+    ty = 82 if len(lines) == 1 else 70
     for ln in lines:
-        draw_center((138 + W) / 2, ty, ln, org_size, WHITE)
-        ty += org_size + 8
-    # subtitle strip
-    d.rectangle((0, 150, W, 196), fill=GREEN_DK)
-    draw_center(W / 2, 181, "সদস্য পরিচয়পত্র", 23, WHITE)
+        draw_center(tcx, ty, ln, osz, WHITE)
+        ty += osz + 8
+    draw_center(W / 2, 182, "সদস্য পরিচয়পত্র", 21, (214, 236, 225))
 
-    # ---- Photo ----
-    PW, PH = 244, 288
-    px = (W - PW) // 2
-    py = 214
-    d.rectangle((px - 2, py - 2, px + PW + 2, py + PH + 2), outline=LINE, width=3)
+    # ---- Photo (rounded, green ring) ----
+    PW, PH = 232, 286
+    px, py = (W - PW) // 2, 222
+    d.rounded_rectangle((px - 7, py - 7, px + PW + 7, py + PH + 7), radius=24, fill=GREEN)
     photo_b64 = data.get("photo_b64")
-    pasted = False
+    done = False
     if photo_b64:
         try:
-            pim = Image.open(io.BytesIO(base64.b64decode(photo_b64))).convert("RGB")
-            pim = ImageOps.fit(pim, (PW, PH), method=Image.LANCZOS)
-            im.paste(pim, (px, py))
-            pasted = True
+            pim = ImageOps.fit(
+                Image.open(io.BytesIO(base64.b64decode(photo_b64))).convert("RGB"),
+                (PW, PH), method=Image.LANCZOS,
+            )
+            r = _rounded(pim, 18)
+            im.paste(r, (px, py), r)
+            done = True
         except Exception:
-            pasted = False
-    if not pasted:
-        d.rectangle((px, py, px + PW, py + PH), fill=LIGHT)
-        name = (data.get("full_name") or "?").strip()
-        draw_center(W / 2, py + PH / 2 + 30, name[:1] or "?", 120, GREEN)
+            done = False
+    if not done:
+        chip = Image.new("RGB", (PW, PH), LIGHT)
+        ImageDraw.Draw(chip).text(
+            (PW / 2, PH / 2 + 42), ((data.get("full_name") or "?").strip()[:1] or "?"),
+            font=font_bn(120), fill=GREEN, anchor="ms",
+        )
+        r = _rounded(chip, 18)
+        im.paste(r, (px, py), r)
 
-    # ---- Member ID ----
+    # ---- ID (light-green pill) ----
     idtext = "NBA-" + str(data.get("six_digit_id") or "")
-    idf = font_lat(31)
-    d.text((W / 2 - idf.getlength(idtext) / 2, 554), idtext, font=idf, fill=GREEN, anchor="ls")
+    idf = font_lat(29)
+    idw = idf.getlength(idtext)
+    pill_w = idw + 46
+    d.rounded_rectangle((W / 2 - pill_w / 2, 522, W / 2 + pill_w / 2, 568), radius=23, fill=GREEN_SOFT)
+    d.text((W / 2 - idw / 2, 557), idtext, font=idf, fill=GREEN, anchor="ls")
 
-    # ---- Name ----
+    # ---- Name + accent underline ----
     name = (data.get("full_name") or "").strip()
+    y = 606
     if name:
-        ns = fit_size(name, W - 60, 33, 22)
-        draw_center(W / 2, 600, name, ns, INK)
+        draw_center(W / 2, y, name, fit_size(name, W - 72, 33, 22), INK)
+        d.rounded_rectangle((W / 2 - 44, y + 13, W / 2 + 44, y + 16), radius=2, fill=GREEN)
+        y += 46
 
     # ---- Business type + mobile ----
-    y = 640
     biz = (data.get("business_type") or "").strip()
     if biz:
-        draw_center(W / 2, y, biz, fit_size(biz, W - 70, 25, 18), (55, 55, 55))
+        draw_center(W / 2, y, biz, fit_size(biz, W - 84, 24, 18), (70, 70, 70))
         y += 38
     mob = data.get("mobile_number")
     if mob:
-        draw_center(W / 2, y, "মোবাইল: " + bn(mob), 23, (55, 55, 55))
+        draw_center(W / 2, y, "মোবাইল: " + bn(mob), 22, (70, 70, 70))
         y += 42
 
-    # ---- Blood group badge ----
+    # ---- Blood group pill ----
     blood = (data.get("blood_group") or "").strip()
     if blood:
-        label = "রক্তের গ্রুপ:  " + blood
-        bw = measure(label, 23) + 44
-        bx0 = W / 2 - bw / 2
-        by0 = y
-        d.rounded_rectangle((bx0, by0, bx0 + bw, by0 + 46), radius=23, fill=RED)
-        draw_center(W / 2, by0 + 32, label, 23, WHITE)
-        y = by0 + 56
+        label = "রক্তের গ্রুপ  " + blood
+        bw = measure(label, 22) + 46
+        d.rounded_rectangle((W / 2 - bw / 2, y, W / 2 + bw / 2, y + 44), radius=22, fill=RED)
+        draw_center(W / 2, y + 30, label, 22, WHITE)
+        y += 54
 
-    # ---- QR (centered in remaining space; size adapts so the caption is never clipped) ----
+    # ---- QR (rounded white box) ----
     qr_b64 = data.get("qr_b64")
-    avail_top, avail_bot = y + 8, H - 16
-    QS = int(max(150, min(178, (avail_bot - avail_top) - 30)))
-    qx = (W - QS) // 2
-    block_h = QS + 30
-    qy = int(avail_top + max(0, (avail_bot - avail_top - block_h) / 2))
+    avail_top, avail_bot = y + 6, H - 30
+    QS = int(max(150, min(178, (avail_bot - avail_top) - 40)))
+    box = QS + 24
+    qy = int(avail_top + max(0, (avail_bot - avail_top - (box + 26)) / 2))
+    bx = (W - box) // 2
+    d.rounded_rectangle((bx, qy, bx + box, qy + box), radius=16, fill=WHITE, outline=BORDER, width=2)
     if qr_b64:
         try:
             qr = Image.open(io.BytesIO(base64.b64decode(qr_b64))).convert("RGB").resize((QS, QS), Image.NEAREST)
-            d.rectangle((qx - 2, qy - 2, qx + QS + 2, qy + QS + 2), outline=LINE, width=2)
-            im.paste(qr, (qx, qy))
+            im.paste(qr, (bx + 12, qy + 12))
         except Exception:
             pass
-    draw_center(W / 2, qy + QS + 26, "স্ক্যান করে ফরম দেখুন", 17, MUTED)
-
-    # footer accent
-    d.rectangle((0, H - 8, W, H), fill=GREEN)
+    draw_center(W / 2, qy + box + 22, "স্ক্যান করে ফরম দেখুন", 16, MUTED)
     return im
 
 

@@ -22,8 +22,10 @@ export function maskTin(tin) {
 /** Given a full businessman row, return a public-safe copy with NID/TIN masked. */
 export function toPublicBusinessman(row) {
   if (!row) return row;
+  // Never leak the private ID-card token through the (guessable) public profile API.
+  const { public_token, ...rest } = row;
   return {
-    ...row,
+    ...rest,
     nid_no: maskNid(row.nid_no),
     tin_no: row.tin_no ? maskTin(row.tin_no) : row.tin_no,
   };

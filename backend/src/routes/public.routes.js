@@ -30,9 +30,10 @@ router.get('/businessmen/facets', businessmen.facets);
 router.get('/businessmen', validate(businessmanQuerySchema, 'query'), businessmen.publicList);
 router.get('/profiles/:sixDigits', businessmen.publicProfile);
 
-// Member form (ID-card QR target) — full form by six-digit id
-router.get('/members/:six/form.png', publicForm.publicMemberFormImage);
-router.get('/members/:six/form.pdf', publicForm.publicMemberFormPdf);
+// Member form (ID-card QR target) — keyed by the member's random public token
+router.get('/members/:token/form.png', publicForm.publicMemberFormImage);
+router.get('/members/:token/form.pdf', publicForm.publicMemberFormPdf);
+router.get('/members/:token', publicForm.publicMemberMeta);
 
 // Public submissions
 router.post('/registration-requests', publicSubmitLimiter, validate(registrationSchema), registration.submit);

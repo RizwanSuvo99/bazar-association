@@ -39,6 +39,11 @@ export function getProfile(sixDigits: string) {
   return apiData<Businessman>(`/profiles/${sixDigits}`, { cache: "no-store" });
 }
 
+/** Resolve a member by their random ID-card token (QR target page). */
+export function getMemberByToken(token: string) {
+  return apiData<{ full_name: string; unique_id: string }>(`/members/${token}`, { cache: "no-store" });
+}
+
 export interface MemberQuery {
   q?: string;
   business_type?: string;

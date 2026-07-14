@@ -160,6 +160,8 @@
     "settings": "Settings",
     "messages": "Messages",
     "addMember": "Add Member",
+    "idCard": "ID Card (PDF)",
+    "bulkIdCards": "All ID Cards (for printing)",
     "edit": "Edit",
     "delete": "Delete",
     "deactivate": "Deactivate",

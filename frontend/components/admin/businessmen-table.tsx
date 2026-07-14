@@ -4,7 +4,7 @@ import { useState, useTransition, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { useRouter, usePathname, useSearchParams } from "next/navigation";
-import { Search, Pencil, Trash2, Check, X, FileDown } from "lucide-react";
+import { Search, Pencil, Trash2, Check, X, FileDown, IdCard } from "lucide-react";
 import { useTranslation } from "@/lib/i18n-context";
 import { apiFetch } from "@/lib/api";
 import { Input, Card, Badge } from "@/components/ui";
@@ -36,6 +36,9 @@ function RowActions({ b, onDeleted }: { b: Businessman; onDeleted: () => void })
         </>
       ) : (
         <>
+          <a href={`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/admin/businessmen/${b.id}/id-card.pdf`} className="rounded-md border border-border p-1.5 hover:bg-muted" aria-label="download id card" title={t("admin.idCard")}>
+            <IdCard className="h-4 w-4" />
+          </a>
           <a href={`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/admin/businessmen/${b.id}/form.pdf`} className="rounded-md border border-border p-1.5 hover:bg-muted" aria-label="download form" title="রেজিস্ট্রেশন ফরম (PDF)">
             <FileDown className="h-4 w-4" />
           </a>

@@ -23,6 +23,8 @@ admin-managed CMS.
 - Businessmen CRUD (auto-generates the `NBA-######` id from the NID)
 - **Download a member's info as a filled registration-form PDF** — overlays the data (in Noto Serif
   Bengali) onto the association's official form image, preserving its font, watermark, and signatures
+- **Member ID cards (with QR)** — download a portrait badge per member, or **all members in bulk**
+  (grid on A4 sheets, for printing). Scanning a card's QR opens that member's registration form
 - Registration request queue with **approve** (creates a member) / **reject** (kept for audit)
 - Bilingual page-content editor (About / Rules / Contact / Home hero)
 - Gallery manager (upload, caption, reorder, delete)

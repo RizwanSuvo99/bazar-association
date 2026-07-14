@@ -160,6 +160,8 @@
     "settings": "সেটিংস",
     "messages": "বার্তা",
     "addMember": "নতুন সদস্য",
+    "idCard": "আইডি কার্ড (PDF)",
+    "bulkIdCards": "সব আইডি কার্ড (ছাপার জন্য)",
     "edit": "সম্পাদনা",
     "delete": "মুছুন",
     "deactivate": "নিষ্ক্রিয়",

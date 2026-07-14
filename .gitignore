@@ -37,3 +37,7 @@ data/postgres/
 Thumbs.db
 .vscode/
 .idea/
+
+# python bytecode
+__pycache__/
+*.pyc

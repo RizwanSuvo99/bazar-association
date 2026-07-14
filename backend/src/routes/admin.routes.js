@@ -21,6 +21,7 @@ import * as stats from '../controllers/stats.controller.js';
 import * as upload from '../controllers/upload.controller.js';
 import * as notice from '../controllers/notice.controller.js';
 import { businessmanFormPdf } from '../controllers/formPdf.controller.js';
+import { businessmanIdCardPdf, bulkIdCardsPdf } from '../controllers/idcard.controller.js';
 import { noticeCreateSchema, noticeUpdateSchema } from '../validators/notice.schema.js';
 
 const router = Router();
@@ -31,10 +32,14 @@ router.use(requireAdmin);
 // Dashboard
 router.get('/stats', stats.dashboard);
 
+// ID cards (bulk sheet of all active members — before the :id routes)
+router.get('/id-cards.pdf', bulkIdCardsPdf);
+
 // Businessmen CRUD
 router.get('/businessmen', validate(businessmanQuerySchema, 'query'), businessmen.adminList);
 router.post('/businessmen', validate(businessmanCreateSchema), businessmen.adminCreate);
 router.get('/businessmen/:id/form.pdf', businessmanFormPdf);
+router.get('/businessmen/:id/id-card.pdf', businessmanIdCardPdf);
 router.get('/businessmen/:id', businessmen.adminGetOne);
 router.patch('/businessmen/:id', validate(businessmanUpdateSchema), businessmen.adminUpdate);
 router.delete('/businessmen/:id', businessmen.adminRemove);

@@ -76,6 +76,14 @@ export async function getBusinessmanBySixDigits(sixDigits) {
   return rows[0] || null;
 }
 
+/** All active members, ordered for stable ID-card sheets (bulk card generation). */
+export async function listActiveForCards() {
+  const { rows } = await query(
+    `SELECT * FROM businessmen WHERE status = 'active' ORDER BY six_digit_id ASC`,
+  );
+  return rows;
+}
+
 export async function getBusinessmanById(id) {
   const { rows } = await query('SELECT * FROM businessmen WHERE id = $1 LIMIT 1', [id]);
   return rows[0] || null;

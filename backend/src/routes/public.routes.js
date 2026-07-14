@@ -14,6 +14,7 @@ import * as settings from '../controllers/settings.controller.js';
 import * as contact from '../controllers/contact.controller.js';
 import * as upload from '../controllers/upload.controller.js';
 import * as notice from '../controllers/notice.controller.js';
+import * as publicForm from '../controllers/publicForm.controller.js';
 
 const router = Router();
 
@@ -28,6 +29,10 @@ router.get('/notices', notice.publicList);
 router.get('/businessmen/facets', businessmen.facets);
 router.get('/businessmen', validate(businessmanQuerySchema, 'query'), businessmen.publicList);
 router.get('/profiles/:sixDigits', businessmen.publicProfile);
+
+// Member form (ID-card QR target) — full form by six-digit id
+router.get('/members/:six/form.png', publicForm.publicMemberFormImage);
+router.get('/members/:six/form.pdf', publicForm.publicMemberFormPdf);
 
 // Public submissions
 router.post('/registration-requests', publicSubmitLimiter, validate(registrationSchema), registration.submit);

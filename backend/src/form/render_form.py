@@ -96,7 +96,10 @@ def main():
             pass
 
     out = io.BytesIO()
-    im.save(out, format="PDF", resolution=150.0)
+    if (data.get("format") or "pdf").lower() == "png":
+        im.save(out, format="PNG")
+    else:
+        im.save(out, format="PDF", resolution=150.0)
     sys.stdout.buffer.write(out.getvalue())
 
 

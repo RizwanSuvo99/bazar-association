@@ -27,6 +27,8 @@ export const env = {
   isProd: NODE_ENV === 'production',
   PORT: Number(optional('PORT', '4000')),
   CORS_ORIGIN: optional('CORS_ORIGIN', 'http://localhost:3000'),
+  // Public base URL the ID-card QR codes point at (member form pages).
+  PUBLIC_SITE_URL: optional('PUBLIC_SITE_URL', 'http://localhost:3000'),
 
   DATABASE_URL: required('DATABASE_URL'),
 

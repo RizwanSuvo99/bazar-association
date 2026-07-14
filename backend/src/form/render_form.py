@@ -63,7 +63,7 @@ def main():
         (770, row(2), bn(g("mother_name"))),
         (335, row(3), bn(g("village"))),
         (635, row(3), bn(g("post_office"))),
-        (975, row(3), bn(g("municipality_or_union"))),
+        (940, row(3), bn(g("municipality_or_union"))),
         (215, row(4), bn(g("upazila"))),
         (665, row(4), bn(g("district"))),
         (490, row(5), bn(g("current_business_name_address"))),

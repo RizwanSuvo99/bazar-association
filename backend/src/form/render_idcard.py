@@ -16,14 +16,14 @@ LOGO = os.path.join(HERE, "bazar-logo.png")
 
 # Portrait CR80 card @ 300 dpi (54 x 85.6 mm).
 W, H = 638, 1012
-# Olive / lime palette (cohesive green scheme).
-DARK = (84, 101, 51)     # header / footer / title pill
-MID = (127, 158, 88)     # photo ring
-BODY = (238, 246, 206)   # card body (pale lime)
-NAME_C = (74, 92, 46)    # name + labels (dark olive)
-VALUE_C = (58, 58, 44)   # detail values
+# Navy / blue palette.
+DARK = (26, 48, 86)      # header / footer / title pill (deep navy)
+MID = (66, 118, 180)     # photo ring (medium blue)
+BODY = (233, 240, 250)   # card body (pale blue)
+NAME_C = (26, 48, 86)    # name + labels (navy)
+VALUE_C = (52, 58, 72)   # detail values
 WHITE = (255, 255, 255)
-PLACEHOLDER = (223, 231, 198)
+PLACEHOLDER = (210, 222, 240)
 
 _BN = {"0": "০", "1": "১", "2": "২", "3": "৩", "4": "৪", "5": "৫", "6": "৬", "7": "৭", "8": "৮", "9": "৯"}
 _FONTS = {}
@@ -113,29 +113,31 @@ def render_card(data):
             lines.append(cur)
         return lines
 
-    # ---- Curved green header (organic, left-biased lobe) ----
-    d.rectangle((0, 0, W, 150), fill=DARK)
-    d.ellipse((-250, -330, 602, 338), fill=DARK)
+    # ---- Curved header (organic, left-biased lobe) ----
+    d.rectangle((0, 0, W, 156), fill=DARK)
+    d.ellipse((-250, -300, 602, 362), fill=DARK)
 
-    # logo + association name (white)
+    # logo in a large white circle chip (always visible on the dark header)
+    chip = 120
+    cgx, cgy = (W - chip) // 2, 22
+    d.ellipse((cgx, cgy, cgx + chip, cgy + chip), fill=WHITE)
     lg = _load_logo()
     if lg is not None:
         lg2 = lg.copy()
-        lg2.thumbnail((66, 66), Image.LANCZOS)
-        im.paste(lg2, ((W - lg2.width) // 2, 20), lg2)
+        lg2.thumbnail((chip - 12, chip - 12), Image.LANCZOS)
+        im.paste(lg2, (cgx + (chip - lg2.width) // 2, cgy + (chip - lg2.height) // 2), lg2)
+
+    # association name (white, under the logo)
     org = data.get("org_name") or "নাঙ্গলকোট বাজার ব্যবসায়ী সংস্থা"
-    osz = 26
-    lines = wrap(org, W - 80, osz)
-    if len(lines) > 2:
-        osz = 23
-        lines = wrap(org, W - 80, osz)[:2]
-    ty = 122 if len(lines) == 1 else 110
+    osz = 23
+    lines = wrap(org, W - 90, osz)[:2]
+    ty = 178
     for ln in lines:
         draw_center(W / 2, ty, ln, osz, WHITE)
-        ty += osz + 8
+        ty += osz + 7
 
-    # ---- Circular photo (overlapping), with ring ----
-    cxp, cyp, R = W // 2, 300, 130
+    # ---- Circular photo (overlapping the header), with ring ----
+    cxp, cyp, R = W // 2, 330, 120
     d.ellipse((cxp - R - 9, cyp - R - 9, cxp + R + 9, cyp + R + 9), fill=MID)
     ph = None
     if data.get("photo_b64"):
@@ -155,10 +157,10 @@ def render_card(data):
     # ---- Name ----
     name = (data.get("full_name") or "").strip()
     if name:
-        draw_center(W / 2, 540, name, fit_size(name, W - 56, 44, 26), NAME_C)
+        draw_center(W / 2, 516, name, fit_size(name, W - 56, 44, 26), NAME_C)
 
     # ---- Title pill (business type) ----
-    y = 566
+    y = 542
     biz = (data.get("business_type") or "").strip()
     if biz:
         bs = fit_size(biz, W - 150, 26, 18)

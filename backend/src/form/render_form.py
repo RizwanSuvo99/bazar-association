@@ -56,7 +56,7 @@ def main():
     def row(r):
         return 641 + 35 * (r - 1)
     fields = [
-        (230, 569, bn("NBA-" + str(six))),
+        (230, 576, bn("NBA-" + str(six))),
         (235, row(1), bn(g("full_name"))),
         (880, row(1), bn(g("mobile_number"))),
         (230, row(2), bn(g("father_name"))),

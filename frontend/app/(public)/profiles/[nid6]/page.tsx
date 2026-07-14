@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
-import { ArrowLeft, Phone, User, MapPin, Store, UserCheck, IdCard, Info } from "lucide-react";
+import { ArrowLeft, Phone, User, MapPin, Store, IdCard, Info } from "lucide-react";
 import { getProfile } from "@/lib/queries";
 import { getI18n } from "@/lib/i18n-server";
 import { ProfileSection, FieldRow } from "@/components/profile/sections";
@@ -121,12 +121,6 @@ export default async function ProfilePage({ params }: { params: Promise<{ nid6: 
             <FieldRow label={L.market_name} value={b.market_name} />
             <FieldRow label={L.owner_name} value={b.owner_name} />
             <FieldRow label={L.trade_license_no} value={dg(b.trade_license_no)} />
-          </ProfileSection>
-
-          <ProfileSection title={dict.profile.nominee} icon={<UserCheck className="h-5 w-5" />}>
-            <FieldRow label={L.nominee_name} value={b.nominee_name} />
-            <FieldRow label={L.nominee_relation} value={b.nominee_relation} />
-            <FieldRow label={L.nominee_mobile} value={dg(b.nominee_mobile)} />
           </ProfileSection>
 
           <ProfileSection title={dict.profile.ids} icon={<IdCard className="h-5 w-5" />}>

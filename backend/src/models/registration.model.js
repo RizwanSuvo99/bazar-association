@@ -6,7 +6,7 @@ export const REQUEST_WRITABLE_COLUMNS = [
   'current_business_name_address', 'business_type', 'trade_license_no', 'tin_no',
   'market_name', 'owner_name', 'ward_no', 'holding_no', 'voter_type',
   'nid_no', 'nominee_name', 'nominee_relation', 'nominee_mobile', 'profile_photo_url',
-  'transaction_id',
+  'payment_method', 'transaction_id',
 ];
 
 export async function createRequest(data) {

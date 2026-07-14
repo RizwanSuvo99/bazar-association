@@ -56,7 +56,8 @@ export default async function RequestsPage({ searchParams }: { searchParams: Pro
             <div className="min-w-0">
               <p className="truncate font-medium text-foreground">{r.full_name}</p>
               <p className="truncate text-sm text-muted-foreground">
-                {r.business_type} · {r.market_name} · TrxID: {r.transaction_id}
+                {r.business_type} · {r.market_name} ·{" "}
+                {r.payment_method === "cash" ? dict.register.payCash : `TrxID: ${r.transaction_id}`}
               </p>
             </div>
             <div className="flex shrink-0 items-center gap-3">

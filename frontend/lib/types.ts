@@ -36,7 +36,8 @@ export interface Businessman {
 }
 
 export interface RegistrationRequest extends Omit<Businessman, "six_digit_id" | "unique_id" | "status"> {
-  transaction_id: string;
+  payment_method: "bkash" | "cash";
+  transaction_id: string | null;
   status: "pending" | "approved" | "rejected";
   reject_reason?: string | null;
   businessman_id?: number | null;

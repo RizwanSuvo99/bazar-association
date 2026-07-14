@@ -43,7 +43,11 @@ export default async function RequestReviewPage({ params }: { params: Promise<{ 
             <h3 className="mb-2 flex items-center gap-2 font-display font-semibold">
               <Wallet className="h-4 w-4 text-primary" /> {dict.register.sectionPayment}
             </h3>
-            <FieldRow label={dict.register.txnId} value={r.transaction_id} />
+            <FieldRow
+              label={dict.register.paymentMethod}
+              value={r.payment_method === "cash" ? dict.register.payCash : dict.register.payBkash}
+            />
+            {r.payment_method === "bkash" && <FieldRow label={dict.register.txnId} value={r.transaction_id} />}
           </Card>
           <Card className="p-4">
             <h3 className="mb-3 font-display font-semibold">{dict.admin.approve} / {dict.admin.reject}</h3>

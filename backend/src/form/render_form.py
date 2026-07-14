@@ -61,7 +61,7 @@ def main():
         (880, row(1), bn(g("mobile_number"))),
         (230, row(2), bn(g("father_name"))),
         (770, row(2), bn(g("mother_name"))),
-        (335, row(3), bn(g("village"))),
+        (284, row(3), bn(g("village"))),
         (635, row(3), bn(g("post_office"))),
         (930, row(3), bn(g("municipality_or_union"))),
         (215, row(4), bn(g("upazila"))),

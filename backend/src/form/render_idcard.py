@@ -158,7 +158,8 @@ def render_card(data):
     # ---- Name (60pt, spans the full width up to the blue border) ----
     name = (data.get("full_name") or "").strip()
     if name:
-        draw_center(W / 2, 542, name, fit_size(name, W - 72, 60, 34), NAME_C)
+        # keep the name well inside the side padding (inner width W-64; leave a clear margin)
+        draw_center(W / 2, 538, name, fit_size(name, W - 112, 46, 28), NAME_C)
 
     # ---- Title pill (business type) ----
     y = 560

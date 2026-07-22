@@ -120,7 +120,7 @@ def render_card(data):
 
     # small logo in a white circle chip (always visible on the dark header)
     chip = 86
-    cgx, cgy = (W - chip) // 2, 16
+    cgx, cgy = (W - chip) // 2, 30
     d.ellipse((cgx, cgy, cgx + chip, cgy + chip), fill=WHITE)
     lg = _load_logo()
     if lg is not None:
@@ -132,13 +132,13 @@ def render_card(data):
     org = data.get("org_name") or "নাঙ্গলকোট বাজার ব্যবসায়ী সংস্থা"
     osz = 22
     lines = wrap(org, W - 80, osz)[:2]
-    ty = 144
+    ty = 156
     for ln in lines:
         draw_center(W / 2, ty, ln, osz, WHITE)
         ty += osz + 7
 
     # ---- Large circular photo (overlapping the header), with ring ----
-    cxp, cyp, R = W // 2, 302, 128
+    cxp, cyp, R = W // 2, 314, 128
     d.ellipse((cxp - R - 9, cyp - R - 9, cxp + R + 9, cyp + R + 9), fill=MID)
     ph = None
     if data.get("photo_b64"):
@@ -158,10 +158,10 @@ def render_card(data):
     # ---- Name (60pt, spans the full width up to the blue border) ----
     name = (data.get("full_name") or "").strip()
     if name:
-        draw_center(W / 2, 512, name, fit_size(name, W - 42, 60, 34), NAME_C)
+        draw_center(W / 2, 524, name, fit_size(name, W - 42, 60, 34), NAME_C)
 
     # ---- Title pill (business type) ----
-    y = 538
+    y = 550
     biz = (data.get("business_type") or "").strip()
     if biz:
         bs = fit_size(biz, W - 150, 28, 20)
@@ -210,10 +210,11 @@ def render_card(data):
     # ---- Footer bar ----
     d.rectangle((0, H - 46, W, H), fill=DARK)
 
-    # ---- Blue border: frames the card from the top down to where the QR
-    #      begins (touches the QR on the y-axis), inset equally on the x-axis.
-    M = 16
-    d.rectangle((M, M, W - 1 - M, qy), outline=BLUE, width=5)
+    # ---- Blue side borders: left & right rails only (no top/bottom frame),
+    #      running from a padded top down to where the QR begins.
+    M, top_pad = 16, 150
+    d.line((M, top_pad, M, qy), fill=BLUE, width=5)
+    d.line((W - 1 - M, top_pad, W - 1 - M, qy), fill=BLUE, width=5)
 
     return im
 

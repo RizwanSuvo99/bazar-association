@@ -120,7 +120,7 @@ def render_card(data):
 
     # small logo in a white circle chip (always visible on the dark header)
     chip = 86
-    cgx, cgy = (W - chip) // 2, 42
+    cgx, cgy = (W - chip) // 2, 50
     d.ellipse((cgx, cgy, cgx + chip, cgy + chip), fill=WHITE)
     lg = _load_logo()
     if lg is not None:
@@ -130,15 +130,15 @@ def render_card(data):
 
     # association name (white, under the logo)
     org = data.get("org_name") or "নাঙ্গলকোট বাজার ব্যবসায়ী সংস্থা"
-    osz = 27
-    lines = wrap(org, W - 52, osz)[:2]
-    ty = 172
+    osz = 26
+    lines = wrap(org, W - 74, osz)[:2]
+    ty = 176
     for ln in lines:
         draw_center(W / 2, ty, ln, osz, WHITE)
         ty += osz + 7
 
     # ---- Large circular photo (overlapping the header), with ring ----
-    cxp, cyp, R = W // 2, 334, 128
+    cxp, cyp, R = W // 2, 332, 126
     d.ellipse((cxp - R - 9, cyp - R - 9, cxp + R + 9, cyp + R + 9), fill=MID)
     ph = None
     if data.get("photo_b64"):
@@ -158,10 +158,10 @@ def render_card(data):
     # ---- Name (60pt, spans the full width up to the blue border) ----
     name = (data.get("full_name") or "").strip()
     if name:
-        draw_center(W / 2, 544, name, fit_size(name, W - 42, 60, 34), NAME_C)
+        draw_center(W / 2, 542, name, fit_size(name, W - 72, 60, 34), NAME_C)
 
     # ---- Title pill (business type) ----
-    y = 570
+    y = 560
     biz = (data.get("business_type") or "").strip()
     if biz:
         bs = fit_size(biz, W - 150, 28, 20)
@@ -191,12 +191,16 @@ def render_card(data):
     for label, val in rows:
         if not val:
             continue
-        draw_kv(y + 37, label, val, 36)
-        y += 48
+        draw_kv(y + 32, label, val, 34)
+        y += 44
+
+    # ---- Uniform padding on all four sides of the card ----
+    P = 32
+    footer_top = H - P - 38
 
     # ---- QR (centered, above the footer bar) ----
     qr_b64 = data.get("qr_b64")
-    avail_top, avail_bot = y + 12, H - 64
+    avail_top, avail_bot = y + 12, footer_top - 6
     QS = int(max(150, min(180, avail_bot - avail_top)))
     qy = int(avail_top + max(0, (avail_bot - avail_top - QS) / 2))
     qx = (W - QS) // 2
@@ -207,8 +211,14 @@ def render_card(data):
         except Exception:
             pass
 
-    # ---- Footer bar ----
-    d.rectangle((0, H - 46, W, H), fill=DARK)
+    # ---- Footer bar (inset to sit within the padding) ----
+    d.rectangle((P, footer_top, W - P, H - P), fill=DARK)
+
+    # ---- Equal padding margin (card background) on every side ----
+    d.rectangle((0, 0, W, P), fill=BODY)
+    d.rectangle((0, H - P, W, H), fill=BODY)
+    d.rectangle((0, 0, P, H), fill=BODY)
+    d.rectangle((W - P, 0, W, H), fill=BODY)
 
     return im
 

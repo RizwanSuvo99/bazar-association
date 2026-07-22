@@ -154,25 +154,25 @@ def render_card(data):
         ph = _circle(chip, 2 * R)
     im.paste(ph, (cxp - R, cyp - R), ph)
 
-    # ---- Name ----
+    # ---- Name (large, uses the full card width) ----
     name = (data.get("full_name") or "").strip()
     if name:
-        draw_center(W / 2, 516, name, fit_size(name, W - 56, 44, 26), NAME_C)
+        draw_center(W / 2, 524, name, fit_size(name, W - 36, 52, 30), NAME_C)
 
     # ---- Title pill (business type) ----
-    y = 542
+    y = 550
     biz = (data.get("business_type") or "").strip()
     if biz:
-        bs = fit_size(biz, W - 150, 26, 18)
-        pw = measure(biz, bs) + 66
-        d.rounded_rectangle((W / 2 - pw / 2, y, W / 2 + pw / 2, y + 50), radius=10, fill=DARK)
-        draw_center(W / 2, y + 34, biz, bs, WHITE)
-        y += 78
+        bs = fit_size(biz, W - 150, 28, 20)
+        pw = measure(biz, bs) + 70
+        d.rounded_rectangle((W / 2 - pw / 2, y, W / 2 + pw / 2, y + 54), radius=12, fill=DARK)
+        draw_center(W / 2, y + 37, biz, bs, WHITE)
+        y += 84
     else:
-        y += 28
+        y += 30
 
-    # ---- Details (left-aligned label : value) ----
-    lx, vx = 52, 226
+    # ---- Details (left-aligned label : value), larger type ----
+    lx, vx = 46, 250
     rows = [
         ("সদস্য আইডি", "NBA-" + str(data.get("six_digit_id") or "")),
         ("মোবাইল", bn(data.get("mobile_number"))),
@@ -181,9 +181,9 @@ def render_card(data):
     for label, val in rows:
         if not val:
             continue
-        draw_left(lx, y + 27, label, 24, NAME_C)
-        draw_left(vx, y + 27, ":  " + val, 24, VALUE_C)
-        y += 46
+        draw_left(lx, y + 30, label, 28, NAME_C)
+        draw_left(vx, y + 30, ":  " + val, 28, VALUE_C)
+        y += 50
 
     # ---- QR (centered, above the footer bar) ----
     qr_b64 = data.get("qr_b64")
@@ -200,6 +200,16 @@ def render_card(data):
 
     # ---- Footer bar ----
     d.rectangle((0, H - 46, W, H), fill=DARK)
+
+    # ---- Decorative "safety" double-line border frame ----
+    # Each line is drawn as a navy stroke over a thin white halo, so the frame
+    # stays visible over both the light body and the dark header/footer bands.
+    m, gap = 15, 7
+    for box in ((m, m, W - 1 - m, H - 1 - m),
+                (m + gap, m + gap, W - 1 - m - gap, H - 1 - m - gap)):
+        d.rectangle(box, outline=WHITE, width=4)
+        d.rectangle(box, outline=DARK, width=2)
+
     return im
 
 

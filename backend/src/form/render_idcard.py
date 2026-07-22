@@ -24,6 +24,7 @@ NAME_C = (26, 48, 86)    # name + labels (navy)
 VALUE_C = (52, 58, 72)   # detail values
 WHITE = (255, 255, 255)
 PLACEHOLDER = (210, 222, 240)
+BLUE = (37, 99, 210)     # decorative border around the card
 
 _BN = {"0": "০", "1": "১", "2": "২", "3": "৩", "4": "৪", "5": "৫", "6": "৬", "7": "৭", "8": "৮", "9": "৯"}
 _FONTS = {}
@@ -117,27 +118,27 @@ def render_card(data):
     d.rectangle((0, 0, W, 156), fill=DARK)
     d.ellipse((-250, -300, 602, 362), fill=DARK)
 
-    # logo in a large white circle chip (always visible on the dark header)
-    chip = 120
-    cgx, cgy = (W - chip) // 2, 22
+    # small logo in a white circle chip (always visible on the dark header)
+    chip = 86
+    cgx, cgy = (W - chip) // 2, 16
     d.ellipse((cgx, cgy, cgx + chip, cgy + chip), fill=WHITE)
     lg = _load_logo()
     if lg is not None:
         lg2 = lg.copy()
-        lg2.thumbnail((chip - 12, chip - 12), Image.LANCZOS)
+        lg2.thumbnail((chip - 10, chip - 10), Image.LANCZOS)
         im.paste(lg2, (cgx + (chip - lg2.width) // 2, cgy + (chip - lg2.height) // 2), lg2)
 
     # association name (white, under the logo)
     org = data.get("org_name") or "নাঙ্গলকোট বাজার ব্যবসায়ী সংস্থা"
-    osz = 23
-    lines = wrap(org, W - 90, osz)[:2]
-    ty = 178
+    osz = 22
+    lines = wrap(org, W - 80, osz)[:2]
+    ty = 144
     for ln in lines:
         draw_center(W / 2, ty, ln, osz, WHITE)
         ty += osz + 7
 
-    # ---- Circular photo (overlapping the header), with ring ----
-    cxp, cyp, R = W // 2, 330, 120
+    # ---- Large circular photo (overlapping the header), with ring ----
+    cxp, cyp, R = W // 2, 302, 128
     d.ellipse((cxp - R - 9, cyp - R - 9, cxp + R + 9, cyp + R + 9), fill=MID)
     ph = None
     if data.get("photo_b64"):
@@ -154,25 +155,34 @@ def render_card(data):
         ph = _circle(chip, 2 * R)
     im.paste(ph, (cxp - R, cyp - R), ph)
 
-    # ---- Name (large, uses the full card width) ----
+    # ---- Name (60pt, spans the full width up to the blue border) ----
     name = (data.get("full_name") or "").strip()
     if name:
-        draw_center(W / 2, 524, name, fit_size(name, W - 36, 52, 30), NAME_C)
+        draw_center(W / 2, 512, name, fit_size(name, W - 42, 60, 34), NAME_C)
 
     # ---- Title pill (business type) ----
-    y = 550
+    y = 538
     biz = (data.get("business_type") or "").strip()
     if biz:
         bs = fit_size(biz, W - 150, 28, 20)
         pw = measure(biz, bs) + 70
-        d.rounded_rectangle((W / 2 - pw / 2, y, W / 2 + pw / 2, y + 54), radius=12, fill=DARK)
-        draw_center(W / 2, y + 37, biz, bs, WHITE)
-        y += 84
+        d.rounded_rectangle((W / 2 - pw / 2, y, W / 2 + pw / 2, y + 52), radius=12, fill=DARK)
+        draw_center(W / 2, y + 35, biz, bs, WHITE)
+        y += 82
     else:
-        y += 30
+        y += 28
 
-    # ---- Details (left-aligned label : value), larger type ----
-    lx, vx = 46, 250
+    # ---- Details: large (40pt) rows, centered on the card's x-axis ----
+    def draw_kv(baseline, label, value, size):
+        sep = " :  "
+        total = measure(label, size) + measure(sep, size) + measure(value, size)
+        x = W / 2 - total / 2
+        draw_left(x, baseline, label, size, NAME_C)
+        x += measure(label, size)
+        draw_left(x, baseline, sep, size, NAME_C)
+        x += measure(sep, size)
+        draw_left(x, baseline, value, size, VALUE_C)
+
     rows = [
         ("সদস্য আইডি", "NBA-" + str(data.get("six_digit_id") or "")),
         ("মোবাইল", bn(data.get("mobile_number"))),
@@ -181,13 +191,12 @@ def render_card(data):
     for label, val in rows:
         if not val:
             continue
-        draw_left(lx, y + 30, label, 28, NAME_C)
-        draw_left(vx, y + 30, ":  " + val, 28, VALUE_C)
-        y += 50
+        draw_kv(y + 40, label, val, 40)
+        y += 54
 
     # ---- QR (centered, above the footer bar) ----
     qr_b64 = data.get("qr_b64")
-    avail_top, avail_bot = y + 10, H - 64
+    avail_top, avail_bot = y + 12, H - 64
     QS = int(max(150, min(180, avail_bot - avail_top)))
     qy = int(avail_top + max(0, (avail_bot - avail_top - QS) / 2))
     qx = (W - QS) // 2
@@ -201,14 +210,10 @@ def render_card(data):
     # ---- Footer bar ----
     d.rectangle((0, H - 46, W, H), fill=DARK)
 
-    # ---- Decorative "safety" double-line border frame ----
-    # Each line is drawn as a navy stroke over a thin white halo, so the frame
-    # stays visible over both the light body and the dark header/footer bands.
-    m, gap = 15, 7
-    for box in ((m, m, W - 1 - m, H - 1 - m),
-                (m + gap, m + gap, W - 1 - m - gap, H - 1 - m - gap)):
-        d.rectangle(box, outline=WHITE, width=4)
-        d.rectangle(box, outline=DARK, width=2)
+    # ---- Blue border: frames the card from the top down to where the QR
+    #      begins (touches the QR on the y-axis), inset equally on the x-axis.
+    M = 16
+    d.rectangle((M, M, W - 1 - M, qy), outline=BLUE, width=5)
 
     return im
 

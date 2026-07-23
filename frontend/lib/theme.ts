@@ -17,6 +17,7 @@ export const THEMES: ThemeMeta[] = [
   { name: "royal-blue", label_bn: "টিল", label_en: "Teal", swatch: "#0f766e", accent: "#2dd4bf" },
   { name: "emerald", label_bn: "এমারল্ড", label_en: "Emerald", swatch: "#047857", accent: "#34d399" },
   { name: "crimson", label_bn: "ক্রিমসন", label_en: "Crimson", swatch: "#be123c", accent: "#fb7185" },
+  { name: "navy", label_bn: "নেভি ব্লু", label_en: "Navy Blue", swatch: "#1a3056", accent: "#78a9dd" },
 ];
 
 export const THEME_NAMES: ThemeName[] = THEMES.map((t) => t.name);

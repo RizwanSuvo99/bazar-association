@@ -19,7 +19,7 @@ export const settingsUpdateSchema = z.object({
     z.string().regex(/^01[3-9]\d{8}$/, 'সঠিক বিকাশ নম্বর দিন।').optional(),
   ),
   registration_fee: z.coerce.number().int().min(0).max(100000).optional(),
-  active_theme: z.enum(['emerald', 'royal-blue', 'warm-amber', 'crimson']).optional(),
+  active_theme: z.enum(['emerald', 'royal-blue', 'warm-amber', 'crimson', 'navy']).optional(),
   logo_url: optionalUrl,
   contact_email: z.preprocess(
     (v) => (v === '' || v === null ? undefined : v),

@@ -101,6 +101,18 @@
   --ring: #fb7185;
 }
 
+[data-theme="navy"] {
+  /* Navy — matches the member ID card palette (#1a3056 / #4276b4). */
+  --primary: #1a3056;
+  --primary-foreground: #ffffff;
+  --ring: #1a3056;
+}
+.dark[data-theme="navy"] {
+  --primary: #78a9dd;
+  --primary-foreground: #0f2038;
+  --ring: #78a9dd;
+}
+
 /* ---- Expose runtime variables as Tailwind color/utility tokens ---- */
 @theme inline {
   --color-background: var(--background);

@@ -1,5 +1,5 @@
 export type Lang = "bn" | "en";
-export type ThemeName = "emerald" | "royal-blue" | "warm-amber" | "crimson";
+export type ThemeName = "emerald" | "royal-blue" | "warm-amber" | "crimson" | "navy";
 export type Mode = "light" | "dark";
 
 export interface Businessman {

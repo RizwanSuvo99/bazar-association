@@ -291,13 +291,13 @@ def render_card_back(data):
     im = Image.new("RGB", (W, H), BODY)
     d = ImageDraw.Draw(im)
 
-    # ---- Taller header so logo + org name sit on navy across the width ----
+    # ---- Header holding just the logo (org name is on the front) ----
     d.rectangle((0, 0, W, 205), fill=DARK)
     d.ellipse((-180, -250, 818, 300), fill=DARK)
 
     # logo in a white circle chip (moved here from the front)
-    chip = 132
-    cgx, cgy = (W - chip) // 2, 34
+    chip = 150
+    cgx, cgy = (W - chip) // 2, 44
     d.ellipse((cgx, cgy, cgx + chip, cgy + chip), fill=WHITE)
     lg = _load_rgba(LOGO)
     if lg is not None:
@@ -305,16 +305,9 @@ def render_card_back(data):
         l2.thumbnail((chip - 12, chip - 12), Image.LANCZOS)
         im.paste(l2, (cgx + (chip - l2.width) // 2, cgy + (chip - l2.height) // 2), l2)
 
-    org = data.get("org_name") or ORG_NAME
-    osz = 24
-    ty = cgy + chip + 30
-    for ln in wrap(org, W - 80, osz)[:2]:
-        draw_center(d, W / 2, ty, ln, osz, WHITE)
-        ty += osz + 6
-
     # ---- QR (large, centered) ----
-    QS = 330
-    qx, qy = (W - QS) // 2, 296
+    QS = 350
+    qx, qy = (W - QS) // 2, 262
     if data.get("qr_b64"):
         try:
             qr = Image.open(io.BytesIO(base64.b64decode(data["qr_b64"]))).convert("RGB").resize((QS, QS), Image.NEAREST)

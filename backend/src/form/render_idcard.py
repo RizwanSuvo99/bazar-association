@@ -120,7 +120,7 @@ def render_card(data):
 
     # small logo in a white circle chip (always visible on the dark header)
     chip = 86
-    cgx, cgy = (W - chip) // 2, 50
+    cgx, cgy = (W - chip) // 2, 52
     d.ellipse((cgx, cgy, cgx + chip, cgy + chip), fill=WHITE)
     lg = _load_logo()
     if lg is not None:
@@ -130,15 +130,15 @@ def render_card(data):
 
     # association name (white, under the logo)
     org = data.get("org_name") or "নাঙ্গলকোট বাজার ব্যবসায়ী সংস্থা"
-    osz = 26
-    lines = wrap(org, W - 74, osz)[:2]
-    ty = 176
+    osz = 25
+    lines = wrap(org, W - 94, osz)[:2]
+    ty = 180
     for ln in lines:
         draw_center(W / 2, ty, ln, osz, WHITE)
         ty += osz + 7
 
     # ---- Large circular photo (overlapping the header), with ring ----
-    cxp, cyp, R = W // 2, 332, 126
+    cxp, cyp, R = W // 2, 338, 124
     d.ellipse((cxp - R - 9, cyp - R - 9, cxp + R + 9, cyp + R + 9), fill=MID)
     ph = None
     if data.get("photo_b64"):
@@ -158,11 +158,11 @@ def render_card(data):
     # ---- Name (60pt, spans the full width up to the blue border) ----
     name = (data.get("full_name") or "").strip()
     if name:
-        # keep the name well inside the side padding (inner width W-64; leave a clear margin)
-        draw_center(W / 2, 538, name, fit_size(name, W - 112, 46, 28), NAME_C)
+        # keep the name well inside the side padding (leave a clear margin each side)
+        draw_center(W / 2, 536, name, fit_size(name, W - 124, 44, 28), NAME_C)
 
     # ---- Title pill (business type) ----
-    y = 560
+    y = 552
     biz = (data.get("business_type") or "").strip()
     if biz:
         bs = fit_size(biz, W - 150, 28, 20)
@@ -193,10 +193,10 @@ def render_card(data):
         if not val:
             continue
         draw_kv(y + 32, label, val, 34)
-        y += 44
+        y += 42
 
     # ---- Uniform padding on all four sides of the card ----
-    P = 32
+    P = 42
     footer_top = H - P - 38
 
     # ---- QR (centered, above the footer bar) ----

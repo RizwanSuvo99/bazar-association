@@ -18,10 +18,10 @@ function pageWindow(page: number, totalPages: number): (number | "…")[] {
   return out;
 }
 
-/** Server-friendly, token-styled pagination. Preserves extra query params. */
+/** Server-friendly, token-styled pagination. Always visible; preserves extra query params. */
 export function Pagination({
   page,
-  totalPages,
+  totalPages: totalPagesProp,
   basePath,
   params = {},
   lang,
@@ -38,7 +38,7 @@ export function Pagination({
   nextLabel: string;
   className?: string;
 }) {
-  if (totalPages <= 1) return null;
+  const totalPages = Math.max(1, totalPagesProp);
 
   const href = (p: number) => {
     const sp = new URLSearchParams();

@@ -41,8 +41,9 @@ SLATE = (74, 84, 100)        # back muted text
 WHITE = (255, 255, 255)
 
 # Fixed association info (overridable via payload).
+BISMILLAH = "বিসমিল্লাহির রাহমানির রাহিম"
 ORG_NAME = "নাঙ্গলকোট বাজার ব্যবসায়ী সংস্থা"
-OFFICE_ADDR = "অফিসঃ নাঙ্গলকোট মধ্য বাজার, নাঙ্গলকোট, কুমিল্লা"
+OFFICE_ADDR = "অফিস: নাঙ্গলকোট বাজার, উপজেলা: নাঙ্গলকোট, কুমিল্লা"
 OFFICE_PHONE = "ফোনঃ ০১৩৩৩০৮৭১৮০"
 NOTES = [
     "এই কার্ডটি হস্তান্তরযোগ্য নয় ও সংস্থার সম্পত্তি।",
@@ -213,20 +214,37 @@ def render_card(data):
     # ---- Inner content panel (padding frame stays visible around it) ----
     d.rounded_rectangle((S(P), S(P), WS - S(P), HS - S(P)), radius=S(18), fill=PANEL)
 
-    # ---- Org name (big, light) + gold rule ----
+    # ---- Bismillah (topmost line) ----
+    draw_center(d, WS / 2, S(78), BISMILLAH, S(19), GOLD)
+
+    # ---- Logo in a white circle chip ----
+    chip = S(88)
+    cgx, cgy = (WS - chip) // 2, S(94)
+    d.ellipse((cgx, cgy, cgx + chip, cgy + chip), fill=WHITE)
+    lg = _load_rgba(LOGO_HD) or _load_rgba(LOGO)
+    if lg is not None:
+        l2 = lg.copy()
+        bbox = l2.getbbox()          # trim transparent margins so it centres in the chip
+        if bbox:
+            l2 = l2.crop(bbox)
+        sc = min((chip - S(10)) / l2.width, (chip - S(10)) / l2.height)
+        l2 = l2.resize((max(1, int(l2.width * sc)), max(1, int(l2.height * sc))), Image.LANCZOS)
+        im.paste(l2, (cgx + (chip - l2.width) // 2, cgy + (chip - l2.height) // 2), l2)
+
+    # ---- Org name + gold rule ----
     org = data.get("org_name") or ORG_NAME
-    osz = S(34)
-    olines = wrap(org, S(W - 92), osz)[:2]
-    ty = S(120) if len(olines) == 2 else S(146)
+    osz = S(30)
+    olines = wrap(org, S(W - 100), osz)[:2]
+    ty = S(226) if len(olines) == 2 else S(244)
     for ln in olines:
         draw_center(d, WS / 2, ty, ln, osz, TEXT_LIGHT)
         ty += osz + S(8)
-    rule_w = S(120)
+    rule_w = S(110)
     d.rounded_rectangle((WS / 2 - rule_w / 2, ty - S(16), WS / 2 + rule_w / 2, ty - S(10)),
                         radius=S(3), fill=GOLD)
 
     # ---- Circular photo with gold double ring ----
-    cxp, cyp, R = WS // 2, S(360), S(124)
+    cxp, cyp, R = WS // 2, S(398), S(100)
     d.ellipse((cxp - R - S(14), cyp - R - S(14), cxp + R + S(14), cyp + R + S(14)), fill=GOLD)
     d.ellipse((cxp - R - S(7), cyp - R - S(7), cxp + R + S(7), cyp + R + S(7)), fill=PANEL)
     ph = None
@@ -238,8 +256,8 @@ def render_card(data):
     if ph is None:
         chip = Image.new("RGB", (2 * R, 2 * R), PANEL_2)
         ImageDraw.Draw(chip).text(
-            (R, R + S(48)), ((data.get("full_name") or "?").strip()[:1] or "?"),
-            font=font_bn(S(150)), fill=GOLD, anchor="ms",
+            (R, R + S(40)), ((data.get("full_name") or "?").strip()[:1] or "?"),
+            font=font_bn(S(120)), fill=GOLD, anchor="ms",
         )
         ph = _circle(chip, 2 * R)
     im.paste(ph, (cxp - R, cyp - R), ph)

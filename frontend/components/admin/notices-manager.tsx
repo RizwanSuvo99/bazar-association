@@ -147,11 +147,11 @@ export function NoticesManager({ notices }: { notices: Notice[] }) {
               ) : (
                 <Badge className="bg-muted text-muted-foreground">লুকানো</Badge>
               )}
-              <a href={n.file_url} target="_blank" rel="noreferrer" className="rounded-md border border-border p-1.5 hover:bg-muted" aria-label="view"><Eye className="h-4 w-4" /></a>
-              <button onClick={() => togglePublish(n)} className="rounded-md border border-border p-1.5 hover:bg-muted cursor-pointer" aria-label="toggle">
+              <a href={n.file_url} target="_blank" rel="noreferrer" className="rounded-md bg-surface-2 p-1.5 hover:bg-muted" aria-label="view"><Eye className="h-4 w-4" /></a>
+              <button onClick={() => togglePublish(n)} className="rounded-md bg-surface-2 p-1.5 hover:bg-muted cursor-pointer" aria-label="toggle">
                 {n.is_published ? <X className="h-4 w-4" /> : <Check className="h-4 w-4" />}
               </button>
-              <button onClick={() => remove(n.id)} className="rounded-md border border-border p-1.5 text-destructive hover:bg-destructive/10 cursor-pointer" aria-label="delete"><Trash2 className="h-4 w-4" /></button>
+              <button onClick={() => remove(n.id)} className="rounded-md bg-surface-2 p-1.5 text-destructive hover:bg-destructive/10 cursor-pointer" aria-label="delete"><Trash2 className="h-4 w-4" /></button>
             </div>
           </Card>
         ))}

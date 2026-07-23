@@ -84,12 +84,12 @@ export function GalleryManager({ images }: { images: GalleryImage[] }) {
                 onChange={(e) => setCaptions((c) => ({ ...c, [img.id]: { ...c[img.id], en: e.target.value } }))} className="h-9 text-sm" />
               <div className="flex items-center justify-between">
                 <div className="flex gap-1">
-                  <button onClick={() => move(i, -1)} disabled={i === 0} className="rounded-md border border-border p-1.5 disabled:opacity-40 cursor-pointer" aria-label="up"><ArrowUp className="h-4 w-4" /></button>
-                  <button onClick={() => move(i, 1)} disabled={i === images.length - 1} className="rounded-md border border-border p-1.5 disabled:opacity-40 cursor-pointer" aria-label="down"><ArrowDown className="h-4 w-4" /></button>
+                  <button onClick={() => move(i, -1)} disabled={i === 0} className="rounded-md bg-surface-2 p-1.5 disabled:opacity-40 cursor-pointer" aria-label="up"><ArrowUp className="h-4 w-4" /></button>
+                  <button onClick={() => move(i, 1)} disabled={i === images.length - 1} className="rounded-md bg-surface-2 p-1.5 disabled:opacity-40 cursor-pointer" aria-label="down"><ArrowDown className="h-4 w-4" /></button>
                 </div>
                 <div className="flex gap-1">
-                  <button onClick={() => saveCaption(img.id)} className="rounded-md border border-border p-1.5 hover:bg-muted cursor-pointer" aria-label="save"><Save className="h-4 w-4" /></button>
-                  <button onClick={() => remove(img.id)} className="rounded-md border border-border p-1.5 text-destructive hover:bg-destructive/10 cursor-pointer" aria-label="delete"><Trash2 className="h-4 w-4" /></button>
+                  <button onClick={() => saveCaption(img.id)} className="rounded-md bg-surface-2 p-1.5 hover:bg-muted cursor-pointer" aria-label="save"><Save className="h-4 w-4" /></button>
+                  <button onClick={() => remove(img.id)} className="rounded-md bg-surface-2 p-1.5 text-destructive hover:bg-destructive/10 cursor-pointer" aria-label="delete"><Trash2 className="h-4 w-4" /></button>
                 </div>
               </div>
             </div>

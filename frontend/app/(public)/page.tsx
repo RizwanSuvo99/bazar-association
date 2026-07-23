@@ -23,7 +23,7 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
     market: first(sp.market),
     ward: first(sp.ward),
     page: first(sp.page) || "1",
-    limit: 12,
+    limit: 8,
   };
 
   const emptyFacets: Facets = { business_types: [], markets: [], wards: [], unions: [] };

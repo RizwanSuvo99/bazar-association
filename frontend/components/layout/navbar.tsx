@@ -27,7 +27,7 @@ export function Navbar({ orgName }: { orgName: string }) {
   const isActive = (href: string) => (href === "/" ? pathname === "/" : pathname.startsWith(href));
 
   return (
-    <header className="sticky top-0 z-40 border-b border-border bg-background/85 backdrop-blur">
+    <header className="sticky top-0 z-40 border-b border-border/60 bg-background/95 backdrop-blur-sm">
       <Container className="flex h-16 items-center justify-between gap-3">
         <Link href="/" className="flex items-center gap-2.5" onClick={() => setOpen(false)}>
           <Image
@@ -38,7 +38,7 @@ export function Navbar({ orgName }: { orgName: string }) {
             priority
             className="h-11 w-auto object-contain"
           />
-          <span className="hidden font-display text-base font-bold leading-tight text-foreground sm:block sm:max-w-[15rem]">
+          <span className="hidden font-display text-base font-bold leading-snug text-foreground sm:block sm:max-w-[15rem]">
             {orgName}
           </span>
         </Link>
@@ -70,7 +70,7 @@ export function Navbar({ orgName }: { orgName: string }) {
             {t("nav.register")}
           </Link>
           <button
-            className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-border lg:hidden cursor-pointer"
+            className="inline-flex h-10 w-10 items-center justify-center rounded-full bg-card hover:bg-surface-2 lg:hidden cursor-pointer"
             onClick={() => setOpen((v) => !v)}
             aria-label="menu"
           >

@@ -6,10 +6,9 @@ type ButtonVariant = "primary" | "outline" | "ghost" | "subtle" | "danger";
 type ButtonSize = "sm" | "md" | "lg" | "icon";
 
 const buttonVariants: Record<ButtonVariant, string> = {
-  primary:
-    "bg-primary text-primary-foreground hover:brightness-110 shadow-sm shadow-primary/20",
-  outline:
-    "border border-border bg-card text-foreground hover:bg-muted",
+  primary: "bg-primary font-semibold text-primary-foreground hover:brightness-110",
+  // Kept name "outline" for call-site compatibility; separation is by tone, not border.
+  outline: "bg-surface-2 text-foreground hover:bg-muted",
   ghost: "text-foreground hover:bg-muted",
   subtle: "bg-primary-soft text-primary hover:brightness-105",
   danger: "bg-destructive text-white hover:brightness-110",
@@ -51,7 +50,7 @@ export const Input = React.forwardRef<HTMLInputElement, React.InputHTMLAttribute
     <input
       ref={ref}
       className={cn(
-        "h-11 w-full rounded-[var(--radius-md)] border border-input bg-card px-3.5 text-sm text-foreground",
+        "h-11 w-full rounded-[var(--radius-md)] border border-input bg-surface-2 px-3.5 text-sm text-foreground",
         "placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
         "disabled:opacity-60",
         className,
@@ -68,7 +67,7 @@ export const Textarea = React.forwardRef<HTMLTextAreaElement, React.TextareaHTML
     <textarea
       ref={ref}
       className={cn(
-        "min-h-24 w-full rounded-[var(--radius-md)] border border-input bg-card px-3.5 py-2.5 text-sm text-foreground",
+        "min-h-24 w-full rounded-[var(--radius-md)] border border-input bg-surface-2 px-3.5 py-2.5 text-sm text-foreground",
         "placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
         className,
       )}
@@ -84,7 +83,7 @@ export const Select = React.forwardRef<HTMLSelectElement, React.SelectHTMLAttrib
     <select
       ref={ref}
       className={cn(
-        "h-11 w-full rounded-[var(--radius-md)] border border-input bg-card px-3 text-sm text-foreground",
+        "h-11 w-full rounded-[var(--radius-md)] border border-input bg-surface-2 px-3 text-sm text-foreground",
         "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
         className,
       )}
@@ -109,7 +108,7 @@ export function Label({ className, children, ...props }: React.LabelHTMLAttribut
 export function Card({ className, ...props }: React.HTMLAttributes<HTMLDivElement>) {
   return (
     <div
-      className={cn("rounded-[var(--radius-lg)] border border-border bg-card text-card-foreground", className)}
+      className={cn("rounded-[var(--radius-lg)] bg-card text-card-foreground", className)}
       {...props}
     />
   );

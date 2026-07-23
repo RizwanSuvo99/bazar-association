@@ -23,8 +23,8 @@ export function ThemeSwitcher({ value, onChange }: { value: ThemeName; onChange:
           key={th.name}
           onClick={() => select(th.name)}
           className={cn(
-            "flex items-center gap-2.5 rounded-xl border p-3 text-left transition-all cursor-pointer",
-            value === th.name ? "border-primary ring-2 ring-primary" : "border-border hover:border-primary/40",
+            "flex items-center gap-2.5 rounded-xl bg-surface-2 p-3 text-left transition-all cursor-pointer",
+            value === th.name ? "ring-2 ring-primary bg-primary/10" : "hover:bg-muted",
           )}
         >
           <span className="flex gap-0.5">

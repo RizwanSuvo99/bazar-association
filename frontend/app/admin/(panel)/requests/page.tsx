@@ -8,7 +8,7 @@ type SP = Record<string, string | string[] | undefined>;
 const first = (v: string | string[] | undefined) => (Array.isArray(v) ? v[0] : v) ?? "";
 
 const STATUS_STYLE: Record<string, string> = {
-  pending: "bg-accent/15 text-accent-foreground",
+  pending: "bg-warning/15 text-warning",
   approved: "bg-success/10 text-success",
   rejected: "bg-destructive/10 text-destructive",
 };

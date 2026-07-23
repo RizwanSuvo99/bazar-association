@@ -1,79 +1,103 @@
 @import "tailwindcss";
 
-/* Class-based dark mode (we toggle a `.dark` class on <html>). */
+/* Class-based dark mode (we toggle a `.dark` class on <html>). Dark is the default. */
 @custom-variant dark (&:where(.dark, .dark *));
 
 :root {
-  /* Neutrals — warm paper tone shared across all named themes (light). */
-  --background: #faf8f4;
-  --foreground: #1c1917;
+  /* Light (kept): neutral editorial paper. Background sits a shade under white
+     so borderless white cards separate by tone alone. */
+  --background: #f3f2ee;
+  --foreground: #1a1a1c;
   --card: #ffffff;
-  --card-foreground: #1c1917;
-  --muted: #f2efe9;
-  --muted-foreground: #6b6560;
-  --border: #e7e2d9;
-  --input: #e7e2d9;
-  --radius: 0.85rem;
+  --card-foreground: #1a1a1c;
+  --surface-2: #f8f7f4;
+  --muted: #e9e8e4;
+  --muted-foreground: #6d6d72;
+  --border: #e2e1dc;
+  --input: #d9d8d3;
+  --radius: 1rem;
 
-  /* Brand tokens — default theme: Emerald. */
-  --primary: #059669;
+  /* Single accent — gold by default. --accent aliases --primary so legacy
+     accent usages follow the chosen accent automatically. */
+  --primary: #a16207;
   --primary-foreground: #ffffff;
-  --accent: #f59e0b;
-  --accent-foreground: #1c1917;
-  --ring: #059669;
+  --accent: var(--primary);
+  --accent-foreground: var(--primary-foreground);
+  --ring: #a16207;
   --destructive: #dc2626;
   --success: #16a34a;
+  /* Pending/status amber stays stable even when the accent hue changes. */
+  --warning: #b45309;
+  --warning-foreground: #ffffff;
+  color-scheme: light;
 }
 
 .dark {
-  /* Warm-tinted dark neutrals (stone/khaki, not pure gray). */
-  --background: #17140f;
-  --foreground: #f5f1ea;
-  --card: #211c15;
-  --card-foreground: #f5f1ea;
-  --muted: #2a241b;
-  --muted-foreground: #a9a196;
-  --border: #332c22;
-  --input: #362f24;
-  --primary: #10b981;
-  --primary-foreground: #062a1c;
-  --ring: #10b981;
+  /* Dark (default): deep neutral charcoal base with a lighter surface tone. */
+  --background: #121214;
+  --foreground: #f2f2f2;
+  --card: #1c1c1f;
+  --card-foreground: #f2f2f2;
+  --surface-2: #232327;
+  --muted: #232327;
+  --muted-foreground: #a0a0a5;
+  --border: #2a2a2e;
+  --input: #2a2a2e;
+  --primary: #f0b429;
+  --primary-foreground: #241a03;
+  --ring: #f0b429;
+  --destructive: #f87171;
+  --success: #4ade80;
+  --warning: #f0b429;
+  --warning-foreground: #241a03;
+  color-scheme: dark;
 }
 
-/* ---- Named color themes: override brand tokens only ---- */
-[data-theme="royal-blue"] {
-  --primary: #2563eb;
-  --primary-foreground: #ffffff;
-  --accent: #38bdf8;
-  --ring: #2563eb;
-}
-.dark[data-theme="royal-blue"] {
-  --primary: #3b82f6;
-  --primary-foreground: #06122b;
-  --ring: #3b82f6;
-}
-
+/* ---- Accent themes: swap only the accent hue on the same base palette.
+   Names are fixed by the backend settings enum; labels live in lib/theme.ts. ---- */
 [data-theme="warm-amber"] {
-  --primary: #d97706;
+  /* Gold — explicit duplicate of the defaults, kept for clarity. */
+  --primary: #a16207;
   --primary-foreground: #ffffff;
-  --accent: #f59e0b;
-  --ring: #d97706;
+  --ring: #a16207;
 }
 .dark[data-theme="warm-amber"] {
-  --primary: #f59e0b;
-  --primary-foreground: #241803;
-  --ring: #f59e0b;
+  --primary: #f0b429;
+  --primary-foreground: #241a03;
+  --ring: #f0b429;
+}
+
+[data-theme="royal-blue"] {
+  /* Teal */
+  --primary: #0f766e;
+  --primary-foreground: #ffffff;
+  --ring: #0f766e;
+}
+.dark[data-theme="royal-blue"] {
+  --primary: #2dd4bf;
+  --primary-foreground: #042f2e;
+  --ring: #2dd4bf;
+}
+
+[data-theme="emerald"] {
+  --primary: #047857;
+  --primary-foreground: #ffffff;
+  --ring: #047857;
+}
+.dark[data-theme="emerald"] {
+  --primary: #34d399;
+  --primary-foreground: #022c22;
+  --ring: #34d399;
 }
 
 [data-theme="crimson"] {
-  --primary: #e11d48;
+  --primary: #be123c;
   --primary-foreground: #ffffff;
-  --accent: #fb7185;
-  --ring: #e11d48;
+  --ring: #be123c;
 }
 .dark[data-theme="crimson"] {
   --primary: #fb7185;
-  --primary-foreground: #2a0710;
+  --primary-foreground: #4c0519;
   --ring: #fb7185;
 }
 
@@ -83,6 +107,7 @@
   --color-foreground: var(--foreground);
   --color-card: var(--card);
   --color-card-foreground: var(--card-foreground);
+  --color-surface-2: var(--surface-2);
   --color-muted: var(--muted);
   --color-muted-foreground: var(--muted-foreground);
   --color-border: var(--border);
@@ -94,6 +119,8 @@
   --color-accent-foreground: var(--accent-foreground);
   --color-destructive: var(--destructive);
   --color-success: var(--success);
+  --color-warning: var(--warning);
+  --color-warning-foreground: var(--warning-foreground);
 
   --radius-lg: var(--radius);
   --radius-md: calc(var(--radius) - 0.25rem);
@@ -117,12 +144,27 @@
   }
 }
 
-/* Subtle bazar "awning" stripe used behind heroes and headers. */
+/* Print: force light tokens so pages printed from dark mode stay legible. */
+@media print {
+  .dark {
+    --background: #ffffff;
+    --foreground: #111111;
+    --card: #ffffff;
+    --card-foreground: #111111;
+    --surface-2: #f7f7f7;
+    --muted: #f3f3f3;
+    --muted-foreground: #555555;
+    --border: #dddddd;
+    --input: #dddddd;
+  }
+}
+
+/* Subtle bazar "awning" stripe — only used on the hero no-image fallback. */
 .bazar-awning {
   background-image: repeating-linear-gradient(
     45deg,
-    color-mix(in srgb, var(--accent) 12%, transparent) 0,
-    color-mix(in srgb, var(--accent) 12%, transparent) 14px,
+    color-mix(in srgb, var(--accent) 5%, transparent) 0,
+    color-mix(in srgb, var(--accent) 5%, transparent) 14px,
     transparent 14px,
     transparent 28px
   );
@@ -140,8 +182,9 @@
 .nba-prose { color: var(--foreground); line-height: 1.75; }
 .nba-prose h2 {
   font-family: var(--font-display);
-  font-size: 1.35rem;
+  font-size: 1.5rem;
   font-weight: 700;
+  letter-spacing: -0.01em;
   margin: 1.75rem 0 0.75rem;
 }
 .nba-prose h3 { font-weight: 600; font-size: 1.1rem; margin: 1.25rem 0 0.5rem; }

@@ -7,10 +7,11 @@ import { useTranslation } from "@/lib/i18n-context";
 import { cn } from "@/lib/utils";
 
 const iconBtn =
-  "inline-flex h-10 w-10 items-center justify-center rounded-full border border-border bg-card text-foreground transition-colors hover:bg-muted cursor-pointer";
+  "inline-flex h-10 w-10 items-center justify-center rounded-full bg-card text-foreground transition-colors hover:bg-surface-2 cursor-pointer";
 
 export function ThemeModeToggle() {
-  const [dark, setDark] = useState(false);
+  // Dark is the app default, so the pre-mount guess is dark.
+  const [dark, setDark] = useState(true);
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
@@ -27,7 +28,7 @@ export function ThemeModeToggle() {
 
   return (
     <button onClick={toggle} className={iconBtn} aria-label="toggle theme" suppressHydrationWarning>
-      {mounted && dark ? <Sun className="h-[18px] w-[18px]" /> : <Moon className="h-[18px] w-[18px]" />}
+      {mounted && !dark ? <Moon className="h-[18px] w-[18px]" /> : <Sun className="h-[18px] w-[18px]" />}
     </button>
   );
 }
@@ -47,7 +48,7 @@ export function LangToggle({ className }: { className?: string }) {
     <button
       onClick={switchLang}
       className={cn(
-        "inline-flex h-10 items-center gap-1.5 rounded-full border border-border bg-card px-3.5 text-sm font-medium text-foreground transition-colors hover:bg-muted cursor-pointer",
+        "inline-flex h-10 items-center gap-1.5 rounded-full bg-card px-3.5 text-sm font-medium text-foreground transition-colors hover:bg-surface-2 cursor-pointer",
         className,
       )}
       aria-label="switch language"

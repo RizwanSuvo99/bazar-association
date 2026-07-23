@@ -22,8 +22,6 @@ const anek = Anek_Bangla({
   display: "swap",
 });
 
-const noFlashScript = `(function(){try{var m=document.cookie.match(/(?:^|; )mode=(dark|light)/);if(!m){if(window.matchMedia&&window.matchMedia('(prefers-color-scheme: dark)').matches){document.documentElement.classList.add('dark');}}}catch(e){}})();`;
-
 export async function generateMetadata(): Promise<Metadata> {
   let title = "নাঙ্গলকোট বাজার ব্যবসায়ী সংস্থা";
   let description = "নাঙ্গলকোট বাজারের নিবন্ধিত ব্যবসায়ীদের কেন্দ্রীয় তথ্যভাণ্ডার।";
@@ -44,9 +42,10 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   const cookieStore = await cookies();
   const lang: Lang = cookieStore.get("lang")?.value === "en" ? "en" : "bn";
   const mode = cookieStore.get("mode")?.value;
-  const isDark = mode === "dark";
+  // Dark is the default: only an explicit "light" cookie opts out.
+  const isDark = mode !== "light";
 
-  let theme: ThemeName = "emerald";
+  let theme: ThemeName = "warm-amber";
   try {
     const settings = await getSettings();
     if (isThemeName(settings.active_theme)) theme = settings.active_theme;
@@ -63,9 +62,6 @@ export default async function RootLayout({ children }: { children: React.ReactNo
       data-theme={theme}
       suppressHydrationWarning
     >
-      <head>
-        <script dangerouslySetInnerHTML={{ __html: noFlashScript }} />
-      </head>
       <body className={`${hind.variable} ${anek.variable} min-h-screen`}>
         <LanguageProvider lang={lang} dict={dict}>
           {children}

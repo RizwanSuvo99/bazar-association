@@ -25,7 +25,8 @@ export function Footer({ settings }: { settings: SiteSettings | null }) {
   const address = settings ? localize(settings as unknown as Record<string, unknown>, "contact_address", lang) : "";
 
   return (
-    <footer className="mt-16 border-t border-border bg-card">
+    <footer className="mt-16 bg-card">
+      <div className="h-0.5 bg-primary/60" aria-hidden />
       <Container className="grid gap-10 py-12 sm:grid-cols-2 lg:grid-cols-3">
         <div>
           <div className="flex items-center gap-3">
@@ -78,7 +79,7 @@ export function Footer({ settings }: { settings: SiteSettings | null }) {
           </ul>
         </div>
       </Container>
-      <div className="border-t border-border py-5 text-center text-xs text-muted-foreground">
+      <div className="border-t border-border/60 py-5 text-center text-xs text-muted-foreground">
         © {orgName} — {t("footer.rights")}
       </div>
     </footer>

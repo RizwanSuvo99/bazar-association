@@ -46,11 +46,11 @@ export function HeroImagesManager({
     <div className="space-y-3">
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
         {value.map((img, i) => (
-          <div key={`${img.url}-${i}`} className="relative overflow-hidden rounded-lg border border-border">
+          <div key={`${img.url}-${i}`} className="relative overflow-hidden rounded-xl bg-surface-2">
             <div className="relative aspect-video bg-muted">
               <Image src={img.url} alt="" fill sizes="220px" className="object-cover" />
             </div>
-            <div className="absolute inset-x-0 bottom-0 flex items-center justify-between bg-black/45 p-1.5">
+            <div className="absolute inset-x-0 bottom-0 flex items-center justify-between bg-black/60 p-1.5">
               <div className="flex gap-1">
                 <button type="button" onClick={() => move(i, -1)} disabled={i === 0} className={btn} aria-label="up"><ArrowUp className="h-4 w-4" /></button>
                 <button type="button" onClick={() => move(i, 1)} disabled={i === value.length - 1} className={btn} aria-label="down"><ArrowDown className="h-4 w-4" /></button>
@@ -64,7 +64,7 @@ export function HeroImagesManager({
           type="button"
           onClick={() => fileRef.current?.click()}
           disabled={uploading}
-          className="flex aspect-video flex-col items-center justify-center gap-1.5 rounded-lg border-2 border-dashed border-border text-muted-foreground transition-colors hover:border-primary hover:text-primary disabled:opacity-60 cursor-pointer"
+          className="flex aspect-video flex-col items-center justify-center gap-1.5 rounded-xl border-2 border-dashed border-border text-muted-foreground transition-colors hover:border-primary hover:text-primary disabled:opacity-60 cursor-pointer"
         >
           {uploading ? <Loader2 className="h-6 w-6 animate-spin" /> : <Upload className="h-6 w-6" />}
           <span className="text-xs">ছবি যোগ করুন</span>

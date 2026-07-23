@@ -28,7 +28,7 @@ export default async function ContentEditPage({ params }: { params: Promise<{ ke
       <Link href="/admin/content" className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-primary">
         <ArrowLeft className="h-4 w-4" /> {dict.admin.content}
       </Link>
-      <h1 className="font-display text-2xl font-bold capitalize text-foreground">{key}</h1>
+      <h1 className="font-display text-3xl font-bold capitalize text-foreground">{key}</h1>
       <ContentEditor page={content} />
     </div>
   );

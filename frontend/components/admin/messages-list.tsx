@@ -27,7 +27,7 @@ export function MessagesList({ messages }: { messages: ContactMessage[] }) {
       {messages.map((m) => {
         const isRead = read[m.id];
         return (
-          <Card key={m.id} className={"p-4 " + (isRead ? "" : "border-primary/40 bg-primary-soft/30")}>
+          <Card key={m.id} className={"p-4 " + (isRead ? "" : "bg-primary/8 ring-1 ring-primary/30")}>
             <div className="flex items-start justify-between gap-4">
               <div className="min-w-0">
                 <div className="flex items-center gap-2">

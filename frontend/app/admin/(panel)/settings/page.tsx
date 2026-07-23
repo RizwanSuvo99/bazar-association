@@ -8,7 +8,7 @@ export default async function AdminSettingsPage() {
 
   return (
     <div className="mx-auto max-w-3xl space-y-5">
-      <h1 className="font-display text-2xl font-bold text-foreground">{dict.admin.settings}</h1>
+      <h1 className="font-display text-3xl font-bold text-foreground">{dict.admin.settings}</h1>
       <SettingsForm settings={settings} />
     </div>
   );

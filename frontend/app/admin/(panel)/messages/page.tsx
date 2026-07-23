@@ -9,7 +9,7 @@ export default async function AdminMessagesPage() {
 
   return (
     <div className="space-y-5">
-      <h1 className="font-display text-2xl font-bold text-foreground">{dict.admin.messages}</h1>
+      <h1 className="font-display text-3xl font-bold text-foreground">{dict.admin.messages}</h1>
       <MessagesList messages={messages} />
     </div>
   );

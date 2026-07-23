@@ -9,7 +9,7 @@ export default async function AdminNoticesPage() {
 
   return (
     <div className="space-y-5">
-      <h1 className="font-display text-2xl font-bold text-foreground">{dict.admin.notices}</h1>
+      <h1 className="font-display text-3xl font-bold text-foreground">{dict.admin.notices}</h1>
       <NoticesManager notices={notices} />
     </div>
   );

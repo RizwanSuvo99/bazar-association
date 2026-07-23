@@ -28,7 +28,7 @@ export default async function RequestReviewPage({ params }: { params: Promise<{ 
       </Link>
 
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <h1 className="font-display text-2xl font-bold text-foreground">{r.full_name}</h1>
+        <h1 className="font-display text-3xl font-bold text-foreground">{r.full_name}</h1>
         <Badge>{r.status}</Badge>
       </div>
 

@@ -14,7 +14,7 @@ export default async function ContentListPage() {
   const { lang, dict } = await getI18n();
   return (
     <div className="space-y-5">
-      <h1 className="font-display text-2xl font-bold text-foreground">{dict.admin.content}</h1>
+      <h1 className="font-display text-3xl font-bold text-foreground">{dict.admin.content}</h1>
       <div className="grid gap-3 sm:grid-cols-2">
         {PAGES.map((p) => (
           <Link key={p.key} href={`/admin/content/${p.key}`}>

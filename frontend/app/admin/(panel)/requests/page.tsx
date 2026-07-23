@@ -30,7 +30,7 @@ export default async function RequestsPage({ searchParams }: { searchParams: Pro
 
   return (
     <div className="space-y-5">
-      <h1 className="font-display text-2xl font-bold text-foreground">{dict.admin.requests}</h1>
+      <h1 className="font-display text-3xl font-bold text-foreground">{dict.admin.requests}</h1>
 
       <div className="flex flex-wrap gap-2">
         {tabs.map((tab) => (
@@ -38,10 +38,10 @@ export default async function RequestsPage({ searchParams }: { searchParams: Pro
             key={tab.key}
             href={tab.key ? `/admin/requests?status=${tab.key}` : "/admin/requests"}
             className={
-              "rounded-full border px-4 py-1.5 text-sm " +
+              "rounded-full px-4 py-1.5 text-sm transition-colors " +
               ((status || "") === tab.key
-                ? "border-primary bg-primary text-primary-foreground"
-                : "border-border bg-card hover:bg-muted")
+                ? "bg-primary font-semibold text-primary-foreground"
+                : "bg-card hover:bg-surface-2")
             }
           >
             {tab.label}

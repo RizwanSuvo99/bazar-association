@@ -24,7 +24,7 @@ export default async function EditBusinessmanPage({ params }: { params: Promise<
         <ArrowLeft className="h-4 w-4" /> {dict.admin.members}
       </Link>
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <h1 className="font-display text-2xl font-bold text-foreground">
+        <h1 className="font-display text-3xl font-bold text-foreground">
           {dict.admin.edit}: {b.full_name} <span className="text-base font-normal text-muted-foreground">{b.unique_id}</span>
         </h1>
         <div className="flex flex-wrap gap-2">

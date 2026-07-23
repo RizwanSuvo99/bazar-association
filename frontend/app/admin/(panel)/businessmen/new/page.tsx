@@ -10,7 +10,7 @@ export default async function NewBusinessmanPage() {
       <Link href="/admin/businessmen" className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-primary">
         <ArrowLeft className="h-4 w-4" /> {dict.admin.members}
       </Link>
-      <h1 className="font-display text-2xl font-bold text-foreground">{dict.admin.addMember}</h1>
+      <h1 className="font-display text-3xl font-bold text-foreground">{dict.admin.addMember}</h1>
       <BusinessmanForm />
     </div>
   );

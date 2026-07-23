@@ -17,7 +17,7 @@ export default async function AdminBusinessmenPage({ searchParams }: { searchPar
   return (
     <div className="space-y-5">
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <h1 className="font-display text-2xl font-bold text-foreground">{dict.admin.members}</h1>
+        <h1 className="font-display text-3xl font-bold text-foreground">{dict.admin.members}</h1>
         <div className="flex flex-wrap gap-2">
           <a href={`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/admin/id-cards.pdf`} target="_blank" rel="noopener">
             <Button variant="outline" size="sm"><IdCard className="h-4 w-4" /> {dict.admin.bulkIdCards}</Button>

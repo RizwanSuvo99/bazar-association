@@ -63,4 +63,6 @@ export const rejectSchema = z.object({
 
 export const requestQuerySchema = z.object({
   status: z.enum(['pending', 'approved', 'rejected']).optional(),
+  page: z.coerce.number().int().min(1).optional(),
+  limit: z.coerce.number().int().min(1).max(100).optional(),
 });

@@ -1,10 +1,16 @@
 import { asyncHandler } from '../utils/asyncHandler.js';
+import { pageParams, toMeta } from '../utils/pagination.js';
 import { ApiError } from '../utils/ApiError.js';
 import { ok, created } from '../utils/respond.js';
 import * as Gallery from '../models/gallery.model.js';
 import { deleteFromCloudinary } from '../config/cloudinary.js';
 
 export const publicList = asyncHandler(async (req, res) => {
+  const pg = pageParams(req.query, 24);
+  if (pg) {
+    const r = await Gallery.listGallery({ publishedOnly: true, ...pg });
+    return ok(res, r.rows, toMeta(r));
+  }
   return ok(res, await Gallery.listGallery({ publishedOnly: true }));
 });
 

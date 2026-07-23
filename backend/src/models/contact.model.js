@@ -9,9 +9,18 @@ export async function createContactMessage({ name, email, phone, subject, messag
   return rows[0];
 }
 
-export async function listContactMessages() {
-  const { rows } = await query('SELECT * FROM contact_messages ORDER BY created_at DESC');
-  return rows;
+export async function listContactMessages({ page, limit } = {}) {
+  if (!page) {
+    const { rows } = await query('SELECT * FROM contact_messages ORDER BY created_at DESC');
+    return rows;
+  }
+  const totalRes = await query('SELECT count(*)::int AS total FROM contact_messages');
+  const total = totalRes.rows[0].total;
+  const { rows } = await query(
+    'SELECT * FROM contact_messages ORDER BY created_at DESC LIMIT $1 OFFSET $2',
+    [limit, (page - 1) * limit],
+  );
+  return { rows, total, page, limit, totalPages: Math.max(1, Math.ceil(total / limit)) };
 }
 
 export async function markMessageRead(id, isRead = true) {

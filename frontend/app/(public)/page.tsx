@@ -1,9 +1,9 @@
-import Link from "next/link";
 import { Container } from "@/components/layout/container";
 import { HeroCarousel } from "@/components/public/hero-carousel";
 import { SearchFilterBar } from "@/components/public/search-filter-bar";
 import { ProfileCard } from "@/components/public/profile-card";
 import { EmptyState } from "@/components/public/empty-state";
+import { Pagination } from "@/components/pagination";
 import { getBusinessmen, getFacets, getPage, getSettings } from "@/lib/queries";
 import { getI18n } from "@/lib/i18n-server";
 import { translate, localize } from "@/lib/i18n";
@@ -43,16 +43,6 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
     translate(dict, "home.cta");
   const memberLine = translate(dict, "home.resultsCount", { count: localizeNumber(list.meta.total, lang) });
 
-  const makeHref = (p: number) => {
-    const params = new URLSearchParams();
-    for (const k of ["q", "business_type", "market", "ward"] as const) {
-      if (query[k]) params.set(k, query[k] as string);
-    }
-    if (p > 1) params.set("page", String(p));
-    const qs = params.toString();
-    return qs ? `/?${qs}` : "/";
-  };
-
   const { items, meta } = list;
 
   return (
@@ -82,40 +72,21 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
           </div>
         )}
 
-        {meta.totalPages > 1 && (
-          <nav className="mt-12 flex items-center justify-center gap-1.5">
-            {meta.page > 1 && (
-              <Link
-                href={makeHref(meta.page - 1)}
-                className="rounded-lg bg-card px-3.5 py-2 text-sm transition-colors hover:bg-surface-2"
-              >
-                {translate(dict, "common.previous")}
-              </Link>
-            )}
-            {Array.from({ length: meta.totalPages }, (_, i) => i + 1).map((p) => (
-              <Link
-                key={p}
-                href={makeHref(p)}
-                className={
-                  "min-w-10 rounded-lg px-3 py-2 text-center text-sm transition-colors " +
-                  (p === meta.page
-                    ? "bg-primary font-semibold text-primary-foreground"
-                    : "bg-card hover:bg-surface-2")
-                }
-              >
-                {localizeNumber(p, lang)}
-              </Link>
-            ))}
-            {meta.page < meta.totalPages && (
-              <Link
-                href={makeHref(meta.page + 1)}
-                className="rounded-lg bg-card px-3.5 py-2 text-sm transition-colors hover:bg-surface-2"
-              >
-                {translate(dict, "common.next")}
-              </Link>
-            )}
-          </nav>
-        )}
+        <Pagination
+          page={meta.page}
+          totalPages={meta.totalPages}
+          basePath="/"
+          params={{
+            q: query.q || undefined,
+            business_type: query.business_type || undefined,
+            market: query.market || undefined,
+            ward: query.ward || undefined,
+          }}
+          lang={lang}
+          prevLabel={translate(dict, "common.previous")}
+          nextLabel={translate(dict, "common.next")}
+          className="mt-12"
+        />
       </Container>
     </>
   );

@@ -18,7 +18,7 @@ import { Card } from "@/components/ui";
 export default async function DashboardPage() {
   const { lang, dict } = await getI18n();
   const stats = await getAdminStats();
-  const pending = await getAdminRequests("pending").catch(() => []);
+  const { items: pending } = await getAdminRequests("pending", 1, 5).catch(() => ({ items: [], meta: { page: 1, limit: 5, total: 0, totalPages: 1 } }));
   const n = (v: number) => localizeNumber(v, lang);
 
   return (

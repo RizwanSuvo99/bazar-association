@@ -23,12 +23,20 @@ export function getPage(key: string) {
   return apiData<PageContent>(`/pages/${key}`, { cache: "no-store" });
 }
 
-export function getGallery() {
-  return apiData<GalleryImage[]>("/gallery", { cache: "no-store" });
+export async function getGallery(
+  page: string | number = 1,
+  limit = 24,
+): Promise<{ items: GalleryImage[]; meta: ListMeta }> {
+  const res = await apiFetch<GalleryImage[]>(`/gallery?page=${page || 1}&limit=${limit}`, { cache: "no-store" });
+  return { items: res.data, meta: res.meta ?? { page: 1, limit, total: res.data.length, totalPages: 1 } };
 }
 
-export function getNotices() {
-  return apiData<Notice[]>("/notices", { cache: "no-store" });
+export async function getNotices(
+  page: string | number = 1,
+  limit = 10,
+): Promise<{ items: Notice[]; meta: ListMeta }> {
+  const res = await apiFetch<Notice[]>(`/notices?page=${page || 1}&limit=${limit}`, { cache: "no-store" });
+  return { items: res.data, meta: res.meta ?? { page: 1, limit, total: res.data.length, totalPages: 1 } };
 }
 
 export function getFacets() {

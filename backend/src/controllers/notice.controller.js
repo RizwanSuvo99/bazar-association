@@ -1,14 +1,25 @@
 import { asyncHandler } from '../utils/asyncHandler.js';
+import { pageParams, toMeta } from '../utils/pagination.js';
 import { ApiError } from '../utils/ApiError.js';
 import { ok, created } from '../utils/respond.js';
 import * as Notice from '../models/notice.model.js';
 import { deleteFromCloudinary } from '../config/cloudinary.js';
 
 export const publicList = asyncHandler(async (req, res) => {
+  const pg = pageParams(req.query, 10);
+  if (pg) {
+    const r = await Notice.listNotices({ publishedOnly: true, ...pg });
+    return ok(res, r.rows, toMeta(r));
+  }
   return ok(res, await Notice.listNotices({ publishedOnly: true }));
 });
 
 export const adminList = asyncHandler(async (req, res) => {
+  const pg = pageParams(req.query, 15);
+  if (pg) {
+    const r = await Notice.listNotices(pg);
+    return ok(res, r.rows, toMeta(r));
+  }
   return ok(res, await Notice.listNotices());
 });
 

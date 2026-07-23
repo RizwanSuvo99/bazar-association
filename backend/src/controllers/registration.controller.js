@@ -1,5 +1,6 @@
 import { asyncHandler } from '../utils/asyncHandler.js';
 import { ApiError } from '../utils/ApiError.js';
+import { pageParams, toMeta } from '../utils/pagination.js';
 import { ok, created } from '../utils/respond.js';
 import * as Registration from '../models/registration.model.js';
 import { approveRequest } from '../services/approval.service.js';
@@ -18,6 +19,11 @@ export const submit = asyncHandler(async (req, res) => {
 // ---- Admin ----
 
 export const list = asyncHandler(async (req, res) => {
+  const pg = pageParams(req.query);
+  if (pg) {
+    const r = await Registration.listRequests({ status: req.query.status, ...pg });
+    return ok(res, r.rows, toMeta(r));
+  }
   const rows = await Registration.listRequests({ status: req.query.status });
   return ok(res, rows);
 });

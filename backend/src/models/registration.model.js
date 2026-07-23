@@ -20,19 +20,29 @@ export async function createRequest(data) {
   return rows[0];
 }
 
-export async function listRequests({ status } = {}) {
+export async function listRequests({ status, page, limit } = {}) {
   const params = [];
   let where = '';
   if (status) {
     params.push(status);
     where = 'WHERE status = $1';
   }
+  const order = `ORDER BY
+       CASE status WHEN 'pending' THEN 0 WHEN 'approved' THEN 1 ELSE 2 END, created_at DESC`;
+
+  if (!page) {
+    const { rows } = await query(`SELECT * FROM registration_requests ${where} ${order}`, params);
+    return rows;
+  }
+
+  const totalRes = await query(`SELECT count(*)::int AS total FROM registration_requests ${where}`, params);
+  const total = totalRes.rows[0].total;
+  const listParams = [...params, limit, (page - 1) * limit];
   const { rows } = await query(
-    `SELECT * FROM registration_requests ${where} ORDER BY
-       CASE status WHEN 'pending' THEN 0 WHEN 'approved' THEN 1 ELSE 2 END, created_at DESC`,
-    params,
+    `SELECT * FROM registration_requests ${where} ${order} LIMIT $${listParams.length - 1} OFFSET $${listParams.length}`,
+    listParams,
   );
-  return rows;
+  return { rows, total, page, limit, totalPages: Math.max(1, Math.ceil(total / limit)) };
 }
 
 export async function getRequestById(id) {

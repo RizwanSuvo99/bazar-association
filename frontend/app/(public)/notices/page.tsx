@@ -4,6 +4,7 @@ import { Container } from "@/components/layout/container";
 import { EmptyState } from "@/components/public/empty-state";
 import { Card } from "@/components/ui";
 import { getNotices } from "@/lib/queries";
+import { Pagination } from "@/components/pagination";
 import { getI18n } from "@/lib/i18n-server";
 import { localize } from "@/lib/i18n";
 import { localizeNumber } from "@/lib/format";
@@ -11,9 +12,16 @@ import type { Notice } from "@/lib/types";
 
 export const metadata = { title: "নোটিশ" };
 
-export default async function NoticesPage() {
+type SP = Record<string, string | string[] | undefined>;
+const first = (v: string | string[] | undefined) => (Array.isArray(v) ? v[0] : v) ?? "";
+
+export default async function NoticesPage({ searchParams }: { searchParams: Promise<SP> }) {
+  const sp = await searchParams;
+  const page = first(sp.page) || "1";
   const { lang, dict } = await getI18n();
-  const notices = await getNotices().catch(() => [] as Notice[]);
+  const { items: notices, meta } = await getNotices(page).catch(
+    () => ({ items: [] as Notice[], meta: { page: 1, limit: 10, total: 0, totalPages: 1 } }),
+  );
 
   return (
     <>
@@ -61,6 +69,15 @@ export default async function NoticesPage() {
             })}
           </div>
         )}
+        <Pagination
+          page={meta.page}
+          totalPages={meta.totalPages}
+          basePath="/notices"
+          lang={lang}
+          prevLabel={dict.common.previous}
+          nextLabel={dict.common.next}
+          className="mt-8"
+        />
       </Container>
     </>
   );

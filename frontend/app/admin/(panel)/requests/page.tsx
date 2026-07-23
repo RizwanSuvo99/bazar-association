@@ -2,6 +2,7 @@ import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 import { getAdminRequests } from "@/lib/admin-queries";
 import { getI18n } from "@/lib/i18n-server";
+import { Pagination } from "@/components/pagination";
 import { Card, Badge } from "@/components/ui";
 
 type SP = Record<string, string | string[] | undefined>;
@@ -16,8 +17,9 @@ const STATUS_STYLE: Record<string, string> = {
 export default async function RequestsPage({ searchParams }: { searchParams: Promise<SP> }) {
   const sp = await searchParams;
   const status = first(sp.status);
-  const { dict } = await getI18n();
-  const requests = await getAdminRequests(status);
+  const page = first(sp.page) || "1";
+  const { lang, dict } = await getI18n();
+  const { items: requests, meta } = await getAdminRequests(status, page);
 
   const tabs = [
     { key: "", label: dict.common.all },
@@ -67,6 +69,16 @@ export default async function RequestsPage({ searchParams }: { searchParams: Pro
           </Link>
         ))}
       </Card>
+
+      <Pagination
+        page={meta.page}
+        totalPages={meta.totalPages}
+        basePath="/admin/requests"
+        params={{ status: status || undefined }}
+        lang={lang}
+        prevLabel={dict.common.previous}
+        nextLabel={dict.common.next}
+      />
     </div>
   );
 }

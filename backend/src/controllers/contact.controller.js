@@ -1,4 +1,5 @@
 import { asyncHandler } from '../utils/asyncHandler.js';
+import { pageParams, toMeta } from '../utils/pagination.js';
 import { ApiError } from '../utils/ApiError.js';
 import { ok, created } from '../utils/respond.js';
 import * as Contact from '../models/contact.model.js';
@@ -9,6 +10,11 @@ export const submit = asyncHandler(async (req, res) => {
 });
 
 export const list = asyncHandler(async (req, res) => {
+  const pg = pageParams(req.query, 15);
+  if (pg) {
+    const r = await Contact.listContactMessages(pg);
+    return ok(res, r.rows, toMeta(r));
+  }
   return ok(res, await Contact.listContactMessages());
 });
 

@@ -1,9 +1,18 @@
 import { query } from '../config/db.js';
 
-export async function listGallery({ publishedOnly = false } = {}) {
+export async function listGallery({ publishedOnly = false, page, limit } = {}) {
   const where = publishedOnly ? 'WHERE is_published = true' : '';
-  const { rows } = await query(`SELECT * FROM gallery_images ${where} ORDER BY sort_order ASC, id ASC`);
-  return rows;
+  if (!page) {
+    const { rows } = await query(`SELECT * FROM gallery_images ${where} ORDER BY sort_order ASC, id ASC`);
+    return rows;
+  }
+  const totalRes = await query(`SELECT count(*)::int AS total FROM gallery_images ${where}`);
+  const total = totalRes.rows[0].total;
+  const { rows } = await query(
+    `SELECT * FROM gallery_images ${where} ORDER BY sort_order ASC, id ASC LIMIT $1 OFFSET $2`,
+    [limit, (page - 1) * limit],
+  );
+  return { rows, total, page, limit, totalPages: Math.max(1, Math.ceil(total / limit)) };
 }
 
 export async function getGalleryImageById(id) {

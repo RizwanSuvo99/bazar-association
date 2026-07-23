@@ -15,6 +15,7 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 FONT_BN = os.path.join(HERE, "fonts", "NotoSerifBengali-SemiBold.ttf")
 FONT_LAT = os.path.join(HERE, "fonts", "DejaVuSans.ttf")
 LOGO = os.path.join(HERE, "bazar-logo.png")
+LOGO_HD = os.path.join(HERE, "bazar-logo-hd.png")   # crisper, transparent-bg logo for the back
 
 # Portrait CR80 card @ 300 dpi (54 x 85.6 mm).
 W, H = 638, 1012
@@ -299,10 +300,10 @@ def render_card_back(data):
     chip = 150
     cgx, cgy = (W - chip) // 2, 44
     d.ellipse((cgx, cgy, cgx + chip, cgy + chip), fill=WHITE)
-    lg = _load_rgba(LOGO)
+    lg = _load_rgba(LOGO_HD) or _load_rgba(LOGO)
     if lg is not None:
         l2 = lg.copy()
-        l2.thumbnail((chip - 12, chip - 12), Image.LANCZOS)
+        l2.thumbnail((chip - 8, chip - 8), Image.LANCZOS)
         im.paste(l2, (cgx + (chip - l2.width) // 2, cgy + (chip - l2.height) // 2), l2)
 
     # ---- QR (large, centered) ----

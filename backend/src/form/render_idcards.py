@@ -2,11 +2,14 @@
 """Render many member ID cards onto A4 sheets (a grid, with cut guides) as a multi-page PDF.
 
 Reads { cards: [ {…same fields as render_idcard…}, … ], resolution? } from stdin and writes a
-multi-page A4 PDF to stdout. Reuses render_card() from render_idcard.py. 3x3 = 9 cards per page.
+multi-page A4 PDF to stdout. Reuses render_card()/render_card_back() from render_idcard.py.
+3x3 = 9 cards per page. For each chunk of 9 it emits a FRONT sheet immediately followed by a
+BACK sheet whose columns are horizontally mirrored, so fronts and backs align when the paper is
+printed double-sided (long-edge duplex) and then cut.
 """
 import sys, io, json
 from PIL import Image, ImageDraw
-from render_idcard import render_card, W, H
+from render_idcard import render_card, render_card_back, W, H
 
 A4W, A4H = 2480, 3508           # A4 portrait @ 300 dpi
 COLS, ROWS = 3, 3
@@ -27,6 +30,26 @@ def cut_ticks(d, x, y):
         d.line([(cx, cy), (cx, cy + dy * TICK)], fill=GREY, width=1)
 
 
+def build_page(chunk, render_fn, mirror=False):
+    page = Image.new("RGB", (A4W, A4H), (255, 255, 255))
+    d = ImageDraw.Draw(page)
+    for k, card in enumerate(chunk):
+        if not card:
+            continue
+        r, c = divmod(k, COLS)
+        if mirror:                       # mirror columns so backs line up under duplex printing
+            c = COLS - 1 - c
+        x = MX + c * (W + COL_GAP)
+        y = MY + r * (H + ROW_GAP)
+        try:
+            cim = render_fn(card)
+        except Exception:
+            continue
+        page.paste(cim, (x, y))
+        cut_ticks(d, x, y)
+    return page
+
+
 def main():
     data = json.load(sys.stdin)
     cards = data.get("cards") or []
@@ -34,21 +57,9 @@ def main():
 
     pages = []
     for i in range(0, len(cards), PER):
-        page = Image.new("RGB", (A4W, A4H), (255, 255, 255))
-        d = ImageDraw.Draw(page)
-        for k, card in enumerate(cards[i:i + PER]):
-            if not card:
-                continue
-            r, c = divmod(k, COLS)
-            x = MX + c * (W + COL_GAP)
-            y = MY + r * (H + ROW_GAP)
-            try:
-                cim = render_card(card)
-            except Exception:
-                continue
-            page.paste(cim, (x, y))
-            cut_ticks(d, x, y)
-        pages.append(page)
+        chunk = cards[i:i + PER]
+        pages.append(build_page(chunk, render_card, mirror=False))       # front sheet
+        pages.append(build_page(chunk, render_card_back, mirror=True))   # matching back sheet
 
     if not pages:
         pages = [Image.new("RGB", (A4W, A4H), (255, 255, 255))]

@@ -298,12 +298,15 @@ def render_card_back(data):
 
     # logo in a white circle chip (moved here from the front)
     chip = 150
-    cgx, cgy = (W - chip) // 2, 44
+    cgx, cgy = (W - chip) // 2, 60
     d.ellipse((cgx, cgy, cgx + chip, cgy + chip), fill=WHITE)
     lg = _load_rgba(LOGO_HD) or _load_rgba(LOGO)
     if lg is not None:
         l2 = lg.copy()
-        l2.thumbnail((chip - 8, chip - 8), Image.LANCZOS)
+        bbox = l2.getbbox()          # trim transparent margins so it centres in the chip
+        if bbox:
+            l2 = l2.crop(bbox)
+        l2.thumbnail((chip - 14, chip - 14), Image.LANCZOS)
         im.paste(l2, (cgx + (chip - l2.width) // 2, cgy + (chip - l2.height) // 2), l2)
 
     # ---- QR (large, centered) ----

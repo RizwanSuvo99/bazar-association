@@ -214,7 +214,7 @@ export function RegistrationForm({ fee, bkashNumber }: { fee: number; bkashNumbe
 
       {/* Payment */}
       <Card className="overflow-hidden">
-        <div className="bazar-awning border-b border-border bg-primary-soft px-6 py-4">
+        <div className="border-b border-border/60 bg-surface-2 px-6 py-4">
           <h2 className="flex items-center gap-2 font-display text-lg font-semibold text-foreground">
             <Wallet className="h-5 w-5 text-primary" /> {t("register.sectionPayment")}
           </h2>
@@ -241,10 +241,10 @@ export function RegistrationForm({ fee, bkashNumber }: { fee: number; bkashNumbe
                 key={val}
                 type="button"
                 onClick={() => setValue("payment_method", val, { shouldValidate: true })}
-                className={`flex items-center justify-center gap-2 rounded-lg border-2 px-4 py-3 text-sm font-medium transition-colors ${
+                className={`flex items-center justify-center gap-2 rounded-xl bg-surface-2 px-4 py-3 text-sm font-medium transition-all ${
                   paymentMethod === val
-                    ? "border-primary bg-primary-soft text-primary"
-                    : "border-border text-muted-foreground hover:border-primary/50"
+                    ? "ring-2 ring-primary bg-primary/10 text-primary"
+                    : "text-muted-foreground hover:bg-muted"
                 }`}
               >
                 <Icon className="h-4 w-4" /> {label}

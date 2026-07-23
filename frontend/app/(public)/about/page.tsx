@@ -19,7 +19,7 @@ export default async function AboutPage() {
     <>
       <PageHeader title={title} subtitle={subtitle} />
       <Container className="py-10">
-        <article className="mx-auto max-w-3xl">
+        <article className="mx-auto max-w-3xl rounded-2xl bg-card p-6 sm:p-8">
           <Markdown content={body} />
         </article>
       </Container>

@@ -55,7 +55,6 @@ export default async function ProfilePage({ params }: { params: Promise<{ nid6: 
         {/* Summary */}
         <div className="lg:sticky lg:top-24 lg:self-start">
           <Card className="overflow-hidden">
-            <div className="h-1.5 w-full bg-primary" />
             <div className="flex flex-col items-center p-6 text-center">
               <div className="relative h-28 w-28 overflow-hidden rounded-2xl bg-primary-soft">
                 {b.profile_photo_url ? (
@@ -67,7 +66,7 @@ export default async function ProfilePage({ params }: { params: Promise<{ nid6: 
                 )}
               </div>
               <h1 className="mt-4 font-display text-2xl font-bold text-foreground">{b.full_name}</h1>
-              <span className="mt-2 rounded-full bg-primary-soft px-3 py-1 text-sm font-semibold text-primary">
+              <span className="mt-2 rounded-full bg-primary/10 px-3 py-1 text-sm font-semibold text-primary">
                 {dg(b.unique_id)}
               </span>
               {b.business_type && (

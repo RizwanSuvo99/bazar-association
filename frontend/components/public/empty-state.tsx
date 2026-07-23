@@ -6,7 +6,7 @@ import { useTranslation } from "@/lib/i18n-context";
 export function EmptyState({ title, hint }: { title?: string; hint?: string }) {
   const { t } = useTranslation();
   return (
-    <div className="flex flex-col items-center justify-center rounded-[var(--radius-lg)] border border-dashed border-border bg-card px-6 py-16 text-center">
+    <div className="flex flex-col items-center justify-center rounded-[var(--radius-lg)] bg-card px-6 py-16 text-center">
       <div className="relative mb-4 flex h-20 w-24 items-end justify-center">
         {/* A simple closed market stall */}
         <div className="bazar-awning absolute inset-x-0 top-0 h-5 rounded-t-md border border-border" />

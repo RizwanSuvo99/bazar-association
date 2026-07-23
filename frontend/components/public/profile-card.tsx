@@ -8,11 +8,9 @@ export function ProfileCard({ b, lang }: { b: Businessman; lang: Lang }) {
   return (
     <Link
       href={`/profiles/${b.six_digit_id}`}
-      className="group relative flex flex-col overflow-hidden rounded-[var(--radius-lg)] border border-border bg-card transition-all hover:-translate-y-0.5 hover:shadow-lg hover:shadow-black/5"
+      className="group relative flex flex-col overflow-hidden rounded-[var(--radius-lg)] bg-card transition-all hover:-translate-y-0.5 hover:bg-surface-2"
     >
-      {/* Awning accent bar */}
-      <div className="h-1.5 w-full bg-primary" />
-      <div className="flex gap-4 p-5">
+      <div className="flex gap-4 p-6">
         <div className="relative h-20 w-20 shrink-0 overflow-hidden rounded-xl bg-primary-soft">
           {b.profile_photo_url ? (
             <Image
@@ -32,7 +30,7 @@ export function ProfileCard({ b, lang }: { b: Businessman; lang: Lang }) {
           <h3 className="truncate font-display text-lg font-semibold text-foreground group-hover:text-primary">
             {b.full_name}
           </h3>
-          <span className="mt-1 inline-block rounded-full bg-primary-soft px-2 py-0.5 text-xs font-medium text-primary">
+          <span className="mt-1 inline-block rounded-full bg-primary/10 px-2 py-0.5 text-xs font-medium text-primary">
             {b.unique_id}
           </span>
           {b.business_type && (
@@ -43,7 +41,7 @@ export function ProfileCard({ b, lang }: { b: Businessman; lang: Lang }) {
           )}
         </div>
       </div>
-      <div className="mt-auto space-y-1.5 border-t border-border px-5 py-3 text-sm text-muted-foreground">
+      <div className="mt-auto space-y-1.5 border-t border-border/60 px-6 py-3.5 text-sm text-muted-foreground">
         {b.market_name && (
           <p className="flex items-center gap-1.5 truncate">
             <MapPin className="h-3.5 w-3.5 shrink-0 text-primary" />

@@ -44,7 +44,7 @@ export function SearchFilterBar({ facets }: { facets: Facets }) {
   }
 
   return (
-    <div className="rounded-[var(--radius-lg)] border border-border bg-card p-4 shadow-sm">
+    <div className="rounded-2xl bg-card p-5">
       <div className="relative">
         {pending ? (
           <Loader2 className="absolute left-3.5 top-1/2 h-5 w-5 -translate-y-1/2 animate-spin text-muted-foreground" />

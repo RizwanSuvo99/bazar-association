@@ -59,17 +59,23 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
     <>
       <HeroCarousel images={heroImages} title={title} subtitle={subtitle} ctaLabel={cta} memberLine={memberLine} />
 
-      <Container className="py-10">
+      <Container className="py-12">
         <SearchFilterBar facets={facets} />
 
-        <p className="mt-6 text-sm text-muted-foreground">{memberLine}</p>
+        {/* Stats band — editorial member count on a surface tile */}
+        <div className="mt-6 flex items-baseline gap-3 rounded-2xl bg-card px-6 py-4">
+          <span className="font-display text-3xl font-bold tabular-nums text-primary">
+            {localizeNumber(list.meta.total, lang)}
+          </span>
+          <span className="text-sm text-muted-foreground">{memberLine}</span>
+        </div>
 
         {items.length === 0 ? (
           <div className="mt-6">
             <EmptyState />
           </div>
         ) : (
-          <div className="mt-4 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+          <div className="mt-6 grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
             {items.map((b) => (
               <ProfileCard key={b.id} b={b} lang={lang} />
             ))}
@@ -77,11 +83,11 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
         )}
 
         {meta.totalPages > 1 && (
-          <nav className="mt-10 flex items-center justify-center gap-1.5">
+          <nav className="mt-12 flex items-center justify-center gap-1.5">
             {meta.page > 1 && (
               <Link
                 href={makeHref(meta.page - 1)}
-                className="rounded-lg border border-border bg-card px-3.5 py-2 text-sm hover:bg-muted"
+                className="rounded-lg bg-card px-3.5 py-2 text-sm transition-colors hover:bg-surface-2"
               >
                 {translate(dict, "common.previous")}
               </Link>
@@ -91,10 +97,10 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
                 key={p}
                 href={makeHref(p)}
                 className={
-                  "min-w-10 rounded-lg border px-3 py-2 text-center text-sm " +
+                  "min-w-10 rounded-lg px-3 py-2 text-center text-sm transition-colors " +
                   (p === meta.page
-                    ? "border-primary bg-primary text-primary-foreground"
-                    : "border-border bg-card hover:bg-muted")
+                    ? "bg-primary font-semibold text-primary-foreground"
+                    : "bg-card hover:bg-surface-2")
                 }
               >
                 {localizeNumber(p, lang)}
@@ -103,7 +109,7 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
             {meta.page < meta.totalPages && (
               <Link
                 href={makeHref(meta.page + 1)}
-                className="rounded-lg border border-border bg-card px-3.5 py-2 text-sm hover:bg-muted"
+                className="rounded-lg bg-card px-3.5 py-2 text-sm transition-colors hover:bg-surface-2"
               >
                 {translate(dict, "common.next")}
               </Link>

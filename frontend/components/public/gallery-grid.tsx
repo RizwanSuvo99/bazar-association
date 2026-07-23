@@ -17,7 +17,7 @@ export function GalleryGrid({ images, lang }: { images: GalleryImage[]; lang: La
           <button
             key={img.id}
             onClick={() => setActive(i)}
-            className="group block w-full overflow-hidden rounded-[var(--radius-lg)] border border-border bg-card text-left cursor-pointer"
+            className="group block w-full overflow-hidden rounded-2xl bg-card text-left cursor-pointer"
           >
             <div className="overflow-hidden">
               <Image
@@ -35,7 +35,7 @@ export function GalleryGrid({ images, lang }: { images: GalleryImage[]; lang: La
 
       {active !== null && (
         <div
-          className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-black/85 p-4"
+          className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-black/90 p-4"
           onClick={() => setActive(null)}
         >
           <button className="absolute right-4 top-4 text-white/80 hover:text-white cursor-pointer" aria-label="close">

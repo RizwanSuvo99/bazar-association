@@ -50,7 +50,7 @@ export default async function MemberFormPage({ params }: { params: Promise<{ tok
         <img
           src={`${api}/api/members/${token}/form.png`}
           alt={`${member.full_name} — registration form`}
-          className="w-full rounded-lg border border-border shadow-sm"
+          className="w-full rounded-xl bg-white p-2"
         />
       </div>
     </Container>

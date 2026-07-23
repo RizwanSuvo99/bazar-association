@@ -29,7 +29,7 @@ export default async function NoticesPage() {
               return (
                 <Card key={n.id} className="flex flex-col gap-4 p-4 sm:flex-row sm:items-center sm:justify-between">
                   <div className="flex items-start gap-3">
-                    <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg bg-destructive/10 text-destructive">
+                    <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
                       <FileText className="h-5 w-5" />
                     </span>
                     <div>
@@ -51,7 +51,7 @@ export default async function NoticesPage() {
                     <a
                       href={n.file_url}
                       download={n.file_name || true}
-                      className="inline-flex h-10 items-center gap-1.5 rounded-[var(--radius-md)] border border-border bg-card px-4 text-sm font-medium hover:bg-muted"
+                      className="inline-flex h-10 items-center gap-1.5 rounded-[var(--radius-md)] bg-surface-2 px-4 text-sm font-medium hover:bg-muted"
                     >
                       <Download className="h-4 w-4" /> {dict.notices.download}
                     </a>

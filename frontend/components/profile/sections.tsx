@@ -11,9 +11,9 @@ export function ProfileSection({
   children: ReactNode;
 }) {
   return (
-    <Card className="p-5 sm:p-6">
-      <h2 className="mb-3 flex items-center gap-2 font-display text-lg font-semibold text-foreground">
-        {icon && <span className="text-primary">{icon}</span>}
+    <Card className="p-6">
+      <h2 className="mb-4 flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.12em] text-muted-foreground">
+        {icon && <span className="text-primary [&>svg]:h-4 [&>svg]:w-4">{icon}</span>}
         {title}
       </h2>
       <dl className="divide-y divide-border/60">{children}</dl>

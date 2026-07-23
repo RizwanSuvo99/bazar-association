@@ -215,7 +215,7 @@ def render_card(data):
     d.rounded_rectangle((S(P), S(P), WS - S(P), HS - S(P)), radius=S(18), fill=PANEL)
 
     # ---- Bismillah (topmost line) ----
-    draw_center(d, WS / 2, S(78), BISMILLAH, S(19), GOLD)
+    draw_center(d, WS / 2, S(80), BISMILLAH, S(25), GOLD)
 
     # ---- Logo in a white circle chip ----
     chip = S(88)

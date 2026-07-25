@@ -267,9 +267,14 @@ def render_card(data):
     if name:
         draw_center(d, WS / 2, S(560), name, fit_size(name, S(W - 124), S(44), S(28)), TEXT_LIGHT)
 
-    # ---- Business pill (gold chip, dark text) ----
+    # ---- Establishment pill (gold chip, dark text) ----
+    # প্রতিষ্ঠান: the establishment name = current_business_name_address up to
+    # the first comma (the remainder is the address). Falls back to the
+    # business type for members without that field.
     y = S(576)
-    biz = (data.get("business_type") or "").strip()
+    biz = (data.get("current_business_name_address") or "").split(",")[0].strip()
+    if not biz:
+        biz = (data.get("business_type") or "").strip()
     if biz:
         bs = fit_size(biz, S(W - 150), S(28), S(20))
         pw = measure(biz, bs) + S(70)

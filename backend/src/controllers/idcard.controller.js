@@ -14,6 +14,7 @@ function cardPayload(b, photo_b64, qr_b64) {
     six_digit_id: b.six_digit_id,
     full_name: b.full_name,
     business_type: b.business_type,
+    current_business_name_address: b.current_business_name_address,
     mobile_number: b.mobile_number,
     blood_group: b.blood_group,
     photo_b64,

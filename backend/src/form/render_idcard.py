@@ -276,6 +276,7 @@ def render_card(data):
     if not biz:
         biz = (data.get("business_type") or "").strip()
     if biz:
+        biz = "প্রতিষ্ঠান: " + biz
         bs = fit_size(biz, S(W - 150), S(28), S(20))
         pw = measure(biz, bs) + S(70)
         d.rounded_rectangle((WS / 2 - pw / 2, y, WS / 2 + pw / 2, y + S(52)), radius=S(26), fill=GOLD)

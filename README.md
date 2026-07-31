@@ -191,6 +191,33 @@ uploads to Cloudinary. If they are not set, uploads are saved to `backend/upload
 `/uploads/*`, so the required registration photo always works. Uploads are backend-signed — the
 frontend never sees Cloudinary secrets.
 
+## Deployment (production)
+
+Live at **https://nangalkotbazar.com**, on an Ubuntu 24.04 VPS.
+
+| Piece | Where |
+|---|---|
+| App | `/opt/bazar-association`, owned by the `nba` system user |
+| API | `nba-backend.service` → `node src/index.js` on `:4000` |
+| Web | `nba-frontend.service` → `next start` on `127.0.0.1:3000` |
+| Proxy | Nginx: `/api/` → `:4000`, everything else → `:3000`, TLS via certbot |
+| DB | Postgres in Docker, bound to `127.0.0.1:5435` only |
+| Backups | Nightly `pg_dump` at 03:00, 14 days retained in `/opt/backups/db` |
+
+**Every push to `main` deploys automatically** via `.github/workflows/deploy.yml`:
+
+1. **Build & typecheck** — installs both workspaces, `node --check` on the backend, `tsc --noEmit`
+   and `next build` on the frontend. Runs on pull requests too.
+2. **Deploy** — only if step 1 passed. SSHes to the VPS, where the key is pinned to a *forced
+   command* so it can only run [`deploy/nba-deploy.sh`](./deploy/nba-deploy.sh) — it cannot open a
+   shell. That script pulls, installs, migrates, rebuilds, restarts, and health-checks. If the
+   build fails it rolls back to the previous commit and leaves the running services untouched.
+
+Repo secrets required: `VPS_HOST`, `VPS_SSH_KEY`, `VPS_KNOWN_HOSTS`.
+
+Note that `deploy/nba-deploy.sh` is a reference copy — the server runs `/usr/local/bin/nba-deploy`,
+which must be updated by hand (a deploy should not rewrite itself mid-run).
+
 ## Authorship
 
 See [`CLAUDE.md`](./CLAUDE.md): commits use the repository owner's git identity only.

@@ -254,10 +254,12 @@ export const siteSettings = {
   facebook_url: 'https://facebook.com/nangalkotbazar',
 };
 
-// Demo notices point to sample PDFs committed under frontend/public/sample-notices/
-// (served by Next at http://localhost:3000/...). Admin-uploaded notices are stored on the
-// backend and served from http://localhost:4000/uploads/notices/.
-const SITE_URL = 'http://localhost:3000';
+// Demo notices point to sample PDFs committed under frontend/public/sample-notices/.
+// The paths are ROOT-RELATIVE on purpose: an absolute http://localhost:3000 URL gets stored
+// in the database verbatim, so seeding a deployed environment produced notice links that
+// pointed every visitor's browser at their own machine. Admin-uploaded notices are stored on
+// the backend and served from /uploads/notices/.
+const SITE_URL = '';
 export const notices = [
   {
     title_bn: 'বার্ষিক সাধারণ সভা (AGM) বিজ্ঞপ্তি',

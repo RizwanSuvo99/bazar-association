@@ -7,6 +7,7 @@ import { env } from '../config/env.js';
 import {
   findAdminByEmail,
   findAdminById,
+  passwordVersion,
   touchLastLogin,
   updateAdminPassword,
 } from '../models/admin.model.js';
@@ -34,7 +35,11 @@ export const login = asyncHandler(async (req, res) => {
   const okPass = await comparePassword(password, admin.password_hash);
   if (!okPass) throw ApiError.unauthorized('ইমেইল বা পাসওয়ার্ড ভুল।', 'INVALID_CREDENTIALS');
 
-  const token = signToken({ sub: admin.id, role: admin.role });
+  const token = signToken({
+    sub: admin.id,
+    role: admin.role,
+    pv: passwordVersion(admin.password_changed_at),
+  });
   res.cookie(env.COOKIE_NAME, token, cookieOptions());
   await touchLastLogin(admin.id);
   return ok(res, { admin: publicAdmin(admin) });
@@ -58,11 +63,15 @@ export const changePassword = asyncHandler(async (req, res) => {
   const okPass = await comparePassword(currentPassword, admin.password_hash);
   if (!okPass) throw ApiError.badRequest('বর্তমান পাসওয়ার্ড ভুল।', 'WRONG_CURRENT_PASSWORD');
 
-  await updateAdminPassword(admin.id, await hashPassword(newPassword));
+  const changedAt = await updateAdminPassword(admin.id, await hashPassword(newPassword));
 
-  // The old cookie is now stale (issued before password_changed_at), so mint a fresh
-  // one — this device stays signed in while every other session is invalidated.
-  const token = signToken({ sub: admin.id, role: admin.role });
+  // Every existing token (including this request's) now carries a stale `pv`, so mint a
+  // fresh one — this device stays signed in while every other session is invalidated.
+  const token = signToken({
+    sub: admin.id,
+    role: admin.role,
+    pv: passwordVersion(changedAt),
+  });
   res.cookie(env.COOKIE_NAME, token, cookieOptions());
 
   return ok(res, { message: 'পাসওয়ার্ড পরিবর্তন হয়েছে। অন্য ডিভাইসগুলো থেকে লগআউট হয়ে গেছে।' });

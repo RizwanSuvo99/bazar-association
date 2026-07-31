@@ -53,12 +53,23 @@ export async function updateAdmin(id, fields) {
   return rows[0] || null;
 }
 
-/** Stamping password_changed_at invalidates JWTs issued before now (see requireAdmin). */
+/**
+ * Stamping password_changed_at invalidates every existing JWT (see requireAdmin, which
+ * compares it exactly against the token's `pv` claim). Returns the new value so the
+ * caller can mint a replacement token for the device that made the change.
+ */
 export async function updateAdminPassword(id, passwordHash) {
-  await query(
-    'UPDATE admins SET password_hash = $1, password_changed_at = now() WHERE id = $2',
+  const { rows } = await query(
+    `UPDATE admins SET password_hash = $1, password_changed_at = now()
+      WHERE id = $2 RETURNING password_changed_at`,
     [passwordHash, id],
   );
+  return rows[0]?.password_changed_at ?? null;
+}
+
+/** Epoch-ms form of password_changed_at — the value carried in a token's `pv` claim. */
+export function passwordVersion(passwordChangedAt) {
+  return passwordChangedAt ? new Date(passwordChangedAt).getTime() : 0;
 }
 
 export async function deleteAdmin(id) {

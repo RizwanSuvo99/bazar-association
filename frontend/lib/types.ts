@@ -110,11 +110,24 @@ export interface ContactMessage {
   created_at: string;
 }
 
+export type AdminRole = "admin" | "superadmin";
+
 export interface AdminUser {
   id: number | string;
   name: string;
   email: string;
   role: string;
+}
+
+/** A row in the admin-accounts management table (never includes the password hash). */
+export interface AdminAccount {
+  id: number | string;
+  name: string;
+  email: string;
+  role: AdminRole;
+  is_active: boolean;
+  last_login_at: string | null;
+  created_at: string;
 }
 
 export interface Facets {

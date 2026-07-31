@@ -47,7 +47,7 @@ export const env = {
   CLOUDINARY_UPLOAD_FOLDER: optional('CLOUDINARY_UPLOAD_FOLDER', 'nangalkot-bazar'),
 
   SEED_ADMIN_NAME: optional('SEED_ADMIN_NAME', 'প্রশাসক'),
-  SEED_ADMIN_EMAIL: optional('SEED_ADMIN_EMAIL', 'admin@nangalkotbazar.test'),
+  SEED_ADMIN_EMAIL: optional('SEED_ADMIN_EMAIL', 'admin@nangalkotbazar.com'),
   SEED_ADMIN_PASSWORD: optional('SEED_ADMIN_PASSWORD', 'Admin@12345'),
 };
 

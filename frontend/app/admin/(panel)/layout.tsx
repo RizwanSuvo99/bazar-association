@@ -18,7 +18,7 @@ export default async function PanelLayout({ children }: { children: React.ReactN
   }
 
   return (
-    <AdminShell adminName={admin.name} pendingCount={pending}>
+    <AdminShell adminName={admin.name} adminRole={admin.role} pendingCount={pending}>
       {children}
     </AdminShell>
   );

@@ -93,7 +93,7 @@ A ready demo profile: http://localhost:3000/profiles/235192
 
 | Field | Value |
 |---|---|
-| Email | `admin@nangalkotbazar.test` |
+| Email | `admin@nangalkotbazar.com` |
 | Password | `Admin@12345` |
 
 (From `SEED_ADMIN_EMAIL` / `SEED_ADMIN_PASSWORD` in `backend/.env` — change them for production.)

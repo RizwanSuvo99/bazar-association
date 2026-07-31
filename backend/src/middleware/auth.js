@@ -22,6 +22,23 @@ export const requireAdmin = asyncHandler(async (req, res, next) => {
     throw ApiError.unauthorized('অ্যাকাউন্ট পাওয়া যায়নি বা নিষ্ক্রিয়।', 'ADMIN_INACTIVE');
   }
 
+  // A token minted before the last password change is stale — changing the password
+  // signs out every other device. `iat` is in seconds; allow 1s of clock slack.
+  if (admin.password_changed_at && payload.iat) {
+    const changedAtSec = Math.floor(new Date(admin.password_changed_at).getTime() / 1000);
+    if (payload.iat < changedAtSec - 1) {
+      throw ApiError.unauthorized('পাসওয়ার্ড পরিবর্তিত হয়েছে। আবার লগইন করুন।', 'PASSWORD_CHANGED');
+    }
+  }
+
   req.admin = { id: admin.id, name: admin.name, email: admin.email, role: admin.role };
   next();
 });
+
+/** Gate for admin-account management — only superadmins may add or modify admins. */
+export const requireSuperAdmin = (req, res, next) => {
+  if (req.admin?.role !== 'superadmin') {
+    return next(ApiError.forbidden('এই কাজটি শুধুমাত্র সুপার অ্যাডমিন করতে পারেন।', 'SUPERADMIN_ONLY'));
+  }
+  next();
+};

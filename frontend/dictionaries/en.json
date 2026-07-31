@@ -180,6 +180,8 @@
     "galleryImages": "Gallery Images",
     "theme": "Color Theme",
     "confirmDelete": "Are you sure?",
-    "saved": "Saved successfully"
+    "saved": "Saved successfully",
+    "adminUsers": "Admin Users",
+    "myAccount": "My Account"
   }
 }

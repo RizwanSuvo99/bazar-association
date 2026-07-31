@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { requireAdmin } from '../middleware/auth.js';
+import { requireAdmin, requireSuperAdmin } from '../middleware/auth.js';
 import { validate } from '../middleware/validate.js';
 import { uploadImage, uploadPdf } from '../middleware/upload.js';
 import {
@@ -23,6 +23,12 @@ import * as notice from '../controllers/notice.controller.js';
 import { businessmanFormPdf } from '../controllers/formPdf.controller.js';
 import { businessmanIdCardPdf, bulkIdCardsPdf } from '../controllers/idcard.controller.js';
 import { noticeCreateSchema, noticeUpdateSchema } from '../validators/notice.schema.js';
+import * as admins from '../controllers/admins.controller.js';
+import {
+  adminCreateSchema,
+  adminUpdateSchema,
+  adminResetPasswordSchema,
+} from '../validators/admin.schema.js';
 
 const router = Router();
 
@@ -76,5 +82,17 @@ router.delete('/notices/:id', notice.remove);
 // Uploads -> Cloudinary or local fallback
 router.post('/uploads/image', uploadImage, upload.uploadAdminImage);
 router.post('/uploads/pdf', uploadPdf, upload.uploadNoticePdf);
+
+// Admin accounts (superadmin only)
+router.get('/admins', requireSuperAdmin, admins.list);
+router.post('/admins', requireSuperAdmin, validate(adminCreateSchema), admins.create);
+router.patch('/admins/:id', requireSuperAdmin, validate(adminUpdateSchema), admins.update);
+router.post(
+  '/admins/:id/password',
+  requireSuperAdmin,
+  validate(adminResetPasswordSchema),
+  admins.resetPassword,
+);
+router.delete('/admins/:id', requireSuperAdmin, admins.remove);
 
 export default router;

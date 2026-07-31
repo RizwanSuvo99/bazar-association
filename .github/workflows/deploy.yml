@@ -1,0 +1,93 @@
+name: CI / Deploy
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+# Never let two deploys race each other onto the same server.
+concurrency:
+  group: deploy-production
+  cancel-in-progress: false
+
+jobs:
+  # ---------------------------------------------------------------------------
+  # Build and typecheck first. A push that cannot build never reaches the server.
+  # ---------------------------------------------------------------------------
+  verify:
+    name: Build & typecheck
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: |
+            backend/package-lock.json
+            frontend/package-lock.json
+
+      - name: Install backend deps
+        run: npm --prefix backend ci --no-audit --no-fund
+
+      - name: Syntax-check backend
+        run: |
+          find backend/src -name '*.js' -print0 | xargs -0 -n1 node --check
+          echo "backend syntax OK"
+
+      - name: Install frontend deps
+        run: npm --prefix frontend ci --no-audit --no-fund
+
+      - name: Typecheck frontend
+        run: npm --prefix frontend exec tsc -- --noEmit
+
+      - name: Build frontend
+        run: npm --prefix frontend run build
+        env:
+          # Build-time only. NEXT_PUBLIC_* values are inlined here, but the artifact
+          # from this job is discarded — the server does its own build with its own env.
+          NEXT_PUBLIC_API_BASE_URL: https://nangalkotbazar.com
+          NEXT_PUBLIC_SITE_URL: https://nangalkotbazar.com
+          NEXT_PUBLIC_DEFAULT_LOCALE: bn
+
+  # ---------------------------------------------------------------------------
+  # Deploy only on a push to main that passed verify.
+  # ---------------------------------------------------------------------------
+  deploy:
+    name: Deploy to VPS
+    needs: verify
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    environment:
+      name: production
+      url: https://nangalkotbazar.com
+    steps:
+      - name: Configure SSH
+        run: |
+          mkdir -p ~/.ssh && chmod 700 ~/.ssh
+          echo "${{ secrets.VPS_SSH_KEY }}" > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+          echo "${{ secrets.VPS_KNOWN_HOSTS }}" > ~/.ssh/known_hosts
+          chmod 644 ~/.ssh/known_hosts
+
+      - name: Trigger deploy
+        # This key is pinned to a forced command on the server (/usr/local/bin/nba-deploy),
+        # so connecting IS the deploy — no remote command is sent from here.
+        run: |
+          ssh -i ~/.ssh/deploy_key \
+              -o IdentitiesOnly=yes \
+              -o BatchMode=yes \
+              -o ConnectTimeout=30 \
+              root@${{ secrets.VPS_HOST }}
+
+      - name: Verify site is live
+        run: |
+          for i in $(seq 1 10); do
+            code=$(curl -s -o /dev/null -w '%{http_code}' -m 15 https://nangalkotbazar.com/api/health || true)
+            if [ "$code" = "200" ]; then echo "site healthy (HTTP $code)"; exit 0; fi
+            echo "attempt $i: HTTP $code — retrying"; sleep 6
+          done
+          echo "site did not return healthy"; exit 1

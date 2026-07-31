@@ -1,6 +1,7 @@
 import "server-only";
 import { apiData, apiFetch } from "./api";
 import type {
+  AdminAccount,
   Businessman,
   ContactMessage,
   DashboardStats,
@@ -64,3 +65,6 @@ export async function getAdminMessages(
   const res = await apiFetch<ContactMessage[]>(`/admin/contact-messages?page=${page || 1}&limit=${limit}`, noStore);
   return { items: res.data, meta: res.meta ?? { page: 1, limit, total: res.data.length, totalPages: 1 } };
 }
+
+/** Admin accounts — the API restricts this to superadmins, so callers must handle a 403. */
+export const getAdminUsers = () => apiData<AdminAccount[]>("/admin/admins", noStore);

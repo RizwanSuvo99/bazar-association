@@ -17,6 +17,8 @@ import {
   Menu,
   X,
   ExternalLink,
+  ShieldCheck,
+  UserCog,
 } from "lucide-react";
 import { useTranslation } from "@/lib/i18n-context";
 import { apiFetch } from "@/lib/api";
@@ -32,14 +34,19 @@ const NAV = [
   { href: "/admin/notices", key: "admin.notices", icon: Megaphone },
   { href: "/admin/messages", key: "admin.messages", icon: MessageSquare },
   { href: "/admin/settings", key: "admin.settings", icon: Settings },
+  // Admin-account management is superadmin-only; filtered out below for plain admins.
+  { href: "/admin/users", key: "admin.adminUsers", icon: ShieldCheck, superadminOnly: true },
+  { href: "/admin/account", key: "admin.myAccount", icon: UserCog },
 ];
 
 export function AdminShell({
   adminName,
+  adminRole,
   pendingCount,
   children,
 }: {
   adminName: string;
+  adminRole: string;
   pendingCount: number;
   children: React.ReactNode;
 }) {
@@ -57,9 +64,11 @@ export function AdminShell({
     router.refresh();
   }
 
+  const visibleNav = NAV.filter((item) => !item.superadminOnly || adminRole === "superadmin");
+
   const navList = (
     <nav className="flex flex-col gap-1">
-      {NAV.map((item) => (
+      {visibleNav.map((item) => (
         <Link
           key={item.href}
           href={item.href}

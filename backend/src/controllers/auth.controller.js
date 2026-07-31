@@ -2,9 +2,14 @@ import { asyncHandler } from '../utils/asyncHandler.js';
 import { ApiError } from '../utils/ApiError.js';
 import { ok } from '../utils/respond.js';
 import { signToken } from '../utils/jwt.js';
-import { comparePassword } from '../utils/password.js';
+import { comparePassword, hashPassword } from '../utils/password.js';
 import { env } from '../config/env.js';
-import { findAdminByEmail, touchLastLogin } from '../models/admin.model.js';
+import {
+  findAdminByEmail,
+  findAdminById,
+  touchLastLogin,
+  updateAdminPassword,
+} from '../models/admin.model.js';
 
 function cookieOptions() {
   return {
@@ -42,4 +47,23 @@ export const logout = asyncHandler(async (req, res) => {
 
 export const me = asyncHandler(async (req, res) => {
   return ok(res, { admin: req.admin });
+});
+
+export const changePassword = asyncHandler(async (req, res) => {
+  const { current_password: currentPassword, new_password: newPassword } = req.body;
+
+  const admin = await findAdminById(req.admin.id);
+  if (!admin) throw ApiError.unauthorized('অ্যাকাউন্ট পাওয়া যায়নি।', 'ADMIN_NOT_FOUND');
+
+  const okPass = await comparePassword(currentPassword, admin.password_hash);
+  if (!okPass) throw ApiError.badRequest('বর্তমান পাসওয়ার্ড ভুল।', 'WRONG_CURRENT_PASSWORD');
+
+  await updateAdminPassword(admin.id, await hashPassword(newPassword));
+
+  // The old cookie is now stale (issued before password_changed_at), so mint a fresh
+  // one — this device stays signed in while every other session is invalidated.
+  const token = signToken({ sub: admin.id, role: admin.role });
+  res.cookie(env.COOKIE_NAME, token, cookieOptions());
+
+  return ok(res, { message: 'পাসওয়ার্ড পরিবর্তন হয়েছে। অন্য ডিভাইসগুলো থেকে লগআউট হয়ে গেছে।' });
 });

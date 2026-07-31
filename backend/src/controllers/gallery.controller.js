@@ -23,8 +23,17 @@ export const create = asyncHandler(async (req, res) => {
 });
 
 export const update = asyncHandler(async (req, res) => {
+  const before = await Gallery.getGalleryImageById(req.params.id);
+  if (!before) throw ApiError.notFound('ছবি পাওয়া যায়নি।', 'IMAGE_NOT_FOUND');
+
   const row = await Gallery.updateGalleryImage(req.params.id, req.body);
   if (!row) throw ApiError.notFound('ছবি পাওয়া যায়নি।', 'IMAGE_NOT_FOUND');
+
+  // Picture replaced -> drop the old Cloudinary asset so it does not linger unreferenced.
+  const replaced = req.body.image_url && req.body.image_url !== before.image_url;
+  if (replaced && before.cloudinary_public_id && before.cloudinary_public_id !== row.cloudinary_public_id) {
+    await deleteFromCloudinary(before.cloudinary_public_id).catch(() => {});
+  }
   return ok(res, row);
 });
 

@@ -30,7 +30,7 @@ export async function createGalleryImage({ image_url, cloudinary_public_id, capt
 }
 
 export async function updateGalleryImage(id, data) {
-  const fields = ['caption_bn', 'caption_en', 'sort_order', 'is_published', 'image_url'];
+  const fields = ['caption_bn', 'caption_en', 'sort_order', 'is_published', 'image_url', 'cloudinary_public_id'];
   const cols = fields.filter((c) => data[c] !== undefined);
   if (cols.length === 0) return getGalleryImageById(id);
   const setSql = cols.map((c, i) => `${c} = $${i + 1}`).join(', ');

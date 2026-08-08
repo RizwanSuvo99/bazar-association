@@ -19,6 +19,16 @@ export function maskTin(tin) {
   return maskTail(tin, 4);
 }
 
+/**
+ * Trade licence numbers here run only 5-8 characters ("00216", "00588-01"), so the 4-character
+ * tail used for a 12-digit TIN would leave most of the value readable. Two is the smallest
+ * tail that still lets a member recognise their own record.
+ */
+export function maskTradeLicense(value) {
+  if (!value) return value;
+  return maskTail(value, 2);
+}
+
 /** Given a full businessman row, return a public-safe copy with NID/TIN masked. */
 export function toPublicBusinessman(row) {
   if (!row) return row;
@@ -42,5 +52,6 @@ export function toPublicBusinessman(row) {
     ...rest,
     nid_no: maskNid(row.nid_no),
     tin_no: row.tin_no ? maskTin(row.tin_no) : row.tin_no,
+    trade_license_no: row.trade_license_no ? maskTradeLicense(row.trade_license_no) : row.trade_license_no,
   };
 }

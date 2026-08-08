@@ -35,3 +35,8 @@ export async function countUnread() {
   const { rows } = await query('SELECT count(*)::int AS unread FROM contact_messages WHERE is_read = false');
   return rows[0].unread;
 }
+
+export async function deleteContactMessage(id) {
+  const { rowCount } = await query('DELETE FROM contact_messages WHERE id = $1', [id]);
+  return rowCount > 0;
+}

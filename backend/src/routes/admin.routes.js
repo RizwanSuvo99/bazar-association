@@ -78,6 +78,7 @@ router.put('/settings', validate(settingsUpdateSchema), settings.update);
 // Contact inbox
 router.get('/contact-messages', contact.list);
 router.patch('/contact-messages/:id', contact.markRead);
+router.delete('/contact-messages/:id', contact.remove);
 
 // Notices (PDF files)
 router.get('/notices', notice.adminList);

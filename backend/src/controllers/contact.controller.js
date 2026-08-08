@@ -23,3 +23,9 @@ export const markRead = asyncHandler(async (req, res) => {
   if (!row) throw ApiError.notFound('বার্তা পাওয়া যায়নি।', 'MESSAGE_NOT_FOUND');
   return ok(res, row);
 });
+
+export const remove = asyncHandler(async (req, res) => {
+  const deleted = await Contact.deleteContactMessage(req.params.id);
+  if (!deleted) throw ApiError.notFound('বার্তা পাওয়া যায়নি।', 'MESSAGE_NOT_FOUND');
+  return ok(res, { message: 'বার্তা মুছে ফেলা হয়েছে।', id: Number(req.params.id) });
+});

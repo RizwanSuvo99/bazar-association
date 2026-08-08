@@ -29,16 +29,18 @@ export function Navbar({ orgName }: { orgName: string }) {
   return (
     <header className="sticky top-0 z-40 border-b border-border/60 bg-background/95 backdrop-blur-sm">
       <Container className="flex h-16 items-center justify-between gap-3">
-        <Link href="/" className="flex items-center gap-2.5" onClick={() => setOpen(false)}>
+        <Link href="/" className="flex min-w-0 items-center gap-2 sm:gap-2.5" onClick={() => setOpen(false)}>
           <Image
             src="/bazar-logo.png"
             alt={orgName}
             width={48}
             height={44}
             priority
-            className="h-11 w-auto object-contain"
+            className="h-9 w-auto shrink-0 object-contain sm:h-11"
           />
-          <span className="hidden font-display text-base font-bold leading-snug text-foreground sm:block sm:max-w-[15rem]">
+          {/* Wraps to two lines on phones instead of being hidden. text-balance keeps the
+              two lines close in length, and min-w-0 above lets it wrap rather than overflow. */}
+          <span className="max-w-[11rem] font-display text-[13px] font-bold leading-snug text-balance text-foreground sm:max-w-[15rem] sm:text-base">
             {orgName}
           </span>
         </Link>
@@ -58,7 +60,7 @@ export function Navbar({ orgName }: { orgName: string }) {
           ))}
         </nav>
 
-        <div className="flex items-center gap-2">
+        <div className="flex shrink-0 items-center gap-2">
           <div className="hidden items-center gap-2 sm:flex">
             <LangToggle />
             <ThemeModeToggle />

@@ -4,6 +4,7 @@ import { ArrowLeft, FileDown, IdCard } from "lucide-react";
 import { getI18n } from "@/lib/i18n-server";
 import { getAdminBusinessman } from "@/lib/admin-queries";
 import { BusinessmanForm } from "@/components/admin/businessman-form";
+import { SignedFormManager } from "@/components/admin/signed-form-manager";
 import { Button } from "@/components/ui";
 import type { Businessman } from "@/lib/types";
 
@@ -40,6 +41,7 @@ export default async function EditBusinessmanPage({ params }: { params: Promise<
           </a>
         </div>
       </div>
+      <SignedFormManager member={b} />
       <BusinessmanForm initial={b} />
     </div>
   );

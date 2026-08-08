@@ -4,6 +4,7 @@ import type {
   Facets,
   GalleryImage,
   ListMeta,
+  MemberMeta,
   Notice,
   PageContent,
   SiteSettings,
@@ -49,7 +50,7 @@ export function getProfile(sixDigits: string) {
 
 /** Resolve a member by their random ID-card token (QR target page). */
 export function getMemberByToken(token: string) {
-  return apiData<{ full_name: string; unique_id: string }>(`/members/${token}`, { cache: "no-store" });
+  return apiData<MemberMeta>(`/members/${token}`, { cache: "no-store" });
 }
 
 export interface MemberQuery {

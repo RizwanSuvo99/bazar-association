@@ -157,3 +157,37 @@ export async function countByStatus() {
   );
   return rows[0];
 }
+
+/* ---------------- Signed registration form ----------------
+   Deliberately kept out of WRITABLE_COLUMNS: these are managed only through the
+   dedicated signed-form endpoints, so a normal member edit can never clobber them. */
+
+export async function setSignedForm(id, { url, publicId, mime }) {
+  const { rows } = await query(
+    `UPDATE businessmen
+        SET signed_form_url = $1, signed_form_public_id = $2, signed_form_mime = $3,
+            signed_form_uploaded_at = now(), signed_form_visible = true
+      WHERE id = $4 RETURNING *`,
+    [url, publicId || null, mime, id],
+  );
+  return rows[0] || null;
+}
+
+export async function setSignedFormVisible(id, visible) {
+  const { rows } = await query(
+    'UPDATE businessmen SET signed_form_visible = $1 WHERE id = $2 RETURNING *',
+    [visible, id],
+  );
+  return rows[0] || null;
+}
+
+export async function clearSignedForm(id) {
+  const { rows } = await query(
+    `UPDATE businessmen
+        SET signed_form_url = NULL, signed_form_public_id = NULL, signed_form_mime = NULL,
+            signed_form_uploaded_at = NULL, signed_form_visible = true
+      WHERE id = $1 RETURNING *`,
+    [id],
+  );
+  return rows[0] || null;
+}

@@ -33,6 +33,29 @@ export interface Businessman {
   unique_id: string;
   created_at: string;
   updated_at: string;
+  // Hand-signed registration form returned by the member. Admin responses only —
+  // the public projections strip these.
+  signed_form_url?: string | null;
+  signed_form_mime?: string | null;
+  signed_form_uploaded_at?: string | null;
+  signed_form_visible?: boolean;
+}
+
+/** The signed copy as the admin widget sees it. */
+export interface SignedForm {
+  url: string;
+  mime?: string | null;
+  is_pdf: boolean;
+  visible: boolean;
+  uploaded_at?: string | null;
+}
+
+/** Public payload for the token page the ID-card QR points at. */
+export interface MemberMeta {
+  full_name: string;
+  unique_id: string;
+  /** Present only when a signed copy exists AND the admin has enabled it. */
+  signed_form: { url: string; is_pdf: boolean } | null;
 }
 
 export interface RegistrationRequest extends Omit<Businessman, "six_digit_id" | "unique_id" | "status"> {

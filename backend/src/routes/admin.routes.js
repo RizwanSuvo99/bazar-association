@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import { requireAdmin, requireSuperAdmin } from '../middleware/auth.js';
 import { validate } from '../middleware/validate.js';
-import { uploadImage, uploadPdf } from '../middleware/upload.js';
+import { uploadImage, uploadPdf, uploadSignedForm } from '../middleware/upload.js';
 import {
   businessmanCreateSchema,
   businessmanUpdateSchema,
@@ -24,6 +24,8 @@ import { businessmanFormPdf } from '../controllers/formPdf.controller.js';
 import { businessmanIdCardPdf, bulkIdCardsPdf } from '../controllers/idcard.controller.js';
 import { noticeCreateSchema, noticeUpdateSchema } from '../validators/notice.schema.js';
 import * as admins from '../controllers/admins.controller.js';
+import * as signedForm from '../controllers/signedForm.controller.js';
+import { signedFormVisibilitySchema } from '../validators/signedForm.schema.js';
 import {
   adminCreateSchema,
   adminUpdateSchema,
@@ -46,6 +48,10 @@ router.get('/businessmen', validate(businessmanQuerySchema, 'query'), businessme
 router.post('/businessmen', validate(businessmanCreateSchema), businessmen.adminCreate);
 router.get('/businessmen/:id/form.pdf', businessmanFormPdf);
 router.get('/businessmen/:id/id-card.pdf', businessmanIdCardPdf);
+// Hand-signed copy returned by the member (suffixed paths, so they never collide with /:id)
+router.post('/businessmen/:id/signed-form', uploadSignedForm, signedForm.upload);
+router.patch('/businessmen/:id/signed-form', validate(signedFormVisibilitySchema), signedForm.setVisibility);
+router.delete('/businessmen/:id/signed-form', signedForm.remove);
 router.get('/businessmen/:id', businessmen.adminGetOne);
 router.patch('/businessmen/:id', validate(businessmanUpdateSchema), businessmen.adminUpdate);
 router.delete('/businessmen/:id', businessmen.adminRemove);

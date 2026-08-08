@@ -24,10 +24,23 @@ async function renderMemberForm(token, format) {
   return { b, buf };
 }
 
-/** Basic (non-sensitive) member info for the public form page header. */
+/**
+ * Basic (non-sensitive) member info for the public form page header.
+ *
+ * signed_form is returned ONLY when a signed copy exists and the admin has it switched on;
+ * otherwise it is absent and the page falls back to the generated form. Deciding that here
+ * rather than in the frontend means a hidden copy's URL never reaches the browser.
+ */
 export const publicMemberMeta = asyncHandler(async (req, res) => {
   const b = await loadActiveMember(req.params.token);
-  return ok(res, { full_name: b.full_name, unique_id: b.unique_id });
+  const showSigned = Boolean(b.signed_form_url) && b.signed_form_visible;
+  return ok(res, {
+    full_name: b.full_name,
+    unique_id: b.unique_id,
+    signed_form: showSigned
+      ? { url: b.signed_form_url, is_pdf: b.signed_form_mime === 'application/pdf' }
+      : null,
+  });
 });
 
 export const publicMemberFormImage = asyncHandler(async (req, res) => {

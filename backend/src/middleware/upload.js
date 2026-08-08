@@ -12,6 +12,16 @@ export const uploadImage = multer({
   },
 }).single('image');
 
+// A member's hand-signed registration form: usually a phone photo, sometimes a PDF scan.
+export const uploadSignedForm = multer({
+  storage: multer.memoryStorage(),
+  limits: { fileSize: 15 * 1024 * 1024 }, // 15 MB — phone photos of A4 pages get large
+  fileFilter: (req, file, cb) => {
+    if ([...ALLOWED, 'application/pdf'].includes(file.mimetype)) return cb(null, true);
+    cb(new ApiError(400, 'শুধুমাত্র ছবি (JPG, PNG, WEBP) বা PDF ফাইল আপলোড করা যাবে।', 'INVALID_FILE_TYPE'));
+  },
+}).single('file');
+
 export const uploadPdf = multer({
   storage: multer.memoryStorage(),
   limits: { fileSize: 15 * 1024 * 1024 }, // 15 MB

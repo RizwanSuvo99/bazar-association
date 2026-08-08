@@ -23,12 +23,19 @@ export function maskTin(tin) {
 export function toPublicBusinessman(row) {
   if (!row) return row;
   // Never leak the private ID-card token or the member's nominee (next-of-kin)
-  // details through the public profile API.
+  // details through the public profile API. The signed registration form is stripped too:
+  // it is served only from the token page, and only when the admin has enabled it there,
+  // so its URL must not ride along on the public directory/profile responses.
   const {
     public_token,
     nominee_name,
     nominee_relation,
     nominee_mobile,
+    signed_form_url,
+    signed_form_public_id,
+    signed_form_mime,
+    signed_form_uploaded_at,
+    signed_form_visible,
     ...rest
   } = row;
   return {

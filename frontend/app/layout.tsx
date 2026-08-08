@@ -22,19 +22,46 @@ const anek = Anek_Bangla({
   display: "swap",
 });
 
+// Absolute base for og:image and canonical URLs. Facebook, WhatsApp and Google all
+// reject relative image paths, so without this the preview image is simply dropped.
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://nangalkotbazar.com";
+
 export async function generateMetadata(): Promise<Metadata> {
   let title = "নাঙ্গলকোট বাজার ব্যবসায়ী সংস্থা";
   let description = "নাঙ্গলকোট বাজারের নিবন্ধিত ব্যবসায়ীদের কেন্দ্রীয় তথ্যভাণ্ডার।";
+  let siteName = title;
   try {
     const s = await getSettings();
     title = s.org_name_bn;
+    siteName = s.org_name_bn;
     description = `${s.org_name_bn} — ${s.org_name_en}`;
   } catch {
     // backend may be unavailable during build; use defaults
   }
   return {
+    metadataBase: new URL(SITE_URL),
     title: { default: title, template: `%s | ${title}` },
     description,
+    applicationName: siteName,
+    alternates: { canonical: "/" },
+    // app/opengraph-image.png is picked up automatically and emitted as an absolute
+    // URL thanks to metadataBase; app/icon.png, apple-icon.png and favicon.ico
+    // likewise become the icon tags.
+    openGraph: {
+      type: "website",
+      siteName,
+      title,
+      description,
+      url: SITE_URL,
+      locale: "bn_BD",
+      alternateLocale: ["en_US"],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title,
+      description,
+    },
+    robots: { index: true, follow: true },
   };
 }
 

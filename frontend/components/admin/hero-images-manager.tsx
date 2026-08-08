@@ -4,6 +4,7 @@ import { useRef, useState } from "react";
 import Image from "next/image";
 import { Upload, Loader2, Trash2, ArrowUp, ArrowDown } from "lucide-react";
 import { apiFetch } from "@/lib/api";
+import { cn } from "@/lib/utils";
 import type { HeroImage } from "@/lib/types";
 
 export function HeroImagesManager({
@@ -40,7 +41,12 @@ export function HeroImagesManager({
     onChange(arr);
   };
 
-  const btn = "flex h-7 w-7 items-center justify-center rounded-md bg-white/90 text-foreground disabled:opacity-40 cursor-pointer";
+  // These chips sit on a white plate over a photo, so their colours must NOT follow the
+  // theme: text-foreground turns near-white in dark mode and the icons disappeared into
+  // the plate. Fixed dark ink keeps them readable in both themes.
+  const btn =
+    "flex h-7 w-7 items-center justify-center rounded-md bg-white/90 text-neutral-900 shadow-sm " +
+    "transition-colors hover:bg-white disabled:opacity-40 cursor-pointer";
 
   return (
     <div className="space-y-3">
@@ -55,7 +61,7 @@ export function HeroImagesManager({
                 <button type="button" onClick={() => move(i, -1)} disabled={i === 0} className={btn} aria-label="up"><ArrowUp className="h-4 w-4" /></button>
                 <button type="button" onClick={() => move(i, 1)} disabled={i === value.length - 1} className={btn} aria-label="down"><ArrowDown className="h-4 w-4" /></button>
               </div>
-              <button type="button" onClick={() => remove(i)} className={btn + " text-destructive"} aria-label="delete"><Trash2 className="h-4 w-4" /></button>
+              <button type="button" onClick={() => remove(i)} className={cn(btn, "text-red-600 hover:text-red-700")} aria-label="delete"><Trash2 className="h-4 w-4" /></button>
             </div>
             {i === 0 && <span className="absolute left-1.5 top-1.5 rounded bg-primary px-1.5 py-0.5 text-[10px] font-semibold text-primary-foreground">প্রধান</span>}
           </div>

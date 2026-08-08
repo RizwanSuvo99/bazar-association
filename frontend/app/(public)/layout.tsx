@@ -1,5 +1,6 @@
 import { Navbar } from "@/components/layout/navbar";
 import { Footer } from "@/components/layout/footer";
+import { ScrollToTop } from "@/components/layout/scroll-to-top";
 import { getSettings } from "@/lib/queries";
 import { getLang } from "@/lib/i18n-server";
 import type { SiteSettings } from "@/lib/types";
@@ -23,6 +24,7 @@ export default async function PublicLayout({ children }: { children: React.React
       <Navbar orgName={orgName} />
       <main className="flex-1">{children}</main>
       <Footer settings={settings} />
+      <ScrollToTop />
     </div>
   );
 }

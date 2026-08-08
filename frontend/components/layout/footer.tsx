@@ -3,7 +3,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { Phone, Mail, MapPin } from "lucide-react";
-import { FacebookIcon } from "@/components/icons";
+import { FacebookIcon, WhatsAppIcon } from "@/components/icons";
 import { useTranslation } from "@/lib/i18n-context";
 import { Container } from "./container";
 import type { SiteSettings } from "@/lib/types";
@@ -23,6 +23,7 @@ const LINKS = [
 const DEVELOPER = {
   name: "Md Rizwan Uddin",
   facebook: "https://www.facebook.com/rizwansuvo1/",
+  whatsapp: "https://wa.me/qr/XNQEZJI3RSS7J1",
   email: "rizwanshuvo@gmail.com",
   phone: "01521408552",
 };
@@ -178,6 +179,14 @@ export function Footer({ settings }: { settings: SiteSettings | null }) {
                 className="h-8 w-8"
               >
                 <FacebookIcon className="h-3.5 w-3.5" />
+              </IconLink>
+              <IconLink
+                href={DEVELOPER.whatsapp}
+                label={`${DEVELOPER.name} — WhatsApp`}
+                external
+                className="h-8 w-8"
+              >
+                <WhatsAppIcon className="h-3.5 w-3.5" />
               </IconLink>
               <IconLink
                 href={`mailto:${DEVELOPER.email}`}

@@ -41,7 +41,8 @@
     "notProvided": "Not provided",
     "previous": "Previous",
     "next": "Next",
-    "page": "Page"
+    "page": "Page",
+    "backToTop": "Back to top"
   },
   "home": {
     "searchPlaceholder": "Search by name, market, business type or mobile",

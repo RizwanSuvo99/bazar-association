@@ -189,7 +189,12 @@
     "addedFrom": "Added from",
     "addedTo": "Added to",
     "addedOn": "Added on",
-    "clearFilters": "Clear filters"
+    "clearFilters": "Clear filters",
+    "dateRange": "Registered",
+    "today": "Today",
+    "last7": "Last 7 days",
+    "last30": "Last 30 days",
+    "thisMonth": "This month"
   },
   "members": {
     "title": "Members",

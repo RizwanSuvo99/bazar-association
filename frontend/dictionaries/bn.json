@@ -189,7 +189,12 @@
     "addedFrom": "যোগের তারিখ (হতে)",
     "addedTo": "তারিখ (পর্যন্ত)",
     "addedOn": "যোগ হয়েছে",
-    "clearFilters": "ফিল্টার মুছুন"
+    "clearFilters": "ফিল্টার মুছুন",
+    "dateRange": "যোগের তারিখ",
+    "today": "আজ",
+    "last7": "গত ৭ দিন",
+    "last30": "গত ৩০ দিন",
+    "thisMonth": "এই মাস"
   },
   "members": {
     "title": "সদস্য তালিকা",

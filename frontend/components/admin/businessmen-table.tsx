@@ -7,6 +7,9 @@ import { useRouter, usePathname, useSearchParams } from "next/navigation";
 import { Search, Pencil, Trash2, Check, X, FileDown, IdCard } from "lucide-react";
 import { useTranslation } from "@/lib/i18n-context";
 import { apiFetch } from "@/lib/api";
+import { DatePicker } from "antd";
+import dayjs, { type Dayjs } from "dayjs";
+import customParseFormat from "dayjs/plugin/customParseFormat";
 import { Input, Card, Badge, Label, Button } from "@/components/ui";
 import { initialsOf } from "@/lib/format";
 import type { Businessman, ListMeta } from "@/lib/types";
@@ -54,6 +57,26 @@ function RowActions({ b, onDeleted }: { b: Businessman; onDeleted: () => void })
   );
 }
 
+dayjs.extend(customParseFormat);
+
+const { RangePicker } = DatePicker;
+/** Display format for the picker inputs. */
+const DATE_FORMAT = "YYYY-MM-DD";
+type RangeValue = [Dayjs | null, Dayjs | null];
+
+/**
+ * Serialise for the API, which requires plain Western digits.
+ *
+ * Deliberately built from the numeric getters rather than `format("YYYY-MM-DD")`: dayjs's
+ * Bengali locale carries a postformat hook that rewrites digits, so under that locale
+ * format() yields "২০২৬-০৮-২২" and the API rejects it. Going through numbers cannot be
+ * changed by whatever locale is active now or later.
+ */
+function toApiDate(d: Dayjs): string {
+  const pad = (n: number) => String(n).padStart(2, "0");
+  return `${d.year()}-${pad(d.month() + 1)}-${pad(d.date())}`;
+}
+
 /** yyyy-mm-dd on the association's calendar day, matching how the date filter is evaluated. */
 const DHAKA_DAY = new Intl.DateTimeFormat("en-CA", { timeZone: "Asia/Dhaka" });
 const addedOn = (iso?: string | null) => (iso ? DHAKA_DAY.format(new Date(iso)) : "—");
@@ -70,15 +93,21 @@ export function BusinessmenTable({ items, meta }: { items: Businessman[]; meta: 
   const to = params.get("to") ?? "";
   const hasFilters = Boolean(q || from || to);
 
+  // The URL stays the source of truth; dayjs objects exist only for the picker.
+  const range: RangeValue = [from ? dayjs(from, DATE_FORMAT) : null, to ? dayjs(to, DATE_FORMAT) : null];
+
   /**
-   * Date pickers emit a complete value, so unlike the search box they navigate immediately.
-   * Dropping `page` is essential: narrowing the range while on page 4 would otherwise land
-   * on an empty table with no explanation.
+   * The picker commits a whole range at once, so unlike the debounced search box this
+   * navigates immediately. Dropping `page` is essential: narrowing the range while on page 4
+   * would otherwise land on an empty table with no explanation.
    */
-  function setParam(key: string, value: string) {
+  function onRangeChange(values: RangeValue | null) {
     const sp = new URLSearchParams(params.toString());
-    if (value) sp.set(key, value);
-    else sp.delete(key);
+    const [start, end] = values ?? [null, null];
+    if (start) sp.set("from", toApiDate(start));
+    else sp.delete("from");
+    if (end) sp.set("to", toApiDate(end));
+    else sp.delete("to");
     sp.delete("page");
     startTransition(() => router.replace(`${pathname}?${sp.toString()}`));
   }
@@ -109,23 +138,22 @@ export function BusinessmenTable({ items, meta }: { items: Businessman[]; meta: 
           <Input value={q} onChange={(e) => setQ(e.target.value)} placeholder={dict.home.searchPlaceholder} className="h-10 pl-9" />
         </div>
         <div>
-          <Label className="text-xs">{dict.admin.addedFrom}</Label>
-          <Input
-            type="date"
-            value={from}
-            max={to || undefined}
-            onChange={(e) => setParam("from", e.target.value)}
-            className="h-10 w-[10.5rem]"
-          />
-        </div>
-        <div>
-          <Label className="text-xs">{dict.admin.addedTo}</Label>
-          <Input
-            type="date"
-            value={to}
-            min={from || undefined}
-            onChange={(e) => setParam("to", e.target.value)}
-            className="h-10 w-[10.5rem]"
+          <Label className="text-xs">{dict.admin.dateRange}</Label>
+          <RangePicker
+            value={range}
+            onChange={onRangeChange}
+            allowEmpty={[true, true]}
+            format={DATE_FORMAT}
+            placeholder={[dict.admin.addedFrom, dict.admin.addedTo]}
+            // The range never extends past today — members cannot be registered in the future.
+            disabledDate={(d) => d && d.isAfter(dayjs(), "day")}
+            presets={[
+              { label: dict.admin.today, value: [dayjs(), dayjs()] },
+              { label: dict.admin.last7, value: [dayjs().subtract(6, "day"), dayjs()] },
+              { label: dict.admin.last30, value: [dayjs().subtract(29, "day"), dayjs()] },
+              { label: dict.admin.thisMonth, value: [dayjs().startOf("month"), dayjs()] },
+            ]}
+            className="w-[19rem]"
           />
         </div>
         {hasFilters && (

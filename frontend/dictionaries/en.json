@@ -45,7 +45,7 @@
     "backToTop": "Back to top"
   },
   "home": {
-    "searchPlaceholder": "Search by name, market, business type or mobile",
+    "searchPlaceholder": "Search by name, ID, mobile, market or business type",
     "resultsCount": "{count} members found",
     "empty": "No members found",
     "emptyHint": "Try changing your search or filters.",

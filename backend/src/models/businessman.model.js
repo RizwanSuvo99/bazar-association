@@ -1,4 +1,5 @@
 import { query } from '../config/db.js';
+import { normalizeDigits } from '../utils/digits.js';
 
 // Columns a client may write. Generated columns (six_digit_id, unique_id) are excluded.
 export const WRITABLE_COLUMNS = [
@@ -42,9 +43,24 @@ function buildWhere(filters, { publicOnly }) {
   if (filters.q) {
     params.push(`%${filters.q}%`);
     const p = `$${params.length}`;
+    // Member IDs and phone numbers are read off a printed card or form, where the site
+    // renders them in Bengali numerals — but the columns store Western digits. Match those
+    // columns against a normalised copy so "২৩৫১৯২" finds NBA-235192, while the text
+    // columns keep matching exactly what was typed.
+    params.push(`%${normalizeDigits(filters.q)}%`);
+    const d = `$${params.length}`;
+    const idColumns = [
+      `six_digit_id ILIKE ${d}`,
+      `unique_id ILIKE ${d}`,
+      `mobile_number ILIKE ${d}`,
+      // Admins work from the paper form, which carries the full NID. Never exposed
+      // publicly: matching it there would let anyone test whether an NID is a member.
+      ...(publicOnly ? [] : [`nid_no ILIKE ${d}`]),
+    ];
     clauses.push(
       `(full_name ILIKE ${p} OR market_name ILIKE ${p} OR business_type ILIKE ${p}
-        OR owner_name ILIKE ${p} OR current_business_name_address ILIKE ${p} OR mobile_number ILIKE ${p})`,
+        OR owner_name ILIKE ${p} OR current_business_name_address ILIKE ${p}
+        OR ${idColumns.join(' OR ')})`,
     );
   }
   if (filters.name) add('full_name ILIKE $?', `%${filters.name}%`);

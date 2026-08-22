@@ -12,6 +12,7 @@ import { cn } from "@/lib/utils";
 
 const LINKS = [
   { href: "/", key: "nav.home" },
+  { href: "/members", key: "nav.members" },
   { href: "/about", key: "nav.about" },
   { href: "/gallery", key: "nav.gallery" },
   { href: "/rules", key: "nav.rules" },

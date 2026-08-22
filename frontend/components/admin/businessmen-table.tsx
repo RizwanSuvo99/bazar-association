@@ -7,7 +7,7 @@ import { useRouter, usePathname, useSearchParams } from "next/navigation";
 import { Search, Pencil, Trash2, Check, X, FileDown, IdCard } from "lucide-react";
 import { useTranslation } from "@/lib/i18n-context";
 import { apiFetch } from "@/lib/api";
-import { Input, Card, Badge } from "@/components/ui";
+import { Input, Card, Badge, Label, Button } from "@/components/ui";
 import { initialsOf } from "@/lib/format";
 import type { Businessman, ListMeta } from "@/lib/types";
 
@@ -54,6 +54,10 @@ function RowActions({ b, onDeleted }: { b: Businessman; onDeleted: () => void })
   );
 }
 
+/** yyyy-mm-dd on the association's calendar day, matching how the date filter is evaluated. */
+const DHAKA_DAY = new Intl.DateTimeFormat("en-CA", { timeZone: "Asia/Dhaka" });
+const addedOn = (iso?: string | null) => (iso ? DHAKA_DAY.format(new Date(iso)) : "—");
+
 export function BusinessmenTable({ items, meta }: { items: Businessman[]; meta: ListMeta }) {
   const { t, dict } = useTranslation();
   const router = useRouter();
@@ -61,6 +65,28 @@ export function BusinessmenTable({ items, meta }: { items: Businessman[]; meta: 
   const params = useSearchParams();
   const [q, setQ] = useState(params.get("q") ?? "");
   const [, startTransition] = useTransition();
+
+  const from = params.get("from") ?? "";
+  const to = params.get("to") ?? "";
+  const hasFilters = Boolean(q || from || to);
+
+  /**
+   * Date pickers emit a complete value, so unlike the search box they navigate immediately.
+   * Dropping `page` is essential: narrowing the range while on page 4 would otherwise land
+   * on an empty table with no explanation.
+   */
+  function setParam(key: string, value: string) {
+    const sp = new URLSearchParams(params.toString());
+    if (value) sp.set(key, value);
+    else sp.delete(key);
+    sp.delete("page");
+    startTransition(() => router.replace(`${pathname}?${sp.toString()}`));
+  }
+
+  function clearFilters() {
+    setQ("");
+    startTransition(() => router.replace(pathname));
+  }
 
   useEffect(() => {
     const id = setTimeout(() => {
@@ -77,19 +103,45 @@ export function BusinessmenTable({ items, meta }: { items: Businessman[]; meta: 
 
   return (
     <Card className="overflow-hidden">
-      <div className="border-b border-border/60 p-3">
-        <div className="relative max-w-sm">
+      <div className="flex flex-wrap items-end gap-3 border-b border-border/60 p-3">
+        <div className="relative min-w-[14rem] flex-1 sm:max-w-sm">
           <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
           <Input value={q} onChange={(e) => setQ(e.target.value)} placeholder={dict.home.searchPlaceholder} className="h-10 pl-9" />
         </div>
+        <div>
+          <Label className="text-xs">{dict.admin.addedFrom}</Label>
+          <Input
+            type="date"
+            value={from}
+            max={to || undefined}
+            onChange={(e) => setParam("from", e.target.value)}
+            className="h-10 w-[10.5rem]"
+          />
+        </div>
+        <div>
+          <Label className="text-xs">{dict.admin.addedTo}</Label>
+          <Input
+            type="date"
+            value={to}
+            min={from || undefined}
+            onChange={(e) => setParam("to", e.target.value)}
+            className="h-10 w-[10.5rem]"
+          />
+        </div>
+        {hasFilters && (
+          <Button type="button" variant="outline" size="sm" onClick={clearFilters} className="h-10">
+            <X className="h-4 w-4" /> {dict.admin.clearFilters}
+          </Button>
+        )}
       </div>
       <div className="thin-scroll overflow-x-auto">
-        <table className="w-full min-w-[640px] text-sm">
+        <table className="w-full min-w-[760px] text-sm">
           <thead>
             <tr className="bg-surface-2 text-left text-xs font-semibold uppercase tracking-[0.12em] text-muted-foreground">
               <th className="px-4 py-3 font-medium">{dict.fields.full_name}</th>
               <th className="px-4 py-3 font-medium">{dict.fields.business_type}</th>
               <th className="px-4 py-3 font-medium">{dict.fields.market_name}</th>
+              <th className="px-4 py-3 font-medium">{dict.admin.addedOn}</th>
               <th className="px-4 py-3 font-medium">Status</th>
               <th className="px-4 py-3" />
             </tr>
@@ -114,6 +166,7 @@ export function BusinessmenTable({ items, meta }: { items: Businessman[]; meta: 
                 </td>
                 <td className="px-4 py-3 text-muted-foreground">{b.business_type || "—"}</td>
                 <td className="px-4 py-3 text-muted-foreground">{b.market_name || "—"}</td>
+                <td className="px-4 py-3 tabular-nums text-muted-foreground">{addedOn(b.created_at)}</td>
                 <td className="px-4 py-3">
                   {b.status === "active" ? (
                     <Badge className="bg-success/10 text-success">সক্রিয়</Badge>
@@ -128,7 +181,7 @@ export function BusinessmenTable({ items, meta }: { items: Businessman[]; meta: 
             ))}
             {items.length === 0 && (
               <tr>
-                <td colSpan={5} className="px-4 py-10 text-center text-muted-foreground">{dict.home.empty}</td>
+                <td colSpan={6} className="px-4 py-10 text-center text-muted-foreground">{dict.home.empty}</td>
               </tr>
             )}
           </tbody>

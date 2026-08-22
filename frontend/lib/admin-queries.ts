@@ -18,11 +18,16 @@ export const getAdminStats = () => apiData<DashboardStats>("/admin/stats", noSto
 export async function getAdminBusinessmen(query: {
   q?: string;
   status?: string;
+  /** Registration date range, YYYY-MM-DD, on the association's calendar day. */
+  from?: string;
+  to?: string;
   page?: string | number;
 }): Promise<{ items: Businessman[]; meta: ListMeta }> {
   const params = new URLSearchParams();
   if (query.q) params.set("q", query.q);
   if (query.status) params.set("status", query.status);
+  if (query.from) params.set("from", query.from);
+  if (query.to) params.set("to", query.to);
   params.set("page", String(query.page || 1));
   params.set("limit", "20");
   const res = await apiFetch<Businessman[]>(`/admin/businessmen?${params.toString()}`, noStore);

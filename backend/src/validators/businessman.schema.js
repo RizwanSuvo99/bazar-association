@@ -38,6 +38,17 @@ const optionalUrl = z.preprocess(
   z.string().url('সঠিক লিংক দিন।').max(1000).optional(),
 );
 
+const isoDate = z.preprocess(
+  (v) => (v === '' || v === null ? undefined : v),
+  z
+    .string()
+    .regex(/^\d{4}-\d{2}-\d{2}$/, 'তারিখ YYYY-MM-DD আকারে দিন।')
+    // The regex alone accepts impossible dates like 2026-02-31, which Postgres rejects at
+    // query time — that would surface as a 500 instead of a validation error.
+    .refine((v) => new Date(`${v}T00:00:00Z`).toISOString().slice(0, 10) === v, 'সঠিক তারিখ দিন।')
+    .optional(),
+);
+
 // Shared applicant fields used by both admin-create and public-registration.
 export const businessmanBaseShape = {
   full_name: requiredStr,
@@ -89,6 +100,11 @@ export const businessmanQuerySchema = z.object({
   blood_group: optionalStr,
   mobile: optionalStr,
   status: z.enum(['active', 'inactive']).optional(),
+  // Registration date range as plain YYYY-MM-DD. Deliberately strings rather than
+  // z.coerce.date(): coercing a bare date yields UTC midnight, which shifts the boundary by
+  // the Asia/Dhaka offset. Postgres casts them with ::date in its own timezone instead.
+  from: isoDate,
+  to: isoDate,
   sort: z.enum(['newest', 'oldest', 'name_asc', 'name_desc']).optional().default('newest'),
   page: z.coerce.number().int().min(1).optional().default(1),
   limit: z.coerce.number().int().min(1).max(100).optional().default(12),

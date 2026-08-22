@@ -8,6 +8,7 @@ import { runPython, fetchPhotoBase64, makeQrBase64, memberFormUrl, mapConcurrent
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const IDCARD_SCRIPT = path.join(__dirname, '../form/render_idcard.py');
 const IDCARDS_SCRIPT = path.join(__dirname, '../form/render_idcards.py');
+const MAX_BULK_CARDS = 800;
 
 function cardPayload(b, photo_b64, qr_b64) {
   return {
@@ -40,8 +41,23 @@ export const businessmanIdCardPdf = asyncHandler(async (req, res) => {
 
 /** All active members' ID cards on A4 sheets (grid, for printing) as one PDF. */
 export const bulkIdCardsPdf = asyncHandler(async (req, res) => {
-  const members = await listActiveForCards();
-  if (!members.length) throw ApiError.notFound('কোনো সক্রিয় সদস্য নেই।', 'NO_MEMBERS');
+  // Honour the same filters as the admin list (date range, search, market...) so the office can
+  // print just the latest batch. page/limit/sort are dropped: a print run is never paginated,
+  // and listActiveForCards always pins status = 'active'.
+  const { page, limit, sort, ...filters } = req.query;
+  const members = await listActiveForCards(filters);
+  if (!members.length) {
+    throw ApiError.notFound('এই ফিল্টারে কোনো সক্রিয় সদস্য পাওয়া যায়নি।', 'NO_MEMBERS');
+  }
+  // Every card's photo and QR are base64-encoded into a single JSON string for python's
+  // stdin — roughly 400 KB per member. Past a few hundred that string approaches V8's limit
+  // and an OOM would take the whole API down, so fail with something actionable instead.
+  if (members.length > MAX_BULK_CARDS) {
+    throw ApiError.badRequest(
+      `একসাথে সর্বোচ্চ ${MAX_BULK_CARDS} জনের কার্ড তৈরি করা যায়। তারিখ দিয়ে ফিল্টার করে ছোট ভাগে ডাউনলোড করুন।`,
+      'TOO_MANY_CARDS',
+    );
+  }
 
   req.setTimeout?.(0);
   res.setTimeout?.(0);
@@ -57,6 +73,8 @@ export const bulkIdCardsPdf = asyncHandler(async (req, res) => {
   const pdf = await runPython(IDCARDS_SCRIPT, { cards: cards.filter(Boolean) });
 
   res.setHeader('Content-Type', 'application/pdf');
-  res.setHeader('Content-Disposition', 'attachment; filename="id-cards-all.pdf"');
+  // Name the file after the range so printing several batches doesn't yield "(1)", "(2)"...
+  const span = [filters.from, filters.to].filter(Boolean).join('_to_') || 'all';
+  res.setHeader('Content-Disposition', `attachment; filename="id-cards-${span}.pdf"`);
   res.send(pdf);
 });

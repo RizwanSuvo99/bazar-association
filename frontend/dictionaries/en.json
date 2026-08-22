@@ -53,7 +53,8 @@
     "filterByType": "Business type",
     "filterByMarket": "Market",
     "filterByWard": "Ward",
-    "cta": "Apply for membership"
+    "cta": "Apply for membership",
+    "memberCount": "{count} members"
   },
   "profile": {
     "personal": "Personal Information",
@@ -184,6 +185,14 @@
     "confirmDelete": "Are you sure?",
     "saved": "Saved successfully",
     "adminUsers": "Admin Users",
-    "myAccount": "My Account"
+    "myAccount": "My Account",
+    "addedFrom": "Added from",
+    "addedTo": "Added to",
+    "addedOn": "Added on",
+    "clearFilters": "Clear filters"
+  },
+  "members": {
+    "title": "Members",
+    "subtitle": "All registered business members of Nangalkot Bazar."
   }
 }

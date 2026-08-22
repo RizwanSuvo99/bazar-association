@@ -9,11 +9,19 @@ export const WRITABLE_COLUMNS = [
   'nid_no', 'nominee_name', 'nominee_relation', 'nominee_mobile', 'profile_photo_url', 'status',
 ];
 
+// Every sort carries an `id` tiebreaker. Without one, members sharing a created_at
+// (seeded or approved in the same statement) have an undefined relative order, and
+// Postgres can return them differently once an UPDATE rewrites the row — so editing a
+// member appeared to move it in the list.
+// The association's calendar day. The database session runs in UTC, so date-range bounds
+// must be anchored explicitly rather than inheriting the server's zone.
+const APP_TZ = 'Asia/Dhaka';
+
 const SORTS = {
-  newest: 'created_at DESC',
-  oldest: 'created_at ASC',
-  name_asc: 'full_name ASC',
-  name_desc: 'full_name DESC',
+  newest: 'created_at DESC, id DESC',
+  oldest: 'created_at ASC, id ASC',
+  name_asc: 'full_name ASC, id ASC',
+  name_desc: 'full_name DESC, id DESC',
 };
 
 /** Build the WHERE clause + params from filter options. */
@@ -47,6 +55,20 @@ function buildWhere(filters, { publicOnly }) {
   if (filters.district) add('district ILIKE $?', `%${filters.district}%`);
   if (filters.blood_group) add('blood_group = $?', filters.blood_group);
   if (filters.mobile) add('mobile_number ILIKE $?', `%${filters.mobile}%`);
+
+  // Registration date range, evaluated against the association's own calendar day.
+  //
+  // Two things are deliberate here. The bounds are anchored to APP_TZ rather than the
+  // database session, which is UTC: a member registered at 02:00 Dhaka is stored as 20:00
+  // the previous day UTC, so a plain `$?::date` bound would file them under the wrong day
+  // and "from the 26th" would miss them. And the upper bound is EXCLUSIVE at the next
+  // midnight rather than `<= to`, which would stop at the start of that day and drop
+  // everyone added during it.
+  //
+  // created_at stays bare on the left of both comparisons so the index remains usable;
+  // wrapping it (e.g. `created_at AT TIME ZONE ...::date BETWEEN`) would force a seq scan.
+  if (filters.from) add(`created_at >= ($?::date)::timestamp AT TIME ZONE '${APP_TZ}'`, filters.from);
+  if (filters.to) add(`created_at < (($?::date) + 1)::timestamp AT TIME ZONE '${APP_TZ}'`, filters.to);
 
   const where = clauses.length ? `WHERE ${clauses.join(' AND ')}` : '';
   return { where, params };
@@ -82,10 +104,16 @@ export async function getBusinessmanByToken(token) {
   return rows[0] || null;
 }
 
-/** All active members, ordered for stable ID-card sheets (bulk card generation). */
-export async function listActiveForCards() {
+/**
+ * Active members for bulk ID-card sheets, optionally narrowed by the same filters the admin
+ * list uses (date range, search, market...). `publicOnly` pins status = 'active', so an
+ * incoming status filter can never cause cards to be printed for a deactivated member.
+ */
+export async function listActiveForCards(filters = {}) {
+  const { where, params } = buildWhere(filters, { publicOnly: true });
   const { rows } = await query(
-    `SELECT * FROM businessmen WHERE status = 'active' ORDER BY six_digit_id ASC`,
+    `SELECT * FROM businessmen ${where} ORDER BY six_digit_id ASC`,
+    params,
   );
   return rows;
 }

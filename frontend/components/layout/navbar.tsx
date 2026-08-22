@@ -12,6 +12,9 @@ import { cn } from "@/lib/utils";
 
 const LINKS = [
   { href: "/", key: "nav.home" },
+  // `exact` because /members/<token> is the ID-card QR form page — a different destination
+  // that should not light up the directory link, which a startsWith match would do.
+  { href: "/members", key: "nav.members", exact: true },
   { href: "/about", key: "nav.about" },
   { href: "/gallery", key: "nav.gallery" },
   { href: "/rules", key: "nav.rules" },
@@ -24,7 +27,8 @@ export function Navbar({ orgName }: { orgName: string }) {
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
 
-  const isActive = (href: string) => (href === "/" ? pathname === "/" : pathname.startsWith(href));
+  const isActive = (href: string, exact?: boolean) =>
+    href === "/" || exact ? pathname === href : pathname.startsWith(href);
 
   return (
     <header className="sticky top-0 z-40 border-b border-border/60 bg-background/95 backdrop-blur-sm">
@@ -52,7 +56,7 @@ export function Navbar({ orgName }: { orgName: string }) {
               href={l.href}
               className={cn(
                 "rounded-full px-3.5 py-2 text-sm font-medium transition-colors",
-                isActive(l.href) ? "bg-primary-soft text-primary" : "text-muted-foreground hover:text-foreground",
+                isActive(l.href, l.exact) ? "bg-primary-soft text-primary" : "text-muted-foreground hover:text-foreground",
               )}
             >
               {t(l.key)}
@@ -91,7 +95,7 @@ export function Navbar({ orgName }: { orgName: string }) {
                 onClick={() => setOpen(false)}
                 className={cn(
                   "rounded-lg px-3 py-2.5 text-sm font-medium",
-                  isActive(l.href) ? "bg-primary-soft text-primary" : "text-foreground hover:bg-muted",
+                  isActive(l.href, l.exact) ? "bg-primary-soft text-primary" : "text-foreground hover:bg-muted",
                 )}
               >
                 {t(l.key)}

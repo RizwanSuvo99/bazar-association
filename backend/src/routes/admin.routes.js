@@ -41,7 +41,7 @@ router.use(requireAdmin);
 router.get('/stats', stats.dashboard);
 
 // ID cards (bulk sheet of all active members — before the :id routes)
-router.get('/id-cards.pdf', bulkIdCardsPdf);
+router.get('/id-cards.pdf', validate(businessmanQuerySchema, 'query'), bulkIdCardsPdf);
 
 // Businessmen CRUD
 router.get('/businessmen', validate(businessmanQuerySchema, 'query'), businessmen.adminList);

@@ -38,14 +38,28 @@ const optionalUrl = z.preprocess(
   z.string().url('সঠিক লিংক দিন।').max(1000).optional(),
 );
 
-const isoDate = z.preprocess(
+/**
+ * A date, optionally with a time: `2026-08-22` or `2026-08-22 14:30`.
+ *
+ * The bare-date form is kept so existing links and bookmarks keep their whole-day meaning.
+ * Still a string rather than z.coerce.date(): coercing yields a Date at UTC midnight, and
+ * node-postgres would then re-serialise it in the Node process's zone — two implicit
+ * conversions stacked on the one the SQL already does deliberately.
+ */
+const isoDateTime = z.preprocess(
   (v) => (v === '' || v === null ? undefined : v),
   z
     .string()
-    .regex(/^\d{4}-\d{2}-\d{2}$/, 'তারিখ YYYY-MM-DD আকারে দিন।')
-    // The regex alone accepts impossible dates like 2026-02-31, which Postgres rejects at
-    // query time — that would surface as a 500 instead of a validation error.
-    .refine((v) => new Date(`${v}T00:00:00Z`).toISOString().slice(0, 10) === v, 'সঠিক তারিখ দিন।')
+    .regex(/^\d{4}-\d{2}-\d{2}([ T]\d{2}:\d{2})?$/, 'তারিখ YYYY-MM-DD বা YYYY-MM-DD HH:mm আকারে দিন।')
+    // The regex alone accepts impossible values like 2026-02-31 or 99:99, which Postgres
+    // rejects at query time — that would surface as a 500 instead of a validation error.
+    .refine((v) => {
+      const [datePart, timePart] = v.split(/[ T]/);
+      if (new Date(`${datePart}T00:00:00Z`).toISOString().slice(0, 10) !== datePart) return false;
+      if (!timePart) return true;
+      const [h, m] = timePart.split(':').map(Number);
+      return h < 24 && m < 60;
+    }, 'সঠিক তারিখ ও সময় দিন।')
     .optional(),
 );
 
@@ -103,8 +117,8 @@ export const businessmanQuerySchema = z.object({
   // Registration date range as plain YYYY-MM-DD. Deliberately strings rather than
   // z.coerce.date(): coercing a bare date yields UTC midnight, which shifts the boundary by
   // the Asia/Dhaka offset. Postgres casts them with ::date in its own timezone instead.
-  from: isoDate,
-  to: isoDate,
+  from: isoDateTime,
+  to: isoDateTime,
   sort: z.enum(['newest', 'oldest', 'name_asc', 'name_desc']).optional().default('newest'),
   page: z.coerce.number().int().min(1).optional().default(1),
   limit: z.coerce.number().int().min(1).max(100).optional().default(12),

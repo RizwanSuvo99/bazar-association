@@ -74,7 +74,10 @@ export const bulkIdCardsPdf = asyncHandler(async (req, res) => {
 
   res.setHeader('Content-Type', 'application/pdf');
   // Name the file after the range so printing several batches doesn't yield "(1)", "(2)"...
-  const span = [filters.from, filters.to].filter(Boolean).join('_to_') || 'all';
+  // Sanitised because a bound may now carry a time: the space and colon in "2026-08-22 14:30"
+  // would break the Content-Disposition token, and colons are illegal in Windows filenames.
+  const span =
+    [filters.from, filters.to].filter(Boolean).join('_to_').replace(/[^0-9A-Za-z_-]+/g, '-') || 'all';
   res.setHeader('Content-Disposition', `attachment; filename="id-cards-${span}.pdf"`);
   res.send(pdf);
 });

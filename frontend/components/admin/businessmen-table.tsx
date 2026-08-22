@@ -60,8 +60,8 @@ function RowActions({ b, onDeleted }: { b: Businessman; onDeleted: () => void })
 dayjs.extend(customParseFormat);
 
 const { RangePicker } = DatePicker;
-/** Display format for the picker inputs. */
-const DATE_FORMAT = "YYYY-MM-DD";
+/** What the picker shows and what the URL carries. */
+const DATE_FORMAT = "YYYY-MM-DD HH:mm";
 type RangeValue = [Dayjs | null, Dayjs | null];
 
 /**
@@ -74,12 +74,22 @@ type RangeValue = [Dayjs | null, Dayjs | null];
  */
 function toApiDate(d: Dayjs): string {
   const pad = (n: number) => String(n).padStart(2, "0");
-  return `${d.year()}-${pad(d.month() + 1)}-${pad(d.date())}`;
+  const day = `${d.year()}-${pad(d.month() + 1)}-${pad(d.date())}`;
+  return `${day} ${pad(d.hour())}:${pad(d.minute())}`;
 }
 
 /** yyyy-mm-dd on the association's calendar day, matching how the date filter is evaluated. */
-const DHAKA_DAY = new Intl.DateTimeFormat("en-CA", { timeZone: "Asia/Dhaka" });
+const DHAKA_DAY = new Intl.DateTimeFormat("en-CA", {
+  timeZone: "Asia/Dhaka",
+  year: "numeric", month: "2-digit", day: "2-digit",
+  hour: "2-digit", minute: "2-digit", hour12: false,
+});
+/** "2026-08-22, 14:30" on the association's clock, so it lines up with the filter above. */
 const addedOn = (iso?: string | null) => (iso ? DHAKA_DAY.format(new Date(iso)) : "—");
+
+/** [start, end) as an array — antd wants the disabled values enumerated. */
+const range0 = (start: number, end: number) =>
+  Array.from({ length: Math.max(0, end - start) }, (_, i) => start + i);
 
 export function BusinessmenTable({ items, meta }: { items: Businessman[]; meta: ListMeta }) {
   const { t, dict } = useTranslation();
@@ -94,7 +104,9 @@ export function BusinessmenTable({ items, meta }: { items: Businessman[]; meta: 
   const hasFilters = Boolean(q || from || to);
 
   // The URL stays the source of truth; dayjs objects exist only for the picker.
-  const range: RangeValue = [from ? dayjs(from, DATE_FORMAT) : null, to ? dayjs(to, DATE_FORMAT) : null];
+  // Bare-date URLs predate the time picker and must still parse, so let dayjs try both shapes.
+  const parseBound = (v: string) => (v ? dayjs(v, [DATE_FORMAT, "YYYY-MM-DD"]) : null);
+  const range: RangeValue = [parseBound(from), parseBound(to)];
 
   /**
    * The picker commits a whole range at once, so unlike the debounced search box this
@@ -143,17 +155,29 @@ export function BusinessmenTable({ items, meta }: { items: Businessman[]; meta: 
             value={range}
             onChange={onRangeChange}
             allowEmpty={[true, true]}
+            showTime={{ format: "HH:mm", minuteStep: 5 }}
             format={DATE_FORMAT}
             placeholder={[dict.admin.addedFrom, dict.admin.addedTo]}
-            // The range never extends past today — members cannot be registered in the future.
+            // Nobody is registered in the future: block later days outright, and on today
+            // itself block the hours and minutes that have not happened yet.
             disabledDate={(d) => d && d.isAfter(dayjs(), "day")}
+            disabledTime={(d) => {
+              if (!d || !d.isSame(dayjs(), "day")) return {};
+              const now = dayjs();
+              return {
+                disabledHours: () => range0(now.hour() + 1, 24),
+                disabledMinutes: (h: number) => (h === now.hour() ? range0(now.minute() + 1, 60) : []),
+              };
+            }}
+            // Each preset spans whole days. With time enabled a bare [dayjs(), dayjs()] would
+            // be a zero-width window at the current minute and match nothing.
             presets={[
-              { label: dict.admin.today, value: [dayjs(), dayjs()] },
-              { label: dict.admin.last7, value: [dayjs().subtract(6, "day"), dayjs()] },
-              { label: dict.admin.last30, value: [dayjs().subtract(29, "day"), dayjs()] },
-              { label: dict.admin.thisMonth, value: [dayjs().startOf("month"), dayjs()] },
+              { label: dict.admin.today, value: [dayjs().startOf("day"), dayjs().endOf("day")] },
+              { label: dict.admin.last7, value: [dayjs().subtract(6, "day").startOf("day"), dayjs().endOf("day")] },
+              { label: dict.admin.last30, value: [dayjs().subtract(29, "day").startOf("day"), dayjs().endOf("day")] },
+              { label: dict.admin.thisMonth, value: [dayjs().startOf("month"), dayjs().endOf("day")] },
             ]}
-            className="w-[19rem]"
+            className="w-[26rem]"
           />
         </div>
         {hasFilters && (

@@ -16,13 +16,30 @@ type Tokens = {
   colorBorder: string;
 };
 
-const FALLBACK: Tokens = {
+/**
+ * Seed values, mirroring the :root and .dark blocks in globals.css.
+ *
+ * There must be a LIGHT set as well as a DARK one. antd derives every neutral it is not
+ * explicitly handed — disabled text, split lines, icons, hover fills — from the algorithm's
+ * base colour. Handing the light algorithm a dark surface produced a black panel with
+ * near-invisible text until the effect below replaced the tokens.
+ */
+const DARK: Tokens = {
   colorPrimary: "#f0b429",
   colorBgContainer: "#232327",
   colorBgElevated: "#1c1c1f",
   colorText: "#f2f2f2",
   colorTextPlaceholder: "#a0a0a5",
   colorBorder: "#2a2a2e",
+};
+
+const LIGHT: Tokens = {
+  colorPrimary: "#a16207",
+  colorBgContainer: "#f8f7f4",
+  colorBgElevated: "#ffffff",
+  colorText: "#1a1a1c",
+  colorTextPlaceholder: "#6d6d72",
+  colorBorder: "#e2e1dc",
 };
 
 /**
@@ -35,23 +52,27 @@ const FALLBACK: Tokens = {
  */
 export function AntdProvider({ isDark, children }: { isDark: boolean; children: React.ReactNode }) {
   const { lang } = useTranslation();
-  // Seeded from the server-rendered mode so the input is not briefly light on a dark panel.
-  const [dark, setDark] = useState(isDark);
-  const [tokens, setTokens] = useState<Tokens>(FALLBACK);
+  // One piece of state, so the algorithm and the surface colours can never disagree — that
+  // mismatch is exactly what turned the picker black on a light-mode load.
+  const [theme, setTheme] = useState(() => ({ dark: isDark, tokens: isDark ? DARK : LIGHT }));
 
   useEffect(() => {
     const root = document.documentElement;
     const read = () => {
       const cs = getComputedStyle(root);
+      const isNowDark = root.classList.contains("dark");
+      const seed = isNowDark ? DARK : LIGHT;
       const v = (name: string, fallback: string) => cs.getPropertyValue(name).trim() || fallback;
-      setDark(root.classList.contains("dark"));
-      setTokens({
-        colorPrimary: v("--primary", FALLBACK.colorPrimary),
-        colorBgContainer: v("--surface-2", FALLBACK.colorBgContainer),
-        colorBgElevated: v("--card", FALLBACK.colorBgElevated),
-        colorText: v("--foreground", FALLBACK.colorText),
-        colorTextPlaceholder: v("--muted-foreground", FALLBACK.colorTextPlaceholder),
-        colorBorder: v("--border", FALLBACK.colorBorder),
+      setTheme({
+        dark: isNowDark,
+        tokens: {
+          colorPrimary: v("--primary", seed.colorPrimary),
+          colorBgContainer: v("--surface-2", seed.colorBgContainer),
+          colorBgElevated: v("--card", seed.colorBgElevated),
+          colorText: v("--foreground", seed.colorText),
+          colorTextPlaceholder: v("--muted-foreground", seed.colorTextPlaceholder),
+          colorBorder: v("--border", seed.colorBorder),
+        },
       });
     };
     read();
@@ -64,9 +85,9 @@ export function AntdProvider({ isDark, children }: { isDark: boolean; children: 
     <ConfigProvider
       locale={lang === "en" ? enUS : bnBD}
       theme={{
-        algorithm: dark ? antdTheme.darkAlgorithm : antdTheme.defaultAlgorithm,
+        algorithm: theme.dark ? antdTheme.darkAlgorithm : antdTheme.defaultAlgorithm,
         token: {
-          ...tokens,
+          ...theme.tokens,
           // Match the app's own controls rather than antd's defaults.
           borderRadius: 10,
           controlHeight: 40,

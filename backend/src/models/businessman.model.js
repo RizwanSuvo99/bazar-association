@@ -83,8 +83,30 @@ function buildWhere(filters, { publicOnly }) {
   //
   // created_at stays bare on the left of both comparisons so the index remains usable;
   // wrapping it (e.g. `created_at AT TIME ZONE ...::date BETWEEN`) would force a seq scan.
-  if (filters.from) add(`created_at >= ($?::date)::timestamp AT TIME ZONE '${APP_TZ}'`, filters.from);
-  if (filters.to) add(`created_at < (($?::date) + 1)::timestamp AT TIME ZONE '${APP_TZ}'`, filters.to);
+  // A bound may be a bare date or carry HH:mm. Note `$?::date` would SILENTLY TRUNCATE a
+  // time, so the timed path has to cast to ::timestamp instead — and `(x::date) + 1` does
+  // not transfer either, since `timestamp + 1` is invalid and needs an explicit interval.
+  const hasTime = (v) => /[ T]\d{2}:\d{2}/.test(String(v));
+
+  if (filters.from) {
+    add(
+      hasTime(filters.from)
+        ? `created_at >= ($?::timestamp) AT TIME ZONE '${APP_TZ}'`
+        : `created_at >= ($?::date)::timestamp AT TIME ZONE '${APP_TZ}'`,
+      filters.from,
+    );
+  }
+  if (filters.to) {
+    // Both branches are exclusive upper bounds, one past the unit the user picked: the whole
+    // day when they gave a date, the whole minute when they gave a time. `<= to` would stop
+    // at the start of that day/minute and drop everything inside it.
+    add(
+      hasTime(filters.to)
+        ? `created_at < (($?::timestamp) + interval '1 minute') AT TIME ZONE '${APP_TZ}'`
+        : `created_at < (($?::date) + 1)::timestamp AT TIME ZONE '${APP_TZ}'`,
+      filters.to,
+    );
+  }
 
   const where = clauses.length ? `WHERE ${clauses.join(' AND ')}` : '';
   return { where, params };

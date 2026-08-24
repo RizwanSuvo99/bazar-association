@@ -16,6 +16,9 @@ from PIL import Image, ImageDraw, ImageFont, ImageOps
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 FONT_BN = os.path.join(HERE, "fonts", "NotoSerifBengali-SemiBold.ttf")
+# One weight up, for the officials' names. Bundled rather than taken from the system so
+# the card renders identically on the server.
+FONT_BN_BOLD = os.path.join(HERE, "fonts", "NotoSerifBengali-Bold.ttf")
 FONT_LAT = os.path.join(HERE, "fonts", "DejaVuSans.ttf")
 LOGO = os.path.join(HERE, "bazar-logo.png")
 LOGO_HD = os.path.join(HERE, "bazar-logo-hd.png")   # crisper, transparent-bg logo
@@ -70,6 +73,13 @@ def font_bn(size):
     return _CACHE[k]
 
 
+def font_bn_bold(size):
+    k = ("bnb", size)
+    if k not in _CACHE:
+        _CACHE[k] = ImageFont.truetype(FONT_BN_BOLD, size, layout_engine=ImageFont.Layout.RAQM)
+    return _CACHE[k]
+
+
 def font_lat(size):
     k = ("lat", size)
     if k not in _CACHE:
@@ -89,13 +99,14 @@ def _runs(text):
         i = j
 
 
-def measure(text, size):
-    return sum((font_lat(size) if lat else font_bn(size)).getlength(run) for run, lat in _runs(text))
+def measure(text, size, bold=False):
+    picker = font_bn_bold if bold else font_bn
+    return sum((font_lat(size) if lat else picker(size)).getlength(run) for run, lat in _runs(text))
 
 
-def fit_size(text, max_w, base, minimum):
+def fit_size(text, max_w, base, minimum, bold=False):
     s = base
-    while s > minimum and measure(text, s) > max_w:
+    while s > minimum and measure(text, s, bold) > max_w:
         s -= 1
     return s
 
@@ -127,16 +138,17 @@ def _circle(img, size):
 
 
 # ---- shared text helpers (operate in whatever coordinate space they're given) ----
-def draw_left(d, x, y, text, size, fill):
+def draw_left(d, x, y, text, size, fill, bold=False):
     cx = x
+    picker = font_bn_bold if bold else font_bn
     for run, lat in _runs(text):
-        f = font_lat(size) if lat else font_bn(size)
+        f = font_lat(size) if lat else picker(size)
         d.text((cx, y), run, font=f, fill=fill, anchor="ls")
         cx += f.getlength(run)
 
 
-def draw_center(d, cx, y, text, size, fill):
-    draw_left(d, cx - measure(text, size) / 2, y, text, size, fill)
+def draw_center(d, cx, y, text, size, fill, bold=False):
+    draw_left(d, cx - measure(text, size, bold) / 2, y, text, size, fill, bold)
 
 
 def wrap(text, max_w, size):
@@ -313,7 +325,8 @@ def render_card(data):
             im.paste(s2, (int(cx - s2.width / 2), int(top_y + (box_h - s2.height))), s2)
         rule_y = top_y + S(62)
         d.rounded_rectangle((cx - S(98), rule_y, cx + S(98), rule_y + S(3)), radius=S(1), fill=GOLD_DEEP)
-        draw_center(d, cx, rule_y + S(29), sname, fit_size(sname, S(214), S(21), S(14)), TEXT_LIGHT)
+        draw_center(d, cx, rule_y + S(29), sname,
+                    fit_size(sname, S(214), S(21), S(14), bold=True), TEXT_LIGHT, bold=True)
         draw_center(d, cx, rule_y + S(54), role, fit_size(role, S(200), S(18), S(13)), TEXT_MUTED)
 
     # ---- Slim gold footer strip (inside the panel, above bottom padding) ----

@@ -1,5 +1,5 @@
 // Demo data for নাঙ্গলকোট বাজার ব্যবসায়ী সংস্থা.
-// NIDs are chosen so their last-6 digits are all distinct (one is 235192 -> /profiles/235192).
+// NIDs must be distinct in full: nid_no is the unique key. The last-6 tail may repeat.
 
 export const businessmen = [
   {

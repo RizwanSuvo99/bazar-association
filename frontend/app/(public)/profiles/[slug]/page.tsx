@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { notFound } from "next/navigation";
+import { notFound, permanentRedirect } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
 import { ArrowLeft, Phone, User, MapPin, Store, IdCard, Info } from "lucide-react";
@@ -15,28 +15,34 @@ import type { Businessman } from "@/lib/types";
 export async function generateMetadata({
   params,
 }: {
-  params: Promise<{ nid6: string }>;
+  params: Promise<{ slug: string }>;
 }): Promise<Metadata> {
-  const { nid6 } = await params;
+  const { slug } = await params;
   try {
-    const b = await getProfile(nid6);
+    const b = await getProfile(slug);
     return { title: `${b.full_name} — ${b.unique_id}` };
   } catch {
     return { title: "প্রোফাইল" };
   }
 }
 
-export default async function ProfilePage({ params }: { params: Promise<{ nid6: string }> }) {
-  const { nid6 } = await params;
+export default async function ProfilePage({ params }: { params: Promise<{ slug: string }> }) {
+  const { slug } = await params;
   const { lang, dict } = await getI18n();
 
   let b: Businessman | null = null;
   try {
-    b = await getProfile(nid6);
+    b = await getProfile(slug);
   } catch {
     b = null;
   }
   if (!b) notFound();
+
+  // The six-digit NID tail used to address this page, and those links are indexed. The API
+  // still resolves them, so send them on to the canonical slug URL with a 301 rather than
+  // serving the same profile under two addresses. Outside the try/catch above: redirects are
+  // signalled by a thrown control-flow error and must not be swallowed.
+  if (b.profile_slug && b.profile_slug !== slug) permanentRedirect(`/profiles/${b.profile_slug}`);
 
   const L = dict.fields;
   const dg = (v?: string | null) => (v ? localizeNumber(v, lang) : v);

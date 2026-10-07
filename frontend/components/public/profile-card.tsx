@@ -7,7 +7,7 @@ import { initialsOf } from "@/lib/format";
 export function ProfileCard({ b, lang }: { b: Businessman; lang: Lang }) {
   return (
     <Link
-      href={`/profiles/${b.six_digit_id}`}
+      href={`/profiles/${b.profile_slug}`}
       className="group relative flex flex-col overflow-hidden rounded-[var(--radius-lg)] bg-card transition-all hover:-translate-y-0.5 hover:bg-surface-2"
     >
       <div className="flex gap-4 p-6">

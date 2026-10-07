@@ -131,8 +131,22 @@ export async function listBusinessmen(filters = {}, { page = 1, limit = 12, sort
   return { rows, total, page, limit, totalPages: Math.max(1, Math.ceil(total / limit)) };
 }
 
+/** Look up a member by the slug used in /profiles/<slug>. */
+export async function getBusinessmanBySlug(slug) {
+  const { rows } = await query('SELECT * FROM businessmen WHERE profile_slug = $1 LIMIT 1', [slug]);
+  return rows[0] || null;
+}
+
+/**
+ * Look up a member by the six-digit NID tail. Only for redirecting the legacy
+ * /profiles/<last6> links that search engines already indexed: the tail is no longer unique,
+ * so a shared one resolves to whichever member was created first.
+ */
 export async function getBusinessmanBySixDigits(sixDigits) {
-  const { rows } = await query('SELECT * FROM businessmen WHERE six_digit_id = $1 LIMIT 1', [sixDigits]);
+  const { rows } = await query(
+    'SELECT * FROM businessmen WHERE six_digit_id = $1 ORDER BY id ASC LIMIT 1',
+    [sixDigits],
+  );
   return rows[0] || null;
 }
 
@@ -150,7 +164,9 @@ export async function getBusinessmanByToken(token) {
 export async function listActiveForCards(filters = {}) {
   const { where, params } = buildWhere(filters, { publicOnly: true });
   const { rows } = await query(
-    `SELECT * FROM businessmen ${where} ORDER BY six_digit_id ASC`,
+    // id tiebreaker: six_digit_id is no longer unique, so ties would otherwise print in an
+    // undefined order that can shift between runs.
+    `SELECT * FROM businessmen ${where} ORDER BY six_digit_id ASC, id ASC`,
     params,
   );
   return rows;

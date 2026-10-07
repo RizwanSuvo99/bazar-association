@@ -44,8 +44,9 @@ export function getFacets() {
   return apiData<Facets>("/businessmen/facets", { cache: "no-store" });
 }
 
-export function getProfile(sixDigits: string) {
-  return apiData<Businessman>(`/profiles/${sixDigits}`, { cache: "no-store" });
+/** Resolve a member for the public profile page. Accepts a profile_slug, or a legacy six-digit id. */
+export function getProfile(slugOrSixDigits: string) {
+  return apiData<Businessman>(`/profiles/${slugOrSixDigits}`, { cache: "no-store" });
 }
 
 /** Resolve a member by their random ID-card token (QR target page). */

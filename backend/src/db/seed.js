@@ -42,11 +42,13 @@ async function run() {
     throw new Error('Refusing to seed in production without --force.');
   }
 
-  // Guard against last-6 NID collisions in the demo data.
-  const sixes = businessmen.map((b) => sanitizeNid(b.nid_no).slice(-6));
-  const dupes = sixes.filter((s, i) => sixes.indexOf(s) !== i);
+  // The full NID is the unique key (017_member_identity.sql), so a repeated one would abort the
+  // seed mid-transaction with a constraint violation. Fail with a readable message instead.
+  // The last-6 tail is deliberately NOT checked: it is allowed to collide.
+  const nids = businessmen.map((b) => sanitizeNid(b.nid_no));
+  const dupes = nids.filter((n, i) => nids.indexOf(n) !== i);
   if (dupes.length) {
-    throw new Error(`Duplicate last-6 NID digits in seed businessmen: ${[...new Set(dupes)].join(', ')}`);
+    throw new Error(`Duplicate NID in seed businessmen: ${[...new Set(dupes)].join(', ')}`);
   }
 
   await withTransaction(async (client) => {

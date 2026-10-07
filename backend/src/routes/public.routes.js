@@ -28,7 +28,7 @@ router.get('/notices', notice.publicList);
 // Businessmen directory
 router.get('/businessmen/facets', businessmen.facets);
 router.get('/businessmen', validate(businessmanQuerySchema, 'query'), businessmen.publicList);
-router.get('/profiles/:sixDigits', businessmen.publicProfile);
+router.get('/profiles/:slug', businessmen.publicProfile);
 
 // Member form (ID-card QR target) — keyed by the member's random public token
 router.get('/members/:token/form.png', publicForm.publicMemberFormImage);

@@ -31,6 +31,8 @@ export interface Businessman {
   status: "active" | "inactive";
   six_digit_id: string;
   unique_id: string;
+  /** Addresses the public profile page: /profiles/<profile_slug>. */
+  profile_slug: string;
   created_at: string;
   updated_at: string;
   // Hand-signed registration form returned by the member. Admin responses only —
@@ -58,7 +60,7 @@ export interface MemberMeta {
   signed_form: { url: string; is_pdf: boolean } | null;
 }
 
-export interface RegistrationRequest extends Omit<Businessman, "six_digit_id" | "unique_id" | "status"> {
+export interface RegistrationRequest extends Omit<Businessman, "six_digit_id" | "unique_id" | "profile_slug" | "status"> {
   payment_method: "bkash" | "cash";
   transaction_id: string | null;
   status: "pending" | "approved" | "rejected";

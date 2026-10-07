@@ -19,11 +19,24 @@ export const facets = asyncHandler(async (req, res) => {
   return ok(res, await Businessman.getFacets());
 });
 
+/**
+ * Public profile, addressed by the member's profile_slug.
+ *
+ * A six-digit value is still accepted so the /profiles/<last6> links search engines already
+ * indexed keep working. The response always carries profile_slug, which lets the frontend
+ * redirect a legacy URL to the canonical one.
+ */
 export const publicProfile = asyncHandler(async (req, res) => {
-  const sixDigits = normalizeDigits(req.params.sixDigits).replace(/\D/g, '');
-  if (!/^\d{6}$/.test(sixDigits)) throw ApiError.notFound('প্রোফাইল পাওয়া যায়নি।', 'PROFILE_NOT_FOUND');
+  const raw = String(req.params.slug ?? '');
+  let row = null;
 
-  const row = await Businessman.getBusinessmanBySixDigits(sixDigits);
+  if (/^[0-9a-f]{22}$/.test(raw)) {
+    row = await Businessman.getBusinessmanBySlug(raw);
+  } else {
+    const sixDigits = normalizeDigits(raw).replace(/\D/g, '');
+    if (/^\d{6}$/.test(sixDigits)) row = await Businessman.getBusinessmanBySixDigits(sixDigits);
+  }
+
   if (!row || row.status !== 'active') throw ApiError.notFound('প্রোফাইল পাওয়া যায়নি।', 'PROFILE_NOT_FOUND');
   return ok(res, toPublicBusinessman(row));
 });

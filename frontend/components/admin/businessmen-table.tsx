@@ -147,7 +147,7 @@ export function BusinessmenTable({ items, meta }: { items: Businessman[]; meta: 
       <div className="flex flex-wrap items-end gap-3 border-b border-border/60 p-3">
         <div className="relative min-w-[14rem] flex-1 sm:max-w-sm">
           <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-          <Input value={q} onChange={(e) => setQ(e.target.value)} placeholder={dict.home.searchPlaceholder} className="h-10 pl-9" />
+          <Input value={q} onChange={(e) => setQ(e.target.value)} placeholder={dict.admin.searchPlaceholder} className="h-10 pl-9" />
         </div>
         <div>
           <Label className="text-xs">{dict.admin.dateRange}</Label>
@@ -190,6 +190,7 @@ export function BusinessmenTable({ items, meta }: { items: Businessman[]; meta: 
         <table className="w-full min-w-[760px] text-sm">
           <thead>
             <tr className="bg-surface-2 text-left text-xs font-semibold uppercase tracking-[0.12em] text-muted-foreground">
+              <th className="px-4 py-3 font-medium">{dict.admin.serialNo}</th>
               <th className="px-4 py-3 font-medium">{dict.fields.full_name}</th>
               <th className="px-4 py-3 font-medium">{dict.fields.business_type}</th>
               <th className="px-4 py-3 font-medium">{dict.fields.market_name}</th>
@@ -201,6 +202,7 @@ export function BusinessmenTable({ items, meta }: { items: Businessman[]; meta: 
           <tbody>
             {items.map((b) => (
               <tr key={b.id} className="border-b border-border/60 last:border-0 hover:bg-surface-2/60">
+                <td className="px-4 py-3 tabular-nums font-medium text-muted-foreground">{b.serial_no ?? "—"}</td>
                 <td className="px-4 py-3">
                   <div className="flex items-center gap-3">
                     <div className="relative h-9 w-9 shrink-0 overflow-hidden rounded-lg bg-primary-soft">
@@ -233,7 +235,7 @@ export function BusinessmenTable({ items, meta }: { items: Businessman[]; meta: 
             ))}
             {items.length === 0 && (
               <tr>
-                <td colSpan={6} className="px-4 py-10 text-center text-muted-foreground">{dict.home.empty}</td>
+                <td colSpan={7} className="px-4 py-10 text-center text-muted-foreground">{dict.home.empty}</td>
               </tr>
             )}
           </tbody>

@@ -25,10 +25,37 @@ const SORTS = {
   name_desc: 'full_name DESC, id DESC',
 };
 
-/** Build the WHERE clause + params from filter options. */
-function buildWhere(filters, { publicOnly }) {
+/**
+ * ক্রমিক — the member's position in the register, oldest first, 1-based.
+ *
+ * Derived on every query instead of being stored in a column: a stored number would have to
+ * be assigned on insert and patched on delete, and the two would drift the first time a row
+ * was removed. The window function cannot drift, and over a register of this size (hundreds,
+ * not millions) it costs nothing. Ties on created_at — members approved in the same
+ * statement — break on id, the same tiebreaker every sort uses, so the numbering is stable
+ * between requests.
+ *
+ * `id AS member_id` rather than plain `id`: the join below would otherwise make a bare `id`
+ * in an ORDER BY ambiguous.
+ */
+const RANKED_CTE = `WITH ranked AS (
+    SELECT id AS member_id, row_number() OVER (ORDER BY created_at ASC, id ASC)::int AS serial_no
+      FROM businessmen
+  )`;
+const RANKED_FROM = 'FROM businessmen b JOIN ranked r ON r.member_id = b.id';
+
+/**
+ * Build the WHERE clause + params from filter options.
+ *
+ * `withSerial` is only ever true for admin queries, which run against RANKED_CTE — the public
+ * list has no serial column to match against, and the serial is not shown publicly anyway.
+ * Returns the placeholder of the parsed serial (or null) so the caller can float an exact
+ * match to the top.
+ */
+function buildWhere(filters, { publicOnly, withSerial = false }) {
   const clauses = [];
   const params = [];
+  let serialParam = null;
   const add = (sql, value) => {
     params.push(value);
     clauses.push(sql.replace('$?', `$${params.length}`));
@@ -57,6 +84,15 @@ function buildWhere(filters, { publicOnly }) {
       // publicly: matching it there would let anyone test whether an NID is a member.
       ...(publicOnly ? [] : [`nid_no ILIKE ${d}`]),
     ];
+    // Typing the ক্রমিক from the list (or the exported sheet) jumps to that member. Matched
+    // exactly, never as a substring: "12" must not also drag in 112, 120 and 212. Capped at
+    // nine digits so a long NID typed into the box can't overflow int4 and error the query.
+    const asSerial = normalizeDigits(filters.q).trim();
+    if (withSerial && /^\d{1,9}$/.test(asSerial)) {
+      params.push(Number(asSerial));
+      serialParam = `$${params.length}`;
+      idColumns.push(`serial_no = ${serialParam}`);
+    }
     clauses.push(
       `(full_name ILIKE ${p} OR market_name ILIKE ${p} OR business_type ILIKE ${p}
         OR owner_name ILIKE ${p} OR current_business_name_address ILIKE ${p}
@@ -109,21 +145,33 @@ function buildWhere(filters, { publicOnly }) {
   }
 
   const where = clauses.length ? `WHERE ${clauses.join(' AND ')}` : '';
-  return { where, params };
+  return { where, params, serialParam };
 }
 
 export async function listBusinessmen(filters = {}, { page = 1, limit = 12, sort = 'newest', publicOnly = false } = {}) {
-  const { where, params } = buildWhere(filters, { publicOnly });
+  // Admins see the ক্রমিক and can search by it; the public list stays the plain query it was.
+  const withSerial = !publicOnly;
+  const { where, params, serialParam } = buildWhere(filters, { publicOnly, withSerial });
   const orderBy = SORTS[sort] || SORTS.newest;
+  // An exact ক্রমিক hit goes first, so typing 437 lands on member 437 rather than burying
+  // them among the NIDs and mobile numbers that happen to contain "437".
+  const order = serialParam ? `(serial_no = ${serialParam}) DESC, ${orderBy}` : orderBy;
   const offset = (page - 1) * limit;
 
-  const totalRes = await query(`SELECT count(*)::int AS total FROM businessmen ${where}`, params);
+  const countSql = withSerial
+    ? `${RANKED_CTE} SELECT count(*)::int AS total ${RANKED_FROM} ${where}`
+    : `SELECT count(*)::int AS total FROM businessmen ${where}`;
+  const listSql = withSerial
+    ? `${RANKED_CTE} SELECT b.*, r.serial_no ${RANKED_FROM} ${where}`
+    : `SELECT * FROM businessmen ${where}`;
+
+  const totalRes = await query(countSql, params);
   const total = totalRes.rows[0].total;
 
   const listParams = [...params, limit, offset];
   const rows = (
     await query(
-      `SELECT * FROM businessmen ${where} ORDER BY ${orderBy} LIMIT $${listParams.length - 1} OFFSET $${listParams.length}`,
+      `${listSql} ORDER BY ${order} LIMIT $${listParams.length - 1} OFFSET $${listParams.length}`,
       listParams,
     )
   ).rows;
@@ -162,11 +210,13 @@ export async function getBusinessmanByToken(token) {
  * incoming status filter can never cause cards to be printed for a deactivated member.
  */
 export async function listActiveForCards(filters = {}) {
-  const { where, params } = buildWhere(filters, { publicOnly: true });
+  // withSerial so that printing after a ক্রমিক search covers the member the admin was
+  // looking at — the button prints whatever the list is showing.
+  const { where, params } = buildWhere(filters, { publicOnly: true, withSerial: true });
   const { rows } = await query(
     // id tiebreaker: six_digit_id is no longer unique, so ties would otherwise print in an
     // undefined order that can shift between runs.
-    `SELECT * FROM businessmen ${where} ORDER BY six_digit_id ASC, id ASC`,
+    `${RANKED_CTE} SELECT b.* ${RANKED_FROM} ${where} ORDER BY six_digit_id ASC, id ASC`,
     params,
   );
   return rows;
@@ -181,9 +231,14 @@ export async function listActiveForCards(filters = {}) {
  * appended at the bottom rather than shifting everyone down.
  */
 export async function listForExport(filters = {}, sort = 'oldest') {
-  const { where, params } = buildWhere(filters, { publicOnly: false });
+  const { where, params } = buildWhere(filters, { publicOnly: false, withSerial: true });
   const orderBy = SORTS[sort] || SORTS.oldest;
-  const { rows } = await query(`SELECT * FROM businessmen ${where} ORDER BY ${orderBy}`, params);
+  // serial_no comes from the whole register, not from this result set: a filtered sheet then
+  // carries the same ক্রমিক the admin list shows, instead of restarting at 1.
+  const { rows } = await query(
+    `${RANKED_CTE} SELECT b.*, r.serial_no ${RANKED_FROM} ${where} ORDER BY ${orderBy}`,
+    params,
+  );
   return rows;
 }
 

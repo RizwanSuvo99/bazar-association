@@ -170,6 +170,8 @@
     "idCard": "ID Card (PDF)",
     "bulkIdCards": "All ID Cards (for printing)",
     "exportExcel": "Download Excel (all details)",
+    "serialNo": "Serial",
+    "searchPlaceholder": "Search by serial, name, ID, mobile, NID or market",
     "edit": "Edit",
     "delete": "Delete",
     "deactivate": "Deactivate",

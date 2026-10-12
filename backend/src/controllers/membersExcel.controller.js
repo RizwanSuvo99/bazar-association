@@ -38,7 +38,9 @@ const text = (value) => ({ value: value || null, type: String });
  * are office columns and sit outside that block (first and last).
  */
 const COLUMNS = [
-  { header: headerCell('ক্রমিক'), width: 8, cell: (_b, i) => ({ value: i + 1, type: Number, align: 'center' }) },
+  // serial_no, not the row index: a filtered sheet then shows the same ক্রমিক as the admin
+  // list rather than renumbering its own rows from 1.
+  { header: headerCell('ক্রমিক'), width: 8, cell: (b) => ({ value: b.serial_no, type: Number, align: 'center' }) },
   { header: headerCell('আইডি নং'), width: 14, cell: (b) => text(b.unique_id) },
   { header: headerCell('সদস্যের নাম'), width: 24, cell: (b) => text(b.full_name) },
   { header: headerCell('মোবাইল নং'), width: 14, cell: (b) => text(b.mobile_number) },

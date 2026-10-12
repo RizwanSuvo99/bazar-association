@@ -172,6 +172,21 @@ export async function listActiveForCards(filters = {}) {
   return rows;
 }
 
+/**
+ * Every member matching the admin list's filters, unpaginated, for the Excel export.
+ * Separate from listBusinessmen because an export is never paginated — it must not be
+ * capped by the page size — and separate from listActiveForCards because the office
+ * exports the register as it is, deactivated members included, unless they filter.
+ * Oldest first, so the serial numbers in the sheet stay stable and a new member is
+ * appended at the bottom rather than shifting everyone down.
+ */
+export async function listForExport(filters = {}, sort = 'oldest') {
+  const { where, params } = buildWhere(filters, { publicOnly: false });
+  const orderBy = SORTS[sort] || SORTS.oldest;
+  const { rows } = await query(`SELECT * FROM businessmen ${where} ORDER BY ${orderBy}`, params);
+  return rows;
+}
+
 export async function getBusinessmanById(id) {
   const { rows } = await query('SELECT * FROM businessmen WHERE id = $1 LIMIT 1', [id]);
   return rows[0] || null;

@@ -169,6 +169,7 @@
     "addMember": "Add Member",
     "idCard": "ID Card (PDF)",
     "bulkIdCards": "All ID Cards (for printing)",
+    "exportExcel": "Download Excel (all details)",
     "edit": "Edit",
     "delete": "Delete",
     "deactivate": "Deactivate",

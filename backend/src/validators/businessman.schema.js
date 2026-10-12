@@ -55,7 +55,11 @@ const isoDateTime = z.preprocess(
     // rejects at query time — that would surface as a 500 instead of a validation error.
     .refine((v) => {
       const [datePart, timePart] = v.split(/[ T]/);
-      if (new Date(`${datePart}T00:00:00Z`).toISOString().slice(0, 10) !== datePart) return false;
+      // Wildly out-of-range parts (2026-13-45) make an Invalid Date, whose toISOString()
+      // throws — which is the very 500 this check exists to prevent.
+      const asDate = new Date(`${datePart}T00:00:00Z`);
+      if (Number.isNaN(asDate.getTime())) return false;
+      if (asDate.toISOString().slice(0, 10) !== datePart) return false;
       if (!timePart) return true;
       const [h, m] = timePart.split(':').map(Number);
       return h < 24 && m < 60;

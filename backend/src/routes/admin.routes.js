@@ -22,6 +22,7 @@ import * as upload from '../controllers/upload.controller.js';
 import * as notice from '../controllers/notice.controller.js';
 import { businessmanFormPdf } from '../controllers/formPdf.controller.js';
 import { businessmanIdCardPdf, bulkIdCardsPdf } from '../controllers/idcard.controller.js';
+import { membersExcel } from '../controllers/membersExcel.controller.js';
 import { noticeCreateSchema, noticeUpdateSchema } from '../validators/notice.schema.js';
 import * as admins from '../controllers/admins.controller.js';
 import * as signedForm from '../controllers/signedForm.controller.js';
@@ -42,6 +43,9 @@ router.get('/stats', stats.dashboard);
 
 // ID cards (bulk sheet of all active members — before the :id routes)
 router.get('/id-cards.pdf', validate(businessmanQuerySchema, 'query'), bulkIdCardsPdf);
+
+// Full member register as a spreadsheet (same filters as the list)
+router.get('/members.xlsx', validate(businessmanQuerySchema, 'query'), membersExcel);
 
 // Businessmen CRUD
 router.get('/businessmen', validate(businessmanQuerySchema, 'query'), businessmen.adminList);

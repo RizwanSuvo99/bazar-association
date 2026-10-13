@@ -69,6 +69,11 @@ const PHOTO = {
 const CLOUDINARY_THUMB = 'c_fill,g_auto,w_320,h_400,f_jpg,q_auto:good';
 const PHOTO_TIMEOUT_MS = 15000;
 const MAX_PHOTO_BYTES = 3 * 1024 * 1024;
+// A ceiling on the whole job, in the spirit of the bulk ID-card sheet's: every photo is held
+// in memory at once while the workbook is assembled, so the register's size has to bound the
+// work rather than the work bounding the register. At ~20 KB a photo this is ~60 MB, and the
+// association would have to quadruple in size before anyone meets it.
+const MAX_EXPORT_ROWS = 3000;
 // 16 in flight rather than a handful: the cost of a photo is almost all round-trip latency,
 // and measured against the live register 16 fetched 677 photos in 6s where 8 took 27s.
 const PHOTO_CONCURRENCY = 16;
@@ -111,6 +116,27 @@ function imageSize(buf) {
   return null;
 }
 
+/**
+ * Read a response body, giving up once it exceeds `max`.
+ *
+ * Deliberately not `arrayBuffer()` then a length check: that buffers the whole thing first,
+ * so the limit would be enforced only after the memory had already been spent — and sixteen
+ * of these run at once. The declared length is honoured when there is one, and the running
+ * total catches a body that turns out larger than it claimed.
+ */
+async function readCapped(res, max) {
+  const declared = Number(res.headers.get('content-length'));
+  if (Number.isFinite(declared) && declared > max) return null;
+  const chunks = [];
+  let size = 0;
+  for await (const chunk of res.body) {
+    size += chunk.length;
+    if (size > max) return null; // leaving the loop cancels the stream
+    chunks.push(chunk);
+  }
+  return Buffer.concat(chunks);
+}
+
 /** Largest size that fits the photo box without distorting the picture. */
 function fitBox({ width, height }) {
   const scale = Math.min(PHOTO.width / width, PHOTO.height / height, 1);
@@ -134,8 +160,8 @@ async function fetchPhoto(member) {
       signal: AbortSignal.timeout(PHOTO_TIMEOUT_MS),
     });
     if (!res.ok) return null;
-    const content = Buffer.from(await res.arrayBuffer());
-    if (!content.length || content.length > MAX_PHOTO_BYTES) return null;
+    const content = await readCapped(res, MAX_PHOTO_BYTES);
+    if (!content?.length) return null;
     const size = imageSize(content);
     if (!size) return null;
     const isPng = content.readUInt32BE(0) === 0x89504e47;
@@ -197,6 +223,12 @@ export const membersExcel = asyncHandler(async (req, res) => {
   const members = await listForExport(filters);
   if (!members.length) {
     throw ApiError.notFound('এই ফিল্টারে কোনো সদস্য পাওয়া যায়নি।', 'NO_MEMBERS');
+  }
+  if (members.length > MAX_EXPORT_ROWS) {
+    throw ApiError.badRequest(
+      `একসাথে সর্বোচ্চ ${MAX_EXPORT_ROWS} জনের তালিকা নামানো যায়। তারিখ দিয়ে ফিল্টার করে ছোট ভাগে ডাউনলোড করুন।`,
+      'TOO_MANY_MEMBERS',
+    );
   }
 
   // Several hundred photos to fetch, so take the response off the default socket timeout —

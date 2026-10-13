@@ -45,21 +45,28 @@ const text = (value) => ({ value: value || null, type: String, alignVertical: 'c
    behind, so the ক্রমিক column is the thing to trust after a sort. */
 
 const PHOTO = {
-  width: 44, // px, as shown in the sheet
-  height: 55, // px — 4:5, a passport photo's proportion
-  rowHeight: 44, // points; 55px at 96 dpi is 41.25pt, plus a little breathing room
-  columnWidth: 7.5, // characters, ≈54px — the photo plus a margin either side
-  offsetY: 2,
+  // 4:5, a passport photo's proportion. The cell is sized to exactly these pixels so the
+  // picture fills it edge to edge instead of floating in it.
+  width: 100,
+  height: 125,
+  // Excel row height is in points: 125px at 96 dpi is 93.75pt.
+  rowHeight: 93.75,
+  // Column width is in characters, and the two spreadsheet apps measure it slightly
+  // differently: Excel renders 13.54 as 7 × 13.54 + 5 ≈ 100px, LibreOffice (measured, with
+  // the default font pinned below) as 7.4 × 13.54 ≈ 100px. Both land on the photo's width.
+  columnWidth: 13.54,
 };
 
 /**
- * Cloudinary crops and shrinks the photo for us: asking for a 96x120 JPEG turns a 300 KB
- * upload into roughly 2.5 KB, which is what keeps a 674-member sheet a couple of megabytes
- * instead of a couple of hundred. Twice the display size, so it stays sharp when the sheet
- * is zoomed or printed. Any other host — the local /uploads fallback — is fetched as it is
- * and scaled to fit the same box.
+ * Cloudinary crops and resizes the photo for us, to 320x400 — 3.2x the size it is shown at,
+ * which is about 307 dpi once the sheet is printed at 100%, so a printed photo is sharp
+ * rather than pixellated. The originals are ~1100x1450 and 2 MB each; sending those would
+ * make a 677-member sheet well over a gigabyte, where this is roughly 20 KB per member.
+ *
+ * `c_fill` crops to the 4:5 frame (rather than squashing), `g_auto` keeps the face in it.
+ * Any other host — the local /uploads fallback — is fetched as it is and scaled to fit.
  */
-const CLOUDINARY_THUMB = 'c_fill,g_auto,w_96,h_120,f_jpg,q_auto';
+const CLOUDINARY_THUMB = 'c_fill,g_auto,w_320,h_400,f_jpg,q_auto:good';
 const PHOTO_TIMEOUT_MS = 15000;
 const MAX_PHOTO_BYTES = 3 * 1024 * 1024;
 // 16 in flight rather than a handful: the cost of a photo is almost all round-trip latency,
@@ -210,9 +217,11 @@ export const membersExcel = asyncHandler(async (req, res) => {
       dpi: 96,
       // Row 1 is the header, so the first member sits in row 2.
       anchor: { row: i + 2, column: photoColumn },
-      // Centred in the column: a portrait narrower than the box would otherwise hug its left edge.
-      offsetX: Math.round((PHOTO.width - photo.width) / 2) + 5,
-      offsetY: PHOTO.offsetY,
+      // Zero for a Cloudinary photo, which is already cropped to the cell's exact 4:5 shape —
+      // it fills the cell completely. A photo from anywhere else keeps its own proportions
+      // and is centred in the cell instead of being stretched to fit.
+      offsetX: Math.round((PHOTO.width - photo.width) / 2),
+      offsetY: Math.round((PHOTO.height - photo.height) / 2),
       title: members[i].full_name,
     });
   });
@@ -223,6 +232,11 @@ export const membersExcel = asyncHandler(async (req, res) => {
     // Keeps the header visible while scrolling 500+ rows.
     stickyRowsCount: 1,
     images,
+  }, {
+    // Pinned, because a column's width is measured in characters of the default font: left
+    // unset, each app picks its own and the photo column stops matching the photo.
+    fontFamily: 'Calibri',
+    fontSize: 11,
   }).toBuffer();
 
   res.setHeader(

@@ -2,6 +2,7 @@ import writeXlsxFile from 'write-excel-file/node';
 import { asyncHandler } from '../utils/asyncHandler.js';
 import { ApiError } from '../utils/ApiError.js';
 import { listForExport } from '../models/businessman.model.js';
+import { mapConcurrent } from './idcard.helpers.js';
 
 // The association's own calendar day — the database session runs in UTC, so a member added
 // at 02:00 Dhaka would otherwise be dated to the previous day in the sheet.
@@ -14,6 +15,9 @@ const dhakaDate = new Intl.DateTimeFormat('en-GB', {
   year: 'numeric',
 });
 
+// `height` is pinned rather than left to auto-fit: a photo is positioned from the stored row
+// heights, so a header row that silently grows to fit two lines of wrapped text would push
+// every picture out of line with its row.
 const headerCell = (value) => ({
   value,
   fontWeight: 'bold',
@@ -21,6 +25,7 @@ const headerCell = (value) => ({
   align: 'center',
   alignVertical: 'center',
   wrap: true,
+  height: 34,
   borderStyle: 'thin',
   borderColor: '#B7C7B2',
 });
@@ -30,7 +35,103 @@ const headerCell = (value) => ({
  * ward and holding numbers are identifiers, not quantities. Left as numbers, Excel would
  * drop a leading zero from a mobile number and show a 17-digit NID as 5.98613E+16.
  */
-const text = (value) => ({ value: value || null, type: String });
+const text = (value) => ({ value: value || null, type: String, alignVertical: 'center' });
+
+/* ------------------------------- member photos -------------------------------
+   Photos sit on the sheet's image layer, anchored to a cell in the ছবি column rather than
+   stored inside it — that is all .xlsx offers. They follow their row when rows are inserted
+   or deleted, but sorting or filtering the sheet moves the text and leaves the photos
+   behind, so the ক্রমিক column is the thing to trust after a sort. */
+
+const PHOTO = {
+  width: 44, // px, as shown in the sheet
+  height: 55, // px — 4:5, a passport photo's proportion
+  rowHeight: 44, // points; 55px at 96 dpi is 41.25pt, plus a little breathing room
+  columnWidth: 7.5, // characters, ≈54px — the photo plus a margin either side
+  offsetY: 2,
+};
+
+/**
+ * Cloudinary crops and shrinks the photo for us: asking for a 96x120 JPEG turns a 300 KB
+ * upload into roughly 2.5 KB, which is what keeps a 674-member sheet a couple of megabytes
+ * instead of a couple of hundred. Twice the display size, so it stays sharp when the sheet
+ * is zoomed or printed. Any other host — the local /uploads fallback — is fetched as it is
+ * and scaled to fit the same box.
+ */
+const CLOUDINARY_THUMB = 'c_fill,g_auto,w_96,h_120,f_jpg,q_auto';
+const PHOTO_TIMEOUT_MS = 15000;
+const MAX_PHOTO_BYTES = 3 * 1024 * 1024;
+// 16 in flight rather than a handful: the cost of a photo is almost all round-trip latency,
+// and measured against the live register 16 fetched 677 photos in 6s where 8 took 27s.
+const PHOTO_CONCURRENCY = 16;
+
+function thumbnailUrl(url) {
+  return url.includes('res.cloudinary.com') && url.includes('/image/upload/')
+    ? url.replace('/image/upload/', `/image/upload/${CLOUDINARY_THUMB}/`)
+    : url;
+}
+
+/**
+ * Intrinsic pixel size of a PNG or JPEG, read from its header. Needed only for photos we
+ * did not resize ourselves: without it a portrait would be stretched into the 44x55 box.
+ * Returns null for anything unrecognised, which drops that one photo rather than the sheet.
+ */
+function imageSize(buf) {
+  if (buf.length > 24 && buf.readUInt32BE(0) === 0x89504e47) {
+    return { width: buf.readUInt32BE(16), height: buf.readUInt32BE(20) }; // PNG IHDR
+  }
+  if (buf.length > 4 && buf[0] === 0xff && buf[1] === 0xd8) {
+    // Walk the JPEG segments to the start-of-frame header, which carries the dimensions.
+    let i = 2;
+    while (i + 9 < buf.length) {
+      if (buf[i] !== 0xff) {
+        i += 1;
+        continue;
+      }
+      const marker = buf[i + 1];
+      if (marker === 0xd8 || marker === 0x01 || (marker >= 0xd0 && marker <= 0xd7)) {
+        i += 2; // standalone markers, no length field
+        continue;
+      }
+      // SOF0..SOF15, except the three markers in that range that are not frame headers.
+      if (marker >= 0xc0 && marker <= 0xcf && ![0xc4, 0xc8, 0xcc].includes(marker)) {
+        return { height: buf.readUInt16BE(i + 5), width: buf.readUInt16BE(i + 7) };
+      }
+      i += 2 + buf.readUInt16BE(i + 2);
+    }
+  }
+  return null;
+}
+
+/** Largest size that fits the photo box without distorting the picture. */
+function fitBox({ width, height }) {
+  const scale = Math.min(PHOTO.width / width, PHOTO.height / height, 1);
+  return { width: Math.max(1, Math.round(width * scale)), height: Math.max(1, Math.round(height * scale)) };
+}
+
+/**
+ * One member's photo, ready to anchor. A member without a photo, an image host that is slow
+ * or down, a file that is not an image — any of those yields null and an empty cell, because
+ * the register as a whole is worth more than one picture.
+ */
+async function fetchPhoto(member) {
+  if (!member.profile_photo_url) return null;
+  try {
+    const res = await fetch(thumbnailUrl(member.profile_photo_url), {
+      headers: { 'User-Agent': 'Mozilla/5.0' },
+      signal: AbortSignal.timeout(PHOTO_TIMEOUT_MS),
+    });
+    if (!res.ok) return null;
+    const content = Buffer.from(await res.arrayBuffer());
+    if (!content.length || content.length > MAX_PHOTO_BYTES) return null;
+    const size = imageSize(content);
+    if (!size) return null;
+    const isPng = content.readUInt32BE(0) === 0x89504e47;
+    return { content, contentType: isPng ? 'image/png' : 'image/jpeg', ...fitBox(size) };
+  } catch {
+    return null; // timeout, DNS, socket — never fail the whole export over one photo
+  }
+}
 
 /**
  * One column per field of the printed registration form, in the same order as the paper,
@@ -40,7 +141,9 @@ const text = (value) => ({ value: value || null, type: String });
 const COLUMNS = [
   // serial_no, not the row index: a filtered sheet then shows the same ক্রমিক as the admin
   // list rather than renumbering its own rows from 1.
-  { header: headerCell('ক্রমিক'), width: 8, cell: (b) => ({ value: b.serial_no, type: Number, align: 'center' }) },
+  // `height` here sets the whole row's height — the tallest cell in a row wins — which is
+  // what gives the photo in the last column room to sit in.
+  { header: headerCell('ক্রমিক'), width: 8, cell: (b) => ({ value: b.serial_no, type: Number, align: 'center', alignVertical: 'center', height: PHOTO.rowHeight }) },
   { header: headerCell('আইডি নং'), width: 14, cell: (b) => text(b.unique_id) },
   { header: headerCell('সদস্যের নাম'), width: 24, cell: (b) => text(b.full_name) },
   { header: headerCell('মোবাইল নং'), width: 14, cell: (b) => text(b.mobile_number) },
@@ -67,7 +170,8 @@ const COLUMNS = [
   { header: headerCell('নমিনীর মোবাইল নং'), width: 14, cell: (b) => text(b.nominee_mobile) },
   { header: headerCell('অবস্থা'), width: 11, cell: (b) => text(b.status === 'active' ? 'সক্রিয়' : 'নিষ্ক্রিয়') },
   { header: headerCell('যোগের তারিখ'), width: 14, cell: (b) => ({ ...text(dhakaDate.format(b.created_at)), align: 'center' }) },
-  { header: headerCell('ছবির লিংক'), width: 36, cell: (b) => text(b.profile_photo_url) },
+  // Empty on purpose: the picture is drawn on the image layer, anchored to this cell.
+  { header: headerCell('ছবি'), width: PHOTO.columnWidth, cell: () => null },
 ];
 
 /** All members' registration details as one .xlsx sheet. */
@@ -83,11 +187,37 @@ export const membersExcel = asyncHandler(async (req, res) => {
     throw ApiError.notFound('এই ফিল্টারে কোনো সদস্য পাওয়া যায়নি।', 'NO_MEMBERS');
   }
 
+  // Several hundred photos to fetch, so take the response off the default socket timeout —
+  // the same thing the bulk ID-card sheet does.
+  req.setTimeout?.(0);
+  res.setTimeout?.(0);
+
+  const photos = await mapConcurrent(members, PHOTO_CONCURRENCY, fetchPhoto);
+  const photoColumn = COLUMNS.length; // ছবি is the last column
+  const images = [];
+  photos.forEach((photo, i) => {
+    if (!photo) return;
+    images.push({
+      content: photo.content,
+      contentType: photo.contentType,
+      width: photo.width,
+      height: photo.height,
+      dpi: 96,
+      // Row 1 is the header, so the first member sits in row 2.
+      anchor: { row: i + 2, column: photoColumn },
+      // Centred in the column: a portrait narrower than the box would otherwise hug its left edge.
+      offsetX: Math.round((PHOTO.width - photo.width) / 2) + 5,
+      offsetY: PHOTO.offsetY,
+      title: members[i].full_name,
+    });
+  });
+
   const buffer = await writeXlsxFile(members, {
     columns: COLUMNS,
     sheet: 'সদস্য তালিকা',
     // Keeps the header visible while scrolling 500+ rows.
     stickyRowsCount: 1,
+    images,
   }).toBuffer();
 
   res.setHeader(

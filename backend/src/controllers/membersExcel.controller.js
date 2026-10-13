@@ -3,6 +3,7 @@ import { asyncHandler } from '../utils/asyncHandler.js';
 import { ApiError } from '../utils/ApiError.js';
 import { listForExport } from '../models/businessman.model.js';
 import { mapConcurrent } from './idcard.helpers.js';
+import { isAllowedPhotoUrl } from '../utils/photoUrl.js';
 
 // The association's own calendar day — the database session runs in UTC, so a member added
 // at 02:00 Dhaka would otherwise be dated to the previous day in the sheet.
@@ -115,10 +116,14 @@ function fitBox({ width, height }) {
  * the register as a whole is worth more than one picture.
  */
 async function fetchPhoto(member) {
-  if (!member.profile_photo_url) return null;
+  // The URL came from the applicant's own registration form, so it is only fetched when it
+  // points at an allowed photo origin, and a redirect away from that origin fails the fetch
+  // rather than following it. See utils/photoUrl.js.
+  if (!isAllowedPhotoUrl(member.profile_photo_url)) return null;
   try {
     const res = await fetch(thumbnailUrl(member.profile_photo_url), {
       headers: { 'User-Agent': 'Mozilla/5.0' },
+      redirect: 'error',
       signal: AbortSignal.timeout(PHOTO_TIMEOUT_MS),
     });
     if (!res.ok) return null;

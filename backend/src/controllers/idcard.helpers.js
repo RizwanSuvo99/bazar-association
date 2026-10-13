@@ -1,12 +1,20 @@
 import { spawn } from 'node:child_process';
 import QRCode from 'qrcode';
 import { env } from '../config/env.js';
+import { isAllowedPhotoUrl } from '../utils/photoUrl.js';
 
-/** Fetch an image URL and return its base64 (browser UA so hosts like pravatar don't 403). */
+/**
+ * Fetch a member's photo and return its base64 (browser UA so hosts like pravatar don't 403).
+ *
+ * The URL comes from the applicant's own registration, so it is checked against the allowed
+ * photo origins first — this runs for the public /members/<token>/form.pdf page as well as
+ * for ID cards. Redirects are refused for the same reason: an allowed host must not be able
+ * to bounce the request onward to an internal address.
+ */
 export async function fetchPhotoBase64(url) {
-  if (!url) return null;
+  if (!isAllowedPhotoUrl(url)) return null;
   try {
-    const res = await fetch(url, { headers: { 'User-Agent': 'Mozilla/5.0' } });
+    const res = await fetch(url, { headers: { 'User-Agent': 'Mozilla/5.0' }, redirect: 'error' });
     if (!res.ok) return null;
     return Buffer.from(await res.arrayBuffer()).toString('base64');
   } catch {

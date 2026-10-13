@@ -4,14 +4,17 @@ import { fileURLToPath } from 'node:url';
 import { asyncHandler } from '../utils/asyncHandler.js';
 import { ApiError } from '../utils/ApiError.js';
 import { getBusinessmanById } from '../models/businessman.model.js';
+import { isAllowedPhotoUrl } from '../utils/photoUrl.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const SCRIPT = path.join(__dirname, '../form/render_form.py');
 
 async function fetchPhotoBase64(url) {
-  if (!url) return null;
+  // The applicant chose this URL, so only fetch it from an allowed photo origin, and never
+  // follow a redirect off that origin. See utils/photoUrl.js.
+  if (!isAllowedPhotoUrl(url)) return null;
   try {
-    const res = await fetch(url, { headers: { 'User-Agent': 'Mozilla/5.0' } });
+    const res = await fetch(url, { headers: { 'User-Agent': 'Mozilla/5.0' }, redirect: 'error' });
     if (!res.ok) return null;
     return Buffer.from(await res.arrayBuffer()).toString('base64');
   } catch {

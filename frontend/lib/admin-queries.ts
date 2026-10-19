@@ -21,6 +21,10 @@ export async function getAdminBusinessmen(query: {
   /** Registration date range, YYYY-MM-DD, on the association's calendar day. */
   from?: string;
   to?: string;
+  /** Comma-separated member IDs, as pasted into the admin filter. */
+  ids?: string;
+  /** Keep only those members, or keep everyone but those. */
+  ids_mode?: string;
   page?: string | number;
 }): Promise<{ items: Businessman[]; meta: ListMeta }> {
   const params = new URLSearchParams();
@@ -28,6 +32,10 @@ export async function getAdminBusinessmen(query: {
   if (query.status) params.set("status", query.status);
   if (query.from) params.set("from", query.from);
   if (query.to) params.set("to", query.to);
+  if (query.ids) {
+    params.set("ids", query.ids);
+    params.set("ids_mode", query.ids_mode === "exclude" ? "exclude" : "include");
+  }
   params.set("page", String(query.page || 1));
   params.set("limit", "20");
   const res = await apiFetch<Businessman[]>(`/admin/businessmen?${params.toString()}`, noStore);

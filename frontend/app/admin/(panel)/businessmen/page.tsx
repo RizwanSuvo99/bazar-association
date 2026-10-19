@@ -15,13 +15,20 @@ export default async function AdminBusinessmenPage({ searchParams }: { searchPar
   const q = first(sp.q);
   const from = first(sp.from);
   const to = first(sp.to);
-  const { items, meta } = await getAdminBusinessmen({ q, from, to, page: first(sp.page) || 1 });
+  const ids = first(sp.ids);
+  const idsMode = first(sp.ids_mode) === "exclude" ? "exclude" : "include";
+  const { items, meta } = await getAdminBusinessmen({
+    q, from, to, ids, ids_mode: idsMode, page: first(sp.page) || 1,
+  });
 
   // The printed sheet and the spreadsheet follow whatever the list is showing. page/limit are
   // deliberately not forwarded — both cover the whole filtered set, not the page you happen
   // to be on.
   const cardParams = new URLSearchParams(
-    Object.entries({ q, from, to }).filter(([, v]) => v) as [string, string][],
+    Object.entries({ q, from, to, ids, ids_mode: ids ? idsMode : "" }).filter(([, v]) => v) as [
+      string,
+      string,
+    ][],
   ).toString();
   const suffix = cardParams ? `?${cardParams}` : "";
   const cardsHref = `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/admin/id-cards.pdf${suffix}`;

@@ -99,6 +99,17 @@ function buildWhere(filters, { publicOnly, withSerial = false }) {
         OR ${idColumns.join(' OR ')})`,
     );
   }
+  // A pasted list of member IDs, kept or dropped as a set. Matched on six_digit_id rather
+  // than unique_id so "314538" and "NBA-314538" behave the same — the validator has already
+  // stripped the prefix. Note six_digit_id is no longer unique (NBA-129582 is shared by two
+  // members), so one id here can match, or hide, both of them.
+  if (filters.ids?.length) {
+    add(
+      filters.ids_mode === 'exclude' ? 'NOT (six_digit_id = ANY($?))' : 'six_digit_id = ANY($?)',
+      filters.ids,
+    );
+  }
+
   if (filters.name) add('full_name ILIKE $?', `%${filters.name}%`);
   if (filters.market) add('market_name ILIKE $?', `%${filters.market}%`);
   if (filters.business_type) add('business_type ILIKE $?', `%${filters.business_type}%`);
@@ -240,6 +251,20 @@ export async function listForExport(filters = {}, sort = 'oldest') {
     params,
   );
   return rows;
+}
+
+/**
+ * Of the member IDs pasted into the admin filter, the ones that match nobody — so a typo or a
+ * stale number is reported back instead of quietly shrinking the result.
+ */
+export async function findUnknownMemberIds(ids = []) {
+  if (!ids.length) return [];
+  const { rows } = await query(
+    'SELECT DISTINCT six_digit_id FROM businessmen WHERE six_digit_id = ANY($1)',
+    [ids],
+  );
+  const known = new Set(rows.map((r) => r.six_digit_id));
+  return ids.filter((id) => !known.has(id));
 }
 
 export async function getBusinessmanById(id) {

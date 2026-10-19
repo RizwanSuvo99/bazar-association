@@ -172,6 +172,8 @@ export interface ListMeta {
   limit: number;
   total: number;
   totalPages: number;
+  /** Member IDs the admin filtered by that match nobody. Admin list only. */
+  unknown_ids?: string[];
 }
 
 export interface DashboardStats {

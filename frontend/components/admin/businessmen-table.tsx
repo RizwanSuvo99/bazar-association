@@ -10,8 +10,8 @@ import { apiFetch } from "@/lib/api";
 import { DatePicker } from "antd";
 import dayjs, { type Dayjs } from "dayjs";
 import customParseFormat from "dayjs/plugin/customParseFormat";
-import { Input, Card, Badge, Label, Button } from "@/components/ui";
-import { initialsOf } from "@/lib/format";
+import { Input, Textarea, Select, Card, Badge, Label, Button } from "@/components/ui";
+import { initialsOf, localizeNumber } from "@/lib/format";
 import type { Businessman, ListMeta } from "@/lib/types";
 
 function RowActions({ b, onDeleted }: { b: Businessman; onDeleted: () => void }) {
@@ -92,16 +92,18 @@ const range0 = (start: number, end: number) =>
   Array.from({ length: Math.max(0, end - start) }, (_, i) => start + i);
 
 export function BusinessmenTable({ items, meta }: { items: Businessman[]; meta: ListMeta }) {
-  const { t, dict } = useTranslation();
+  const { t, dict, lang } = useTranslation();
   const router = useRouter();
   const pathname = usePathname();
   const params = useSearchParams();
   const [q, setQ] = useState(params.get("q") ?? "");
+  const [ids, setIds] = useState(params.get("ids") ?? "");
+  const [idsMode, setIdsMode] = useState(params.get("ids_mode") === "exclude" ? "exclude" : "include");
   const [, startTransition] = useTransition();
 
   const from = params.get("from") ?? "";
   const to = params.get("to") ?? "";
-  const hasFilters = Boolean(q || from || to);
+  const hasFilters = Boolean(q || ids || from || to);
 
   // The URL stays the source of truth; dayjs objects exist only for the picker.
   // Bare-date URLs predate the time picker and must still parse, so let dayjs try both shapes.
@@ -126,28 +128,59 @@ export function BusinessmenTable({ items, meta }: { items: Businessman[]; meta: 
 
   function clearFilters() {
     setQ("");
+    setIds("");
+    setIdsMode("include");
     startTransition(() => router.replace(pathname));
   }
 
   useEffect(() => {
-    const id = setTimeout(() => {
-      if ((params.get("q") ?? "") !== q) {
-        const sp = new URLSearchParams(params.toString());
-        if (q) sp.set("q", q); else sp.delete("q");
-        sp.delete("page");
-        startTransition(() => router.replace(`${pathname}?${sp.toString()}`));
-      }
+    const timer = setTimeout(() => {
+      const current = params.get("q") ?? "";
+      const currentIds = params.get("ids") ?? "";
+      const currentMode = params.get("ids_mode") ?? "include";
+      const nextMode = ids ? idsMode : "include";
+      if (current === q && currentIds === ids && currentMode === nextMode) return;
+      const sp = new URLSearchParams(params.toString());
+      if (q) sp.set("q", q); else sp.delete("q");
+      // The mode only means anything alongside a list, so it leaves the URL with it.
+      if (ids) { sp.set("ids", ids); sp.set("ids_mode", nextMode); }
+      else { sp.delete("ids"); sp.delete("ids_mode"); }
+      sp.delete("page");
+      startTransition(() => router.replace(`${pathname}?${sp.toString()}`));
     }, 350);
-    return () => clearTimeout(id);
+    return () => clearTimeout(timer);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [q]);
+  }, [q, ids, idsMode]);
 
   return (
     <Card className="overflow-hidden">
       <div className="flex flex-wrap items-end gap-3 border-b border-border/60 p-3">
-        <div className="relative min-w-[14rem] flex-1 sm:max-w-sm">
+        <div className="relative min-w-[13rem] flex-1 sm:max-w-[17rem]">
           <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
           <Input value={q} onChange={(e) => setQ(e.target.value)} placeholder={dict.admin.searchPlaceholder} className="h-10 pl-9" />
+        </div>
+        <div className="min-w-[21rem] flex-1 sm:max-w-lg">
+          <Label className="text-xs">{dict.admin.idFilter}</Label>
+          <div className="flex gap-2">
+            <Textarea
+              value={ids}
+              onChange={(e) => setIds(e.target.value)}
+              rows={1}
+              placeholder={dict.admin.idFilterPlaceholder}
+              // One line tall but scrollable, so pasting fifty ids does not push the
+              // date picker off the row.
+              className="thin-scroll h-10 min-h-10 resize-y py-2 leading-6"
+            />
+            <Select
+              value={idsMode}
+              onChange={(e) => setIdsMode(e.target.value)}
+              aria-label={dict.admin.idFilter}
+              className="h-10 w-auto shrink-0"
+            >
+              <option value="include">{dict.admin.idsInclude}</option>
+              <option value="exclude">{dict.admin.idsExclude}</option>
+            </Select>
+          </div>
         </div>
         <div>
           <Label className="text-xs">{dict.admin.dateRange}</Label>
@@ -186,6 +219,14 @@ export function BusinessmenTable({ items, meta }: { items: Businessman[]; meta: 
           </Button>
         )}
       </div>
+      {meta.unknown_ids && meta.unknown_ids.length > 0 && (
+        <p className="border-b border-border/60 bg-warning/10 px-4 py-2 text-xs text-foreground">
+          {t("admin.idsNotFound", {
+            count: localizeNumber(meta.unknown_ids.length, lang),
+            ids: meta.unknown_ids.map((id) => localizeNumber(id, lang)).join(", "),
+          })}
+        </p>
+      )}
       <div className="thin-scroll overflow-x-auto">
         <table className="w-full min-w-[760px] text-sm">
           <thead>

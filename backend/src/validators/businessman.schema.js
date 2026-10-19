@@ -107,8 +107,41 @@ export const businessmanUpdateSchema = z
   })
   .partial();
 
+/**
+ * A pasted list of member IDs — "314538, NBA-011366, ৩১৪৫৩৮" — as an array of bare ids.
+ *
+ * Split on any of the separators someone actually produces (comma, space, newline,
+ * semicolon), the NBA- prefix dropped so a number copied off a card works as typed, Bengali
+ * numerals folded to Western ones, and duplicates removed.
+ *
+ * A token that is not a real member id is deliberately kept rather than discarded: it simply
+ * matches nobody, and the list endpoint reports it back so a typo is visible instead of
+ * silently narrowing the result.
+ */
+const MAX_MEMBER_IDS = 300;
+
+const memberIds = z.preprocess(
+  (v) => {
+    if (v === '' || v == null) return undefined;
+    const raw = Array.isArray(v) ? v.join(',') : v;
+    if (typeof raw !== 'string') return v;
+    const tokens = normalizeDigits(raw)
+      .split(/[\s,;|]+/)
+      .map((token) => token.replace(/^nba-?/i, '').trim())
+      .filter(Boolean);
+    return tokens.length ? [...new Set(tokens)] : undefined;
+  },
+  z
+    .array(z.string().max(32))
+    .max(MAX_MEMBER_IDS, `একসাথে সর্বোচ্চ ${MAX_MEMBER_IDS}টি আইডি দেওয়া যায়।`)
+    .optional(),
+);
+
 export const businessmanQuerySchema = z.object({
   q: optionalStr,
+  ids: memberIds,
+  // What to do with `ids`: keep only those members, or keep everyone but those.
+  ids_mode: z.enum(['include', 'exclude']).optional().default('include'),
   name: optionalStr,
   market: optionalStr,
   business_type: optionalStr,

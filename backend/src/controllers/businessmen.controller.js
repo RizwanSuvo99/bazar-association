@@ -46,9 +46,15 @@ export const publicProfile = asyncHandler(async (req, res) => {
 export const adminList = asyncHandler(async (req, res) => {
   const { page, limit, sort, ...filters } = req.query;
   const result = await Businessman.listBusinessmen(filters, { page, limit, sort, publicOnly: false });
-  return ok(res, result.rows, {
+  const meta = {
     page: result.page, limit: result.limit, total: result.total, totalPages: result.totalPages,
-  });
+  };
+  // Tell the admin which of the IDs they pasted matched nobody. Without this a mistyped id
+  // just silently narrows the list, which looks the same as a member having been removed.
+  if (filters.ids?.length) {
+    meta.unknown_ids = await Businessman.findUnknownMemberIds(filters.ids);
+  }
+  return ok(res, result.rows, meta);
 });
 
 export const adminGetOne = asyncHandler(async (req, res) => {
